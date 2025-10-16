@@ -1,218 +1,212 @@
-//! Document metadata structures
+//! Consolidated file metadata structure
 //! 
-//! This module defines common metadata structures that can be extracted
-//! from various document formats.
+//! This module consolidates previous DocumentMetadata, PdfMetadata, EpubMetadata
+//! and the original FileMetadata into a single FileMetadata type.
 
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use serde_json::Value;
+use std::path::Path;
 use crate::DocumentType;
 
-/// Common document metadata structure
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DocumentMetadata {
-    /// Document title
-    pub title: Option<String>,
-    
-    /// Author(s)
-    pub authors: Vec<String>,
-    
-    /// Subject/description
-    pub subject: Option<String>,
-    
-    /// Publisher/creator application
-    pub creator: Option<String>,
-    
-    /// PDF producer or EPUB generator
-    pub producer: Option<String>,
-    
-    /// Document language
-    pub language: Option<String>,
-    
-    /// Publication date
-    pub creation_date: Option<String>,
-    
-    /// Last modification date
-    pub modification_date: Option<String>,
-    
-    /// Document identifier (ISBN for books, etc.)
-    pub identifier: Option<String>,
-    
-    /// Keywords/tags
-    pub keywords: Vec<String>,
-    
-    /// File size in bytes
-    pub file_size: u64,
-    
-    /// Document type
-    pub document_type: DocumentType,
-    
-    /// Format-specific version (PDF version, EPUB version, etc.)
-    pub format_version: Option<String>,
-    
-    /// Additional format-specific metadata
-    pub extended_metadata: std::collections::HashMap<String, serde_json::Value>,
+/// Consolidated metadata for any file/document type
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileMetadata {
+	// Basic file info
+	pub file_path: String,
+	pub file_size_bytes: u64,
+	pub content_length: usize,
+	pub mime_type: Option<String>,
+	pub encoding: Option<String>,
+
+	// Common document metadata
+	pub title: Option<String>,
+	pub subject: Option<String>,
+	pub identifier: Option<String>,
+	pub language: Option<String>,
+	pub creator: Option<String>,
+	pub producer: Option<String>,
+
+	// People and keywords
+	pub authors: Vec<String>,
+	pub contributors: Vec<String>,
+	pub keywords: Vec<String>,
+
+	// Dates (stored as strings; ISO-like formats recommended)
+	pub creation_date: Option<String>,
+	pub modification_date: Option<String>,
+
+	// Counts
+	pub page_count: Option<usize>,
+	pub chapter_count: Option<usize>,
+	pub word_count: Option<usize>,
+	pub character_count: Option<usize>,
+
+	// Document classification and versions
+	pub document_type: DocumentType,
+	pub format_version: Option<String>,
+
+	// Extended/format-specific metadata (arbitrary JSON values)
+	pub extended_metadata: HashMap<String, Value>,
+
+	// PDF-specific
+	pub pdf_version: Option<String>,
+	pub has_forms: bool,
+	pub is_encrypted: bool,
+	pub attachment_count: usize,
+	pub is_linearized: bool,
+
+	// EPUB-specific
+	pub epub_version: Option<String>,
+	pub publisher: Option<String>,
+	pub publication_date: Option<String>,
+	pub rights: Option<String>,
+	pub has_drm: bool,
+	pub thumbnail_path: Option<String>,
 }
 
-impl DocumentMetadata {
-    /// Create new metadata for a document
-    pub fn new(document_type: impl Into<String>, file_size: u64) -> Self {
-        Self {
-            title: None,
-            authors: Vec::new(),
-            subject: None,
-            creator: None,
-            producer: None,
-            language: None,
-            creation_date: None,
-            modification_date: None,
-            identifier: None,
-            keywords: Vec::new(),
-            file_size,
-            document_type: document_type.into(),
-            format_version: None,
-            extended_metadata: std::collections::HashMap::new(),
-        }
-    }
-    
-    /// Set the title
-    pub fn with_title(mut self, title: impl Into<String>) -> Self {
-        self.title = Some(title.into());
-        self
-    }
-    
-    /// Add an author
-    pub fn add_author(&mut self, author: impl Into<String>) {
-        self.authors.push(author.into());
-    }
-    
-    /// Set a single author (convenience method)
-    pub fn with_author(mut self, author: impl Into<String>) -> Self {
-        self.authors.push(author.into());
-        self
-    }
-    
-    /// Set the subject
-    pub fn with_subject(mut self, subject: impl Into<String>) -> Self {
-        self.subject = Some(subject.into());
-        self
-    }
-    
-    /// Set the language
-    pub fn with_language(mut self, language: impl Into<String>) -> Self {
-        self.language = Some(language.into());
-        self
-    }
-    
-    /// Add a keyword
-    pub fn add_keyword(&mut self, keyword: impl Into<String>) {
-        self.keywords.push(keyword.into());
-    }
-    
-    /// Set extended metadata value
-    pub fn set_extended(&mut self, key: impl Into<String>, value: serde_json::Value) {
-        self.extended_metadata.insert(key.into(), value);
-    }
-    
-    /// Get extended metadata value
-    pub fn get_extended(&self, key: &str) -> Option<&serde_json::Value> {
-        self.extended_metadata.get(key)
-    }
-    
-    /// Get primary author (first in list)
-    pub fn primary_author(&self) -> Option<&str> {
-        self.authors.first().map(|s| s.as_str())
-    }
-    
-    /// Check if metadata is empty (has no meaningful content)
-    pub fn is_empty(&self) -> bool {
-        self.title.is_none() 
-            && self.authors.is_empty() 
-            && self.subject.is_none() 
-            && self.creator.is_none()
-    }
-}
+impl FileMetadata {
+	/// Create a new consolidated FileMetadata
+	pub fn new(file_path: impl Into<String>, document_type: DocumentType, file_size_bytes: u64) -> Self {
+		Self {
+			file_path: file_path.into(),
+			file_size_bytes,
+			content_length: 0,
+			mime_type: None,
+			encoding: None,
 
-/// PDF-specific metadata
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PdfMetadata {
-    /// Base metadata
-    #[serde(flatten)]
-    pub base: DocumentMetadata,
-    
-    /// PDF version
-    pub pdf_version: Option<String>,
-    
-    /// Number of pages
-    pub page_count: usize,
-    
-    /// Whether PDF contains forms
-    pub has_forms: bool,
-    
-    /// Whether PDF is encrypted
-    pub is_encrypted: bool,
-    
-    /// Number of attachments
-    pub attachment_count: usize,
-    
-    /// Whether PDF is linearized (fast web view)
-    pub is_linearized: bool,
-}
+			title: None,
+			subject: None,
+			identifier: None,
+			language: None,
+			creator: None,
+			producer: None,
 
-impl PdfMetadata {
-    /// Create new PDF metadata
-    pub fn new(file_size: u64, page_count: usize) -> Self {
-        Self {
-            base: DocumentMetadata::new("pdf", file_size),
-            pdf_version: None,
-            page_count,
-            has_forms: false,
-            is_encrypted: false,
-            attachment_count: 0,
-            is_linearized: false,
-        }
-    }
-}
+			authors: Vec::new(),
+			contributors: Vec::new(),
+			keywords: Vec::new(),
 
-/// EPUB-specific metadata
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct EpubMetadata {
-    /// Base metadata
-    #[serde(flatten)]
-    pub base: DocumentMetadata,
-    
-    /// EPUB version (2.0, 3.0, etc.)
-    pub epub_version: Option<String>,
-    
-    /// Publisher
-    pub publisher: Option<String>,
-    
-    /// Publication date
-    pub publication_date: Option<String>,
-    
-    /// Rights information
-    pub rights: Option<String>,
-    
-    /// Number of chapters/sections
-    pub chapter_count: usize,
-    
-    /// Whether EPUB has DRM
-    pub has_drm: bool,
-    
-    /// Cover image path (if any)
-    pub cover_image_path: Option<String>,
-}
+			creation_date: None,
+			modification_date: None,
 
-impl EpubMetadata {
-    /// Create new EPUB metadata
-    pub fn new(file_size: u64, chapter_count: usize) -> Self {
-        Self {
-            base: DocumentMetadata::new("epub", file_size),
-            epub_version: None,
-            publisher: None,
-            publication_date: None,
-            rights: None,
-            chapter_count,
-            has_drm: false,
-            cover_image_path: None,
-        }
-    }
+			page_count: None,
+			chapter_count: None,
+			word_count: None,
+			character_count: None,
+
+			document_type,
+			format_version: None,
+
+			extended_metadata: HashMap::new(),
+
+			pdf_version: None,
+			has_forms: false,
+			is_encrypted: false,
+			attachment_count: 0,
+			is_linearized: false,
+
+			epub_version: None,
+			publisher: None,
+			publication_date: None,
+			rights: None,
+			has_drm: false,
+			thumbnail_path: None,
+		}
+	}
+
+	/// Minimal metadata with just file path, size and optional mime type
+	pub fn minimal(file_path: impl Into<String>, file_size_bytes: u64, mime_type: Option<String>, document_type: DocumentType) -> Self {
+		let mut s = Self::new(file_path, document_type, file_size_bytes);
+		s.mime_type = mime_type;
+		s
+	}
+
+	/// Add an author
+	pub fn add_author(&mut self, author: impl Into<String>) {
+		self.authors.push(author.into());
+	}
+
+	/// Add a contributor
+	pub fn add_contributor(&mut self, contributor: impl Into<String>) {
+		self.contributors.push(contributor.into());
+	}
+
+	/// Add a keyword
+	pub fn add_keyword(&mut self, keyword: impl Into<String>) {
+		self.keywords.push(keyword.into());
+	}
+
+	/// Set extended metadata value
+	pub fn set_extended(&mut self, key: impl Into<String>, value: Value) {
+		self.extended_metadata.insert(key.into(), value);
+	}
+
+	/// Get extended metadata value
+	pub fn get_extended(&self, key: &str) -> Option<&Value> {
+		self.extended_metadata.get(key)
+	}
+
+	/// Primary author, if any
+	pub fn primary_author(&self) -> Option<&str> {
+		self.authors.first().map(|s| s.as_str())
+	}
+
+	/// Check if metadata is essentially empty (no meaningful fields)
+	pub fn is_empty(&self) -> bool {
+		self.title.is_none()
+			&& self.authors.is_empty()
+			&& self.subject.is_none()
+			&& self.creator.is_none()
+			&& self.producer.is_none()
+	}
+
+	/// Create a short prompt-style summary of key metadata fields.
+	/// Useful for embedding or quick display. Truncates long strings.
+	pub fn to_prompt(&self) -> String {
+		let mut parts = vec![];
+
+		// Filename only
+		if let Some(filename) = Path::new(&self.file_path).file_name() {
+			parts.push(format!("File: {}", filename.to_string_lossy()));
+		}
+
+		if let Some(title) = &self.title {
+			let t = if title.len() > 100 { format!("{}...", &title[..97]) } else { title.clone() };
+			parts.push(format!("Title: {}", t));
+		}
+
+		if !self.authors.is_empty() {
+			let authors_str = self.authors.join(", ");
+			let a = if authors_str.len() > 150 { format!("{}...", &authors_str[..147]) } else { authors_str };
+			parts.push(format!("Authors: {}", a));
+		}
+
+		if !self.contributors.is_empty() {
+			let contrib = self.contributors.join(", ");
+			let c = if contrib.len() > 150 { format!("{}...", &contrib[..147]) } else { contrib };
+			parts.push(format!("Contributors: {}", c));
+		}
+
+		if !self.keywords.is_empty() {
+			let keywords_limited: Vec<_> = self.keywords.iter().take(5).cloned().collect();
+			parts.push(format!("Keywords: {}", keywords_limited.join(", ")));
+		}
+
+		if let Some(cd) = &self.creation_date {
+			// Try to display just YYYY-MM-DD if possible
+			let date = if cd.len() >= 10 { cd[..10].to_string() } else { cd.clone() };
+			parts.push(format!("Created: {}", date));
+		}
+
+		if parts.is_empty() {
+			"".to_string()
+		} else {
+			let metadata_str = parts.join("\n");
+			if metadata_str.len() > 300 {
+				format!("{}...", &metadata_str[..297])
+			} else {
+				metadata_str
+			}
+		}
+	}
 }

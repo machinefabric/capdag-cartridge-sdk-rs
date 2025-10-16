@@ -38,15 +38,20 @@ pub trait DocumentHandler: Send + Sync {
     /// Extract text content from the document
     async fn extract_text(&self, file_path: &Path) -> PluginResult<String>;
     
-    /// Extract cover image (if available)
-    /// Returns the image data and suggested filename
-    async fn extract_cover(&self, file_path: &Path) -> PluginResult<Option<(Vec<u8>, String)>>;
-    
     /// Validate that the file is not corrupted and can be processed
     async fn validate_file(&self, file_path: &Path) -> PluginResult<bool>;
     
     /// Get basic file information without full processing
     async fn get_file_info(&self, file_path: &Path) -> PluginResult<FileInfo>;
+    
+    /// Generate thumbnail image for the document
+    /// Returns PNG image data
+    async fn generate_thumbnail(&self, file_path: &Path, width: u32, height: u32) -> PluginResult<Vec<u8>>;
+    
+    /// Get handler capabilities
+    fn get_capabilities(&self) -> PluginCapabilities {
+        PluginCapabilities::default()
+    }
 }
 
 /// Basic file information
@@ -159,36 +164,16 @@ impl Default for HandlerRegistry {
     }
 }
 
-
-/// Plugin capabilities flags
-#[derive(Debug, Clone, Copy)]
+/// Plugin capabilities
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PluginCapabilities {
-    /// Can extract metadata
-    pub metadata: bool,
-    
-    /// Can extract table of contents
-    pub outline: bool,
-    
-    /// Can extract text content
-    pub text: bool,
-    
-    /// Can extract cover images
-    pub cover: bool,
-    
-    /// Can validate files
-    pub validation: bool,
+    pub capabilities: Vec<String>,
 }
 
-impl Default for PluginCapabilities {
-    fn default() -> Self {
-        Self {
-            metadata: true,
-            outline: true,
-            text: true,
-            cover: false,
-            validation: true,
-        }
-    }
+impl PluginCapabilities {
+	pub fn can(&self, capability: &str) -> bool {
+		self.capabilities.iter().any(|c| c == capability)
+	}
 }
 
 /// Plugin information
