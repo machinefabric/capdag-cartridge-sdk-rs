@@ -185,7 +185,7 @@ pub struct ExtractedData {
     pub text_content: Option<String>,
     
     /// Cover image information
-    pub cover_image: Option<CoverImageInfo>,
+    pub thumbnail: Option<ThumbnailInfo>,
     
     /// Extraction summary
     pub extraction_summary: ExtractionSummary,
@@ -193,7 +193,7 @@ pub struct ExtractedData {
 
 /// Information about an extracted cover image
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CoverImageInfo {
+pub struct ThumbnailInfo {
     /// Image format (png, jpg, etc.)
     pub format: String,
     
@@ -236,7 +236,7 @@ impl ExtractedData {
             metadata: None,
             outline: None,
             text_content: None,
-            cover_image: None,
+            thumbnail: None,
             extraction_summary: ExtractionSummary {
                 source_file: source_file.into(),
                 handler_name: handler_name.into(),
@@ -270,8 +270,8 @@ impl ExtractedData {
     }
     
     /// Add cover image
-    pub fn with_cover(mut self, cover: CoverImageInfo) -> Self {
-        self.cover_image = Some(cover);
+    pub fn with_cover(mut self, cover: ThumbnailInfo) -> Self {
+        self.thumbnail = Some(cover);
         self.extraction_summary.extracted_components.push("cover".to_string());
         self
     }
