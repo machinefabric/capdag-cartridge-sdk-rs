@@ -35,8 +35,8 @@ pub trait DocumentHandler: Send + Sync {
     /// Extract document outline/table of contents
     async fn extract_outline(&self, file_path: &Path) -> PluginResult<DocumentOutline>;
     
-    /// Extract text content from the document
-    async fn extract_text(&self, file_path: &Path) -> PluginResult<String>;
+    /// Extract document pages with text content organized by pages and paragraphs
+    async fn extract_pages(&self, file_path: &Path) -> PluginResult<crate::DocumentPages>;
     
     /// Validate that the file is not corrupted and can be processed
     async fn validate_file(&self, file_path: &Path) -> PluginResult<bool>;
@@ -54,8 +54,9 @@ pub trait DocumentHandler: Send + Sync {
             capabilities: vec![
                 "extract_metadata".to_string(),
                 "extract_outline".to_string(),
-                "extract_text".to_string(),
+                "extract_pages".to_string(),
                 "validate_file".to_string(),
+                "generate_thumbnail".to_string(),
                 "supports_json_output".to_string(),
             ]
         }
@@ -63,9 +64,10 @@ pub trait DocumentHandler: Send + Sync {
 }
 
 /// Basic file information
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FileInfo {
     /// File path
+    #[serde(serialize_with = "serialize_path", deserialize_with = "deserialize_path")]
     pub path: std::path::PathBuf,
     
     /// File size in bytes
@@ -82,7 +84,7 @@ pub struct FileInfo {
 }
 
 /// Quick metadata that can be extracted without full processing
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuickMetadata {
     /// Document title
     pub title: Option<String>,
@@ -258,4 +260,22 @@ impl ProcessingResult {
     pub fn add_warning(&mut self, warning: impl Into<String>) {
         self.warnings.push(warning.into());
     }
+}
+
+/// Serialize PathBuf as string for JSON compatibility
+fn serialize_path<S>(path: &std::path::PathBuf, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_str(&path.to_string_lossy())
+}
+
+/// Deserialize string to PathBuf for JSON compatibility  
+fn deserialize_path<'de, D>(deserializer: D) -> Result<std::path::PathBuf, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::Deserialize;
+    let s = String::deserialize(deserializer)?;
+    Ok(std::path::PathBuf::from(s))
 }

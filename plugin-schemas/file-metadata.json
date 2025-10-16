@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FileMetadata",
+  "description": "Consolidated metadata for any file/document type",
+  "type": "object",
+  "properties": {
+    "file_path": {
+      "type": "string",
+      "description": "Path to the file"
+    },
+    "file_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "File size in bytes"
+    },
+    "content_length": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Length of content"
+    },
+    "mime_type": {
+      "type": ["string", "null"],
+      "description": "MIME type of the file"
+    },
+    "encoding": {
+      "type": ["string", "null"],
+      "description": "Character encoding"
+    },
+    "title": {
+      "type": ["string", "null"],
+      "description": "Document title"
+    },
+    "subject": {
+      "type": ["string", "null"],
+      "description": "Document subject"
+    },
+    "identifier": {
+      "type": ["string", "null"],
+      "description": "Document identifier"
+    },
+    "language": {
+      "type": ["string", "null"],
+      "description": "Document language"
+    },
+    "creator": {
+      "type": ["string", "null"],
+      "description": "Document creator"
+    },
+    "producer": {
+      "type": ["string", "null"],
+      "description": "Document producer"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of document authors"
+    },
+    "contributors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of document contributors"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of keywords/tags"
+    },
+    "creation_date": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Document creation date (ISO format recommended)"
+    },
+    "modification_date": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Last modification date (ISO format recommended)"
+    },
+    "page_count": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Number of pages"
+    },
+    "chapter_count": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Number of chapters"
+    },
+    "word_count": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Total word count"
+    },
+    "character_count": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Total character count"
+    },
+    "document_type": {
+      "type": "string",
+      "description": "Type of document (PDF, EPUB, markdown, text, etc.)"
+    },
+    "format_version": {
+      "type": ["string", "null"],
+      "description": "Format version string"
+    },
+    "extended_metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Format-specific metadata as arbitrary JSON values"
+    },
+    "pdf_version": {
+      "type": ["string", "null"],
+      "description": "PDF version (PDF-specific)"
+    },
+    "has_forms": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether PDF contains forms (PDF-specific)"
+    },
+    "is_encrypted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether PDF is encrypted (PDF-specific)"
+    },
+    "attachment_count": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Number of attachments (PDF-specific)"
+    },
+    "is_linearized": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether PDF is linearized (PDF-specific)"
+    },
+    "epub_version": {
+      "type": ["string", "null"],
+      "description": "EPUB version (EPUB-specific)"
+    },
+    "publisher": {
+      "type": ["string", "null"],
+      "description": "Publisher (EPUB-specific)"
+    },
+    "publication_date": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Publication date (EPUB-specific)"
+    },
+    "rights": {
+      "type": ["string", "null"],
+      "description": "Rights information (EPUB-specific)"
+    },
+    "has_drm": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether EPUB has DRM (EPUB-specific)"
+    },
+    "thumbnail_path": {
+      "type": ["string", "null"],
+      "description": "Path to thumbnail image (EPUB-specific)"
+    }
+  },
+  "required": [
+    "file_path",
+    "file_size_bytes",
+    "content_length",
+    "document_type",
+    "authors",
+    "contributors",
+    "keywords",
+    "extended_metadata",
+    "has_forms",
+    "is_encrypted",
+    "attachment_count",
+    "is_linearized",
+    "has_drm"
+  ]
+}
