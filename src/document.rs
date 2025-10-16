@@ -206,7 +206,7 @@ mod tests {
     
     #[test]
     fn test_document_outline_creation() {
-        let mut outline = DocumentOutline::new("test.pdf", DocumentType::Pdf, 10)
+        let mut outline = DocumentOutline::new("test.pdf", "pdf".to_string(), 10)
             .with_title("Test Document");
         
         let entry = TocEntry::new("Introduction", 0).with_page(1);
