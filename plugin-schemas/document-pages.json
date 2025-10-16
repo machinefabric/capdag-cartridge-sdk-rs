@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DocumentPages",
+  "description": "Complete document with pages and paragraphs",
+  "type": "object",
+  "properties": {
+    "source_file": {
+      "type": "string",
+      "description": "Source file path"
+    },
+    "document_title": {
+      "type": ["string", "null"],
+      "description": "Document title from metadata if available"
+    },
+    "document_type": {
+      "type": "string",
+      "description": "Document format/type (PDF, EPUB, etc.)"
+    },
+    "total_pages": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of pages in document"
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/DocumentPage"
+      },
+      "description": "All pages in the document"
+    },
+    "extraction_info": {
+      "$ref": "#/definitions/ExtractionInfo",
+      "description": "Metadata about the extraction process"
+    }
+  },
+  "required": [
+    "source_file",
+    "document_type",
+    "total_pages",
+    "pages",
+    "extraction_info"
+  ],
+  "definitions": {
+    "DocumentPage": {
+      "type": "object",
+      "properties": {
+        "page_number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Page number (1-indexed)"
+        },
+        "paragraphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentParagraph"
+          },
+          "description": "Paragraphs within this page"
+        },
+        "source_ref": {
+          "type": ["string", "null"],
+          "description": "Optional source reference (filename, section, etc.)"
+        }
+      },
+      "required": [
+        "page_number",
+        "paragraphs"
+      ]
+    },
+    "DocumentParagraph": {
+      "type": "object",
+      "properties": {
+        "paragraph_number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Paragraph number within the page (1-indexed)"
+        },
+        "text_content": {
+          "type": "string",
+          "description": "Text content of this paragraph"
+        },
+        "source_ref": {
+          "type": ["string", "null"],
+          "description": "Optional source reference (filename, section, etc.)"
+        },
+        "word_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Word count for this paragraph"
+        },
+        "character_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Character count for this paragraph"
+        }
+      },
+      "required": [
+        "paragraph_number",
+        "text_content"
+      ]
+    },
+    "ExtractionInfo": {
+      "type": "object",
+      "properties": {
+        "extractor_name": {
+          "type": "string",
+          "description": "Tool that performed the extraction"
+        },
+        "extractor_version": {
+          "type": "string",
+          "description": "Version of the extraction tool"
+        },
+        "extracted_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Timestamp of extraction"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Any warnings or notes about the extraction"
+        }
+      },
+      "required": [
+        "extractor_name",
+        "extractor_version",
+        "warnings"
+      ]
+    }
+  }
+}

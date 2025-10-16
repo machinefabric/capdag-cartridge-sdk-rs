@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PluginInfo",
+  "description": "Plugin information and capabilities",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Plugin name"
+    },
+    "version": {
+      "type": "string",
+      "description": "Plugin version"
+    },
+    "description": {
+      "type": "string",
+      "description": "Plugin description"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supported file extensions"
+    },
+    "capabilities": {
+      "$ref": "#/definitions/PluginCapabilities",
+      "description": "Plugin capabilities"
+    },
+    "author": {
+      "type": ["string", "null"],
+      "description": "Plugin author/maintainer"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "description",
+    "extensions",
+    "capabilities"
+  ],
+  "definitions": {
+    "PluginCapabilities": {
+      "type": "object",
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "extract_metadata",
+              "extract_outline",
+              "extract_pages",
+              "extract_text",
+              "validate_file",
+              "generate_thumbnail",
+              "supports_json_output"
+            ]
+          },
+          "description": "List of capability names"
+        }
+      },
+      "required": [
+        "capabilities"
+      ]
+    }
+  }
+}
