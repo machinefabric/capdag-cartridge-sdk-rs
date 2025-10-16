@@ -74,7 +74,7 @@ pub struct FileInfo {
     pub size: u64,
     
     /// Document type detected
-    pub document_type: crate::DocumentType,
+    pub document_type: String,
     
     /// Whether the file appears to be valid
     pub is_valid: bool,

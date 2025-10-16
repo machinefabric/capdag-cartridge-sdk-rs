@@ -85,7 +85,7 @@ pub struct DocumentOutline {
     pub document_title: Option<String>,
     
     /// Document format/type (PDF, EPUB, etc.)
-    pub document_type: DocumentType,
+    pub document_type: String,
     
     /// Total number of pages/sections in document
     pub total_pages: usize,
@@ -140,9 +140,6 @@ impl DocumentOutline {
         self.entries.is_empty()
     }
 }
-
-// Document type is now just a string - plugins can use whatever they want
-pub type DocumentType = String;
 
 /// A single paragraph within a page
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -289,7 +286,7 @@ pub struct DocumentPages {
     pub document_title: Option<String>,
     
     /// Document format/type (PDF, EPUB, etc.)
-    pub document_type: DocumentType,
+    pub document_type: String,
     
     /// Total number of pages in document
     pub total_pages: usize,
