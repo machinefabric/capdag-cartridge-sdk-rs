@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use serde_json::Value;
 use std::path::Path;
-use crate::DocumentType;
 
 /// Consolidated metadata for any file/document type
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,7 +42,7 @@ pub struct FileMetadata {
 	pub character_count: Option<usize>,
 
 	// Document classification and versions
-	pub document_type: DocumentType,
+	pub document_type: String,
 	pub format_version: Option<String>,
 
 	// Extended/format-specific metadata (arbitrary JSON values)
@@ -67,7 +66,7 @@ pub struct FileMetadata {
 
 impl FileMetadata {
 	/// Create a new consolidated FileMetadata
-	pub fn new(file_path: impl Into<String>, document_type: DocumentType, file_size_bytes: u64) -> Self {
+	pub fn new(file_path: impl Into<String>, document_type: String, file_size_bytes: u64) -> Self {
 		Self {
 			file_path: file_path.into(),
 			file_size_bytes,
@@ -115,7 +114,7 @@ impl FileMetadata {
 	}
 
 	/// Minimal metadata with just file path, size and optional mime type
-	pub fn minimal(file_path: impl Into<String>, file_size_bytes: u64, mime_type: Option<String>, document_type: DocumentType) -> Self {
+	pub fn minimal(file_path: impl Into<String>, file_size_bytes: u64, mime_type: Option<String>, document_type: String) -> Self {
 		let mut s = Self::new(file_path, document_type, file_size_bytes);
 		s.mime_type = mime_type;
 		s
