@@ -16,12 +16,42 @@
       "type": "string",
       "description": "Plugin description"
     },
+    "plugin_type": {
+      "type": "string",
+      "enum": [
+        "document_handler",
+        "model_service",
+        "embedding_service", 
+        "system_service"
+      ],
+      "description": "Type of plugin functionality"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "optional",
+        "recommended",
+        "critical"
+      ],
+      "description": "Plugin priority level"
+    },
+    "system_critical": {
+      "type": "boolean",
+      "description": "Whether this plugin is critical to system operation (legacy compatibility)"
+    },
     "extensions": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Supported file extensions"
+      "description": "Supported file extensions (for document handlers)"
+    },
+    "service_endpoints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Available service endpoints (for service plugins)"
     },
     "capabilities": {
       "$ref": "#/definitions/PluginCapabilities",
@@ -36,8 +66,46 @@
     "name",
     "version",
     "description",
-    "extensions",
+    "plugin_type",
+    "priority",
     "capabilities"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "plugin_type": {
+            "const": "document_handler"
+          }
+        }
+      },
+      "then": {
+        "required": ["extensions"],
+        "properties": {
+          "extensions": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "plugin_type": {
+            "enum": ["model_service", "embedding_service", "system_service"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "service_endpoints": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    }
   ],
   "definitions": {
     "PluginCapabilities": {
@@ -54,7 +122,20 @@
               "extract_text",
               "validate_file",
               "generate_thumbnail",
-              "supports_json_output"
+              "supports_json_output",
+              "model_management",
+              "download_models",
+              "load_models",
+              "unload_models",
+              "list_models",
+              "model_status",
+              "embedding_generation",
+              "text_embeddings",
+              "file_embeddings",
+              "embedding_dimensions",
+              "similarity_computation",
+              "system_service",
+              "critical_service"
             ]
           },
           "description": "List of capability names"
