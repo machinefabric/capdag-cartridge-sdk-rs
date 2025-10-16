@@ -4,7 +4,7 @@
 
 use async_trait::async_trait;
 use std::path::Path;
-use crate::{DocumentOutline, DocumentMetadata, PluginResult};
+use crate::{DocumentOutline, FileMetadata, PluginResult};
 
 /// Core trait that all document file handlers must implement
 #[async_trait]
@@ -30,7 +30,7 @@ pub trait DocumentHandler: Send + Sync {
     }
     
     /// Extract document metadata
-    async fn extract_metadata(&self, file_path: &Path) -> PluginResult<DocumentMetadata>;
+    async fn extract_metadata(&self, file_path: &Path) -> PluginResult<FileMetadata>;
     
     /// Extract document outline/table of contents
     async fn extract_outline(&self, file_path: &Path) -> PluginResult<DocumentOutline>;
@@ -50,7 +50,15 @@ pub trait DocumentHandler: Send + Sync {
     
     /// Get handler capabilities
     fn get_capabilities(&self) -> PluginCapabilities {
-        PluginCapabilities::default()
+        PluginCapabilities {
+            capabilities: vec![
+                "extract_metadata".to_string(),
+                "extract_outline".to_string(),
+                "extract_text".to_string(),
+                "validate_file".to_string(),
+                "supports_json_output".to_string(),
+            ]
+        }
     }
 }
 
@@ -177,7 +185,7 @@ impl PluginCapabilities {
 }
 
 /// Plugin information
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PluginInfo {
     /// Plugin name
     pub name: String,

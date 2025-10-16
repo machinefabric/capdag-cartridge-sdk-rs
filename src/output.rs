@@ -5,7 +5,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use crate::{DocumentOutline, DocumentMetadata, TocEntry};
+use crate::{DocumentOutline, FileMetadata, TocEntry};
 
 /// Output format options
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -100,7 +100,7 @@ pub struct MetadataFormatter;
 
 impl MetadataFormatter {
     /// Format metadata as human-readable text
-    pub fn format_text(metadata: &DocumentMetadata) -> String {
+    pub fn format_text(metadata: &FileMetadata) -> String {
         let mut output = String::new();
         
         output.push_str("=== Document Metadata ===\n\n");
@@ -146,8 +146,8 @@ impl MetadataFormatter {
         }
         
         output.push_str(&format!("File Size: {} bytes ({:.2} MB)\n", 
-            metadata.file_size, 
-            metadata.file_size as f64 / 1_048_576.0
+            metadata.file_size_bytes, 
+            metadata.file_size_bytes as f64 / 1_048_576.0
         ));
         
         output.push_str(&format!("Document Type: {}\n", metadata.document_type));
@@ -167,7 +167,7 @@ impl MetadataFormatter {
     }
     
     /// Format metadata as JSON
-    pub fn format_json(metadata: &DocumentMetadata) -> serde_json::Result<String> {
+    pub fn format_json(metadata: &FileMetadata) -> serde_json::Result<String> {
         serde_json::to_string_pretty(metadata)
     }
 }
@@ -176,7 +176,7 @@ impl MetadataFormatter {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExtractedData {
     /// Document metadata
-    pub metadata: Option<DocumentMetadata>,
+    pub metadata: Option<FileMetadata>,
     
     /// Document outline/TOC
     pub outline: Option<DocumentOutline>,
@@ -184,14 +184,14 @@ pub struct ExtractedData {
     /// Extracted text content
     pub text_content: Option<String>,
     
-    /// Cover image information
+    /// Thumbnail information
     pub thumbnail: Option<ThumbnailInfo>,
     
     /// Extraction summary
     pub extraction_summary: ExtractionSummary,
 }
 
-/// Information about an extracted cover image
+/// Information about an extracted thumbnail
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ThumbnailInfo {
     /// Image format (png, jpg, etc.)
@@ -249,7 +249,7 @@ impl ExtractedData {
     }
     
     /// Add metadata
-    pub fn with_metadata(mut self, metadata: DocumentMetadata) -> Self {
+    pub fn with_metadata(mut self, metadata: FileMetadata) -> Self {
         self.metadata = Some(metadata);
         self.extraction_summary.extracted_components.push("metadata".to_string());
         self
@@ -269,10 +269,10 @@ impl ExtractedData {
         self
     }
     
-    /// Add cover image
-    pub fn with_cover(mut self, cover: ThumbnailInfo) -> Self {
-        self.thumbnail = Some(cover);
-        self.extraction_summary.extracted_components.push("cover".to_string());
+    /// Add thumbnail
+    pub fn with_thumbnail(mut self, thumbnail: ThumbnailInfo) -> Self {
+        self.thumbnail = Some(thumbnail);
+        self.extraction_summary.extracted_components.push("thumbnail".to_string());
         self
     }
     
