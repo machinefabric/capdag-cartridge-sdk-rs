@@ -122,13 +122,42 @@ func (h *MyHandler) ExtractMetadata(ctx context.Context, filePath string) (*sdk.
 }
 ```
 
+## Version 2.0 Updates (Current) 🔄 IN PROGRESS
+
+### Multi-Plugin-Type Architecture
+The plugin system has been extended to support multiple plugin types beyond just document handlers:
+
+#### Schema Updates ✅ COMPLETE
+- ✅ `plugin-info.json` - Added `plugin_type`, `priority`, `system_critical`, `service_endpoints` fields  
+- ✅ Updated capabilities enum to include service-specific capabilities
+- ✅ Made `extensions` field optional (only required for document handlers)
+- ✅ Added `service_endpoints` field for service plugins
+
+#### New Plugin Types
+- `document_handler` - File processing plugins (pdfczar, epubczar, txtczar, htmlczar, mdczar)
+- `model_service` - LLM model management (modelczar)
+- `embedding_service` - Text embedding generation (embeddingczar)  
+- `system_service` - General system services
+
+#### Priority Levels
+- `optional` - Can be disabled/removed
+- `recommended` - Important but not critical
+- `critical` - System-critical, cannot be disabled
+
+### Implementation Status
+- ✅ JSON Schema updated
+- 🔄 Objective-C SDK update needed
+- 🔄 Rust SDK update needed
+- 🔄 Go SDK update needed
+- 🔄 Plugin implementations need updates
+
 ## Next Steps
 
-1. **Plugin Updates**: Update txtczar, pdfczar, epubczar to use latest SDK versions
-2. **Validation**: Add schema validation tests to prevent future drift  
-3. **Documentation**: Generate API documentation from schemas
-4. **Testing**: Create integration tests using schema-compliant test fixtures
-5. **Additional Languages**: Consider Python/JavaScript SDK implementations if needed
+1. **SDK Updates**: Update all SDKs (Objective-C, Rust, Go) to support new plugin types
+2. **Plugin Updates**: Update all czars to report correct plugin_type and priority
+3. **Discovery Logic**: Update LBVR plugin discovery to handle multiple plugin types
+4. **Validation**: Add schema validation tests for new plugin types
+5. **Documentation**: Update API documentation for multi-plugin architecture
 
 ## Files Created/Modified
 

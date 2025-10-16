@@ -174,6 +174,25 @@ impl Default for HandlerRegistry {
     }
 }
 
+/// Plugin types supported by LBVR
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PluginType {
+    DocumentHandler,
+    ModelService,
+    EmbeddingService,
+    SystemService,
+}
+
+/// Plugin priority levels
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PluginPriority {
+    Optional,
+    Recommended,
+    Critical,
+}
+
 /// Plugin capabilities
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PluginCapabilities {
@@ -197,15 +216,124 @@ pub struct PluginInfo {
     
     /// Plugin description
     pub description: String,
+
+    /// Plugin type
+    pub plugin_type: PluginType,
+
+    /// Plugin priority level
+    pub priority: PluginPriority,
+
+    /// Whether this plugin is critical to system operation (legacy compatibility)
+    #[serde(default)]
+    pub system_critical: bool,
     
-    /// Supported file extensions
+    /// Supported file extensions (for document handlers)
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub extensions: Vec<String>,
+
+    /// Available service endpoints (for service plugins)  
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub service_endpoints: Vec<String>,
     
     /// Plugin capabilities
     pub capabilities: PluginCapabilities,
     
     /// Plugin author/maintainer
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub author: Option<String>,
+}
+
+impl PluginInfo {
+    /// Create a new document handler plugin info
+    pub fn new_document_handler(
+        name: String,
+        version: String,
+        description: String,
+        extensions: Vec<String>,
+        capabilities: PluginCapabilities,
+    ) -> Self {
+        Self {
+            name,
+            version,
+            description,
+            plugin_type: PluginType::DocumentHandler,
+            priority: PluginPriority::Optional,
+            system_critical: false,
+            extensions,
+            service_endpoints: Vec::new(),
+            capabilities,
+            author: None,
+        }
+    }
+
+    /// Create a new model service plugin info
+    pub fn new_model_service(
+        name: String,
+        version: String,
+        description: String,
+        service_endpoints: Vec<String>,
+        capabilities: PluginCapabilities,
+        priority: PluginPriority,
+    ) -> Self {
+        Self {
+            name,
+            version,
+            description,
+            plugin_type: PluginType::ModelService,
+            priority: priority.clone(),
+            system_critical: matches!(priority, PluginPriority::Critical),
+            extensions: Vec::new(),
+            service_endpoints,
+            capabilities,
+            author: None,
+        }
+    }
+
+    /// Create a new embedding service plugin info
+    pub fn new_embedding_service(
+        name: String,
+        version: String,
+        description: String,
+        service_endpoints: Vec<String>,
+        capabilities: PluginCapabilities,
+        priority: PluginPriority,
+    ) -> Self {
+        Self {
+            name,
+            version,
+            description,
+            plugin_type: PluginType::EmbeddingService,
+            priority: priority.clone(),
+            system_critical: matches!(priority, PluginPriority::Critical),
+            extensions: Vec::new(),
+            service_endpoints,
+            capabilities,
+            author: None,
+        }
+    }
+
+    /// Create a new system service plugin info
+    pub fn new_system_service(
+        name: String,
+        version: String,
+        description: String,
+        service_endpoints: Vec<String>,
+        capabilities: PluginCapabilities,
+        priority: PluginPriority,
+    ) -> Self {
+        Self {
+            name,
+            version,
+            description,
+            plugin_type: PluginType::SystemService,
+            priority: priority.clone(),
+            system_critical: matches!(priority, PluginPriority::Critical),
+            extensions: Vec::new(),
+            service_endpoints,
+            capabilities,
+            author: None,
+        }
+    }
 }
 
 /// Trait for plugins to provide metadata about themselves
