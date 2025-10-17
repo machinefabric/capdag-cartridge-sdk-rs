@@ -1,196 +1,154 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "DocumentHandler Interface",
-  "description": "Core interface that all document file handlers must implement",
+  "title": "Unified Plugin Interface",
+  "description": "Unified capability-based plugin interface with standardized command-line calling",
   "type": "object",
   "properties": {
     "interface_version": {
       "type": "string",
-      "const": "1.0",
-      "description": "Version of the DocumentHandler interface"
+      "const": "2.0",
+      "description": "Version of the unified plugin interface"
     },
-    "required_methods": {
+    "calling_convention": {
       "type": "object",
       "properties": {
-        "name": {
+        "unified_capability_calling": {
           "type": "object",
           "properties": {
-            "description": "Get the name of this handler",
-            "returns": "string",
-            "async": false
+            "description": "All plugin operations are accessed via unified capability-based calling",
+            "method": "registry.can(capability).call(args)",
+            "capability_format": "operation:filetype (e.g., 'extract-metadata:pdf', 'generate-thumbnail:*')",
+            "args_format": "Vec<JsonValue> - type-safe JSON arguments",
+            "response_format": "ResponseWrapper with type-safe deserialization",
+            "error_handling": "Result<ResponseWrapper, Error> with descriptive error messages"
           }
         },
-        "version": {
+        "command_line_interface": {
           "type": "object",
           "properties": {
-            "description": "Get the version of this handler",
-            "returns": "string",
-            "async": false
-          }
-        },
-        "get_capabilities": {
-          "type": "object",
-          "properties": {
-            "description": "Get handler capabilities with file type specificity",
-            "returns": {
-              "$ref": "plugin-info.json#/definitions/PluginCapabilities"
-            },
-            "async": false
-          }
-        },
-        "extract_metadata": {
-          "type": "object",
-          "properties": {
-            "description": "Extract document metadata",
-            "parameters": {
-              "file_path": "string - path to the file"
-            },
-            "returns": {
-              "$ref": "file-metadata.json"
-            },
-            "async": true
-          }
-        },
-        "extract_outline": {
-          "type": "object",
-          "properties": {
-            "description": "Extract document outline/table of contents",
-            "parameters": {
-              "file_path": "string - path to the file"
-            },
-            "returns": {
-              "$ref": "document-outline.json"
-            },
-            "async": true
-          }
-        },
-        "extract_pages": {
-          "type": "object",
-          "properties": {
-            "description": "Extract document pages with text content organized by pages and paragraphs",
-            "parameters": {
-              "file_path": "string - path to the file"
-            },
-            "returns": {
-              "$ref": "document-pages.json"
-            },
-            "async": true
-          }
-        },
-        "validate_file": {
-          "type": "object",
-          "properties": {
-            "description": "Validate that the file is not corrupted and can be processed",
-            "parameters": {
-              "file_path": "string - path to the file"
-            },
-            "returns": "boolean",
-            "async": true
-          }
-        },
-        "get_file_info": {
-          "type": "object",
-          "properties": {
-            "description": "Get basic file information without full processing",
-            "parameters": {
-              "file_path": "string - path to the file"
-            },
-            "returns": {
-              "$ref": "#/definitions/FileInfo"
-            },
-            "async": true
-          }
-        },
-        "generate_thumbnail": {
-          "type": "object",
-          "properties": {
-            "description": "Generate thumbnail image for the document",
-            "parameters": {
-              "file_path": "string - path to the file",
-              "width": "integer - thumbnail width in pixels",
-              "height": "integer - thumbnail height in pixels"
-            },
-            "returns": "byte array - PNG image data",
-            "async": true
+            "description": "Direct capability-to-CLI-flag mapping",
+            "flag_format": "--{operation} (e.g., --extract-metadata, --generate-thumbnail)",
+            "capability_advertising": "--plugin-info flag returns JSON with capabilities array",
+            "execution_pattern": "plugin_binary --{operation} file_path [additional_args] [--json]"
           }
         }
       }
     },
-    "optional_methods": {
+    "standardized_capabilities": {
       "type": "object",
       "properties": {
-        "can_handle": {
+        "extract-metadata": {
           "type": "object",
           "properties": {
-            "description": "Check if this handler can process the given file (based on capabilities and file type)",
-            "parameters": {
-              "file_path": "string - path to the file"
+            "description": "Extract document metadata",
+            "cli_flag": "--extract-metadata",
+            "args_format": ["file_path:string"],
+            "response_type": {
+              "$ref": "file-metadata.json"
             },
-            "returns": "boolean",
-            "async": false,
-            "default_implementation": "Checks file type against handler capabilities"
+            "file_type_specificity": "Can be file-type specific (e.g., extract-metadata:pdf)"
+          }
+        },
+        "extract-outline": {
+          "type": "object",
+          "properties": {
+            "description": "Extract document outline/table of contents",
+            "cli_flag": "--extract-outline",
+            "args_format": ["file_path:string"],
+            "response_type": {
+              "$ref": "document-outline.json"
+            },
+            "file_type_specificity": "Can be file-type specific (e.g., extract-outline:epub)"
+          }
+        },
+        "extract-pages": {
+          "type": "object",
+          "properties": {
+            "description": "Extract document pages with text content",
+            "cli_flag": "--extract-pages",
+            "args_format": ["file_path:string"],
+            "response_type": {
+              "$ref": "document-pages.json"
+            },
+            "file_type_specificity": "Can be file-type specific (e.g., extract-pages:pdf)"
+          }
+        },
+        "generate-thumbnail": {
+          "type": "object",
+          "properties": {
+            "description": "Generate thumbnail image for the document",
+            "cli_flag": "--generate-thumbnail",
+            "args_format": ["file_path:string", "width:number", "height:number"],
+            "response_type": "byte array - PNG image data",
+            "file_type_specificity": "Can be file-type specific (e.g., generate-thumbnail:pdf)"
+          }
+        },
+        "validate-file": {
+          "type": "object",
+          "properties": {
+            "description": "Validate file integrity and processability",
+            "cli_flag": "--validate-file",
+            "args_format": ["file_path:string"],
+            "response_type": "boolean",
+            "file_type_specificity": "Can be file-type specific (e.g., validate-file:epub)"
+          }
+        }
+      }
+    },
+    "response_wrapper": {
+      "type": "object",
+      "properties": {
+        "description": "Unified response wrapper for type-safe deserialization",
+        "methods": {
+          "type": "object",
+          "properties": {
+            "as_type<T>()": "Deserialize to specific type with serde",
+            "as_string()": "Convert response to string",
+            "as_bytes()": "Get raw byte array",
+            "as_int()": "Convert to integer",
+            "as_bool()": "Convert to boolean"
+          }
+        },
+        "error_handling": "Result<T, Error> with descriptive parse/conversion errors"
+      }
+    },
+    "plugin_requirements": {
+      "type": "object",
+      "properties": {
+        "plugin_info_flag": {
+          "type": "object",
+          "properties": {
+            "description": "Must implement --plugin-info flag",
+            "returns": {
+              "$ref": "plugin-info.json"
+            },
+            "format": "JSON output with capabilities array using hyphenated format"
+          }
+        },
+        "capability_flags": {
+          "type": "object",
+          "properties": {
+            "description": "Must implement CLI flags for each advertised capability",
+            "naming_convention": "--{operation} (hyphens, not underscores)",
+            "json_output": "Support --json flag for structured output when applicable"
+          }
+        },
+        "unified_calling": {
+          "type": "object",
+          "properties": {
+            "description": "No special method handling - all operations via capability-based calling",
+            "registry_integration": "Must be callable via PluginRegistry.can().call() interface",
+            "type_safety": "All arguments passed as Vec<JsonValue>, responses via ResponseWrapper"
           }
         }
       }
     }
   },
-  "definitions": {
-    "FileInfo": {
-      "type": "object",
-      "properties": {
-        "path": {
-          "type": "string",
-          "description": "File path"
-        },
-        "size": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "File size in bytes"
-        },
-        "document_type": {
-          "type": "string",
-          "description": "Document type detected"
-        },
-        "is_valid": {
-          "type": "boolean",
-          "description": "Whether the file appears to be valid"
-        },
-        "quick_metadata": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/QuickMetadata"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Quick metadata if easily accessible"
-        }
-      },
-      "required": [
-        "path",
-        "size",
-        "document_type",
-        "is_valid"
-      ]
-    },
-    "QuickMetadata": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": ["string", "null"],
-          "description": "Document title"
-        },
-        "author": {
-          "type": ["string", "null"],
-          "description": "Primary author"
-        },
-        "page_count": {
-          "type": ["integer", "null"],
-          "minimum": 0,
-          "description": "Page/section count"
-        }
-      }
-    }
-  }
+  "required": [
+    "interface_version",
+    "calling_convention",
+    "standardized_capabilities",
+    "response_wrapper",
+    "plugin_requirements"
+  ]
 }

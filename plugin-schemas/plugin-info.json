@@ -49,10 +49,10 @@
           "type": "array",
           "items": {
             "type": "string",
-            "pattern": "^[a-z_]+(?::[a-z*]+)?$",
-            "description": "Capability with optional file type specifier (e.g., 'extract_metadata:pdf', 'generate_thumbnail:*')"
+            "pattern": "^[a-z-]+(?::[a-z*]+)?$",
+            "description": "Capability with optional file type specifier (e.g., 'extract-metadata:pdf', 'generate-thumbnail:*')"
           },
-          "description": "List of capabilities with optional file type specificity. Format: 'operation:filetype' or 'operation:*' for all file types. More specific capabilities take precedence."
+          "description": "List of capabilities with optional file type specificity. Format: 'operation:filetype' or 'operation:*' for all file types. More specific capabilities take precedence. Operations use hyphenated format (e.g., 'extract-metadata', 'generate-thumbnail')."
         }
       },
       "required": [
