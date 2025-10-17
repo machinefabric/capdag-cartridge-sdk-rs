@@ -171,14 +171,14 @@ impl PluginRegistry {
 impl CapabilityCaller {
     /// Call the capability with JSON arguments
     pub async fn call(&self, args: Vec<JsonValue>) -> Result<ResponseWrapper> {
-        // Convert capability to command line flag
-        let flag = self.capability_to_flag(&self.capability);
+        // Convert capability to command
+        let command = self.capability_to_command(&self.capability);
         
         // Build command arguments
         let mut cmd_args = Vec::new();
         
-        // Add the main flag
-        cmd_args.push(flag);
+        // Add the main command
+        cmd_args.push(command);
         
         // Convert JSON args to command line arguments
         for arg in args {
@@ -215,8 +215,8 @@ impl CapabilityCaller {
         Ok(response)
     }
     
-    /// Convert capability name to command line flag
-    fn capability_to_flag(&self, capability: &str) -> String {
+    /// Convert capability name to command
+    fn capability_to_command(&self, capability: &str) -> String {
         // Extract operation part (everything before the last colon)
         let operation = if let Some(colon_pos) = capability.rfind(':') {
             &capability[..colon_pos]
@@ -224,8 +224,8 @@ impl CapabilityCaller {
             capability
         };
         
-        // Convert underscores to hyphens and add double dash prefix
-        format!("--{}", operation.replace('_', "-"))
+        // Convert underscores to hyphens for command name
+        operation.replace('_', "-")
     }
     
     /// Check if this capability produces binary output
@@ -294,16 +294,16 @@ mod tests {
     use super::*;
     
     #[test]
-    fn test_capability_to_flag() {
+    fn test_capability_to_command() {
         let caller = CapabilityCaller {
             plugin_name: "test".to_string(),
             capability: "generate-thumbnail:pdf".to_string(),
             binary_path: "/test".to_string(),
         };
         
-        assert_eq!(caller.capability_to_flag("generate-thumbnail:pdf"), "--generate-thumbnail");
-        assert_eq!(caller.capability_to_flag("extract-metadata:epub"), "--extract-metadata");
-        assert_eq!(caller.capability_to_flag("list-models"), "--list-models");
+        assert_eq!(caller.capability_to_command("generate-thumbnail:pdf"), "generate-thumbnail");
+        assert_eq!(caller.capability_to_command("extract-metadata:epub"), "extract-metadata");
+        assert_eq!(caller.capability_to_command("list-models"), "list-models");
     }
     
     #[test]
