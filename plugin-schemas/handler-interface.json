@@ -28,11 +28,13 @@
             "async": false
           }
         },
-        "supported_extensions": {
+        "get_capabilities": {
           "type": "object",
           "properties": {
-            "description": "Get the file extensions this handler supports (e.g., ['pdf'])",
-            "returns": "array of strings",
+            "description": "Get handler capabilities with file type specificity",
+            "returns": {
+              "$ref": "plugin-info.json#/definitions/PluginCapabilities"
+            },
             "async": false
           }
         },
@@ -120,30 +122,13 @@
         "can_handle": {
           "type": "object",
           "properties": {
-            "description": "Check if this handler can process the given file (based on file extension)",
+            "description": "Check if this handler can process the given file (based on capabilities and file type)",
             "parameters": {
               "file_path": "string - path to the file"
             },
             "returns": "boolean",
             "async": false,
-            "default_implementation": "Checks file extension against supported_extensions()"
-          }
-        },
-        "get_capabilities": {
-          "type": "object",
-          "properties": {
-            "description": "Get handler capabilities",
-            "returns": {
-              "$ref": "plugin-info.json#/definitions/PluginCapabilities"
-            },
-            "async": false,
-            "default_capabilities": [
-              "extract_metadata",
-              "extract_outline", 
-              "extract_pages",
-              "validate_file",
-              "supports_json_output"
-            ]
+            "default_implementation": "Checks file type against handler capabilities"
           }
         }
       }

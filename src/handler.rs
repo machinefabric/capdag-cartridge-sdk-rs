@@ -15,18 +15,24 @@ pub trait DocumentHandler: Send + Sync {
     /// Get the version of this handler
     fn version(&self) -> &str;
     
-    /// Get the file extensions this handler supports (e.g., ["pdf"])
-    fn supported_extensions(&self) -> Vec<String>;
+    /// Get handler capabilities with file type specificity
+    fn get_capabilities(&self) -> PluginCapabilities;
     
     /// Check if this handler can process the given file
     fn can_handle(&self, file_path: &Path) -> bool {
         if let Some(extension) = file_path.extension() {
             if let Some(ext_str) = extension.to_str() {
-                return self.supported_extensions().iter()
-                    .any(|ext| ext.eq_ignore_ascii_case(ext_str));
+                let file_type = ext_str.to_lowercase();
+                let capabilities = self.get_capabilities();
+                
+                // Check for specific file type capabilities first, then wildcards
+                capabilities.can_handle_file_type(&file_type)
+            } else {
+                false
             }
+        } else {
+            false
         }
-        false
     }
     
     /// Extract document metadata
@@ -48,19 +54,6 @@ pub trait DocumentHandler: Send + Sync {
     /// Returns PNG image data
     async fn generate_thumbnail(&self, file_path: &Path, width: u32, height: u32) -> PluginResult<Vec<u8>>;
     
-    /// Get handler capabilities
-    fn get_capabilities(&self) -> PluginCapabilities {
-        PluginCapabilities {
-            capabilities: vec![
-                "extract_metadata".to_string(),
-                "extract_outline".to_string(),
-                "extract_pages".to_string(),
-                "validate_file".to_string(),
-                "generate_thumbnail".to_string(),
-                "supports_json_output".to_string(),
-            ]
-        }
-    }
 }
 
 /// Basic file information
@@ -135,12 +128,11 @@ impl HandlerRegistry {
         &self.handlers
     }
     
-    /// Get handlers that support a specific extension
-    pub fn handlers_for_extension(&self, extension: &str) -> Vec<&dyn DocumentHandler> {
+    /// Get handlers that support a specific file type
+    pub fn handlers_for_file_type(&self, file_type: &str) -> Vec<&dyn DocumentHandler> {
         self.handlers.iter()
             .filter(|handler| {
-                handler.supported_extensions().iter()
-                    .any(|ext| ext.eq_ignore_ascii_case(extension))
+                handler.get_capabilities().can_handle_file_type(file_type)
             })
             .map(|boxed| boxed.as_ref())
             .collect()
@@ -151,15 +143,46 @@ impl HandlerRegistry {
         self.handlers.len()
     }
 
-    /// Get all supported file extensions
-    pub fn get_supported_extensions(&self) -> Vec<String> {
-        let mut extensions = std::collections::HashSet::new();
+    /// Get all supported file types
+    pub fn get_supported_file_types(&self) -> Vec<String> {
+        let mut file_types = std::collections::HashSet::new();
         for handler in &self.handlers {
-            for ext in handler.supported_extensions() {
-                extensions.insert(ext.to_lowercase());
+            for capability in &handler.get_capabilities().capabilities {
+                if let Some(colon_pos) = capability.find(':') {
+                    let filetype = &capability[colon_pos + 1..];
+                    if filetype != "*" {
+                        file_types.insert(filetype.to_lowercase());
+                    }
+                }
             }
         }
-        extensions.into_iter().collect()
+        file_types.into_iter().collect()
+    }
+    
+    /// Find the best handler for a specific operation and file type
+    pub fn find_best_handler(&self, operation: &str, file_type: &str) -> Option<&dyn DocumentHandler> {
+        let mut best_handler: Option<&dyn DocumentHandler> = None;
+        let mut best_specificity = 0;
+        
+        for handler in &self.handlers {
+            let capabilities = handler.get_capabilities();
+            if let Some(capability) = capabilities.get_most_specific_capability(operation, file_type) {
+                let specificity = if capability.contains(&format!(":{}", file_type)) {
+                    2 // Exact file type match
+                } else if capability.contains(":*") {
+                    1 // Wildcard match
+                } else {
+                    0 // Legacy operation-only match
+                };
+                
+                if specificity > best_specificity {
+                    best_handler = Some(handler.as_ref());
+                    best_specificity = specificity;
+                }
+            }
+        }
+        
+        best_handler
     }
 
     /// Check if a file is supported by any handler
@@ -174,15 +197,6 @@ impl Default for HandlerRegistry {
     }
 }
 
-/// Plugin types supported by LBVR
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum PluginType {
-    DocumentHandler,
-    ModelService,
-    EmbeddingService,
-    SystemService,
-}
 
 /// Plugin priority levels
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -200,9 +214,74 @@ pub struct PluginCapabilities {
 }
 
 impl PluginCapabilities {
-	pub fn can(&self, capability: &str) -> bool {
-		self.capabilities.iter().any(|c| c == capability)
-	}
+    /// Check if the plugin has a specific capability
+    pub fn can(&self, capability: &str) -> bool {
+        self.capabilities.iter().any(|c| c == capability)
+    }
+    
+    /// Check if the plugin can handle a specific file type
+    pub fn can_handle_file_type(&self, file_type: &str) -> bool {
+        // Check for exact match with file type (e.g., "extract_metadata:pdf")
+        let specific_match = self.capabilities.iter().any(|capability| {
+            if let Some(colon_pos) = capability.find(':') {
+                let (operation, filetype) = capability.split_at(colon_pos);
+                let filetype = &filetype[1..]; // Remove the ':'
+                filetype == file_type && self.has_extract_operations(operation)
+            } else {
+                false
+            }
+        });
+        
+        if specific_match {
+            return true;
+        }
+        
+        // Check for wildcard match (e.g., "extract_metadata:*")
+        self.capabilities.iter().any(|capability| {
+            if let Some(colon_pos) = capability.find(':') {
+                let (operation, filetype) = capability.split_at(colon_pos);
+                let filetype = &filetype[1..]; // Remove the ':'
+                filetype == "*" && self.has_extract_operations(operation)
+            } else {
+                false
+            }
+        })
+    }
+    
+    /// Check if an operation is a document processing operation
+    fn has_extract_operations(&self, operation: &str) -> bool {
+        matches!(operation, 
+            "extract_metadata" | "extract_outline" | "extract_pages" | 
+            "extract_text" | "validate_file" | "generate_thumbnail"
+        )
+    }
+    
+    /// Get the most specific capability for a given operation and file type
+    pub fn get_most_specific_capability(&self, operation: &str, file_type: &str) -> Option<String> {
+        // First look for exact file type match
+        let specific = format!("{}:{}", operation, file_type);
+        if self.capabilities.contains(&specific) {
+            return Some(specific);
+        }
+        
+        // Then look for wildcard match
+        let wildcard = format!("{}:*", operation);
+        if self.capabilities.contains(&wildcard) {
+            return Some(wildcard);
+        }
+        
+        // Finally check for operation without file type specifier (legacy support)
+        if self.capabilities.contains(&operation.to_string()) {
+            return Some(operation.to_string());
+        }
+        
+        None
+    }
+    
+    /// Check if the plugin can perform an operation on a specific file type
+    pub fn can_perform_operation(&self, operation: &str, file_type: &str) -> bool {
+        self.get_most_specific_capability(operation, file_type).is_some()
+    }
 }
 
 /// Plugin information
@@ -217,25 +296,10 @@ pub struct PluginInfo {
     /// Plugin description
     pub description: String,
 
-    /// Plugin type
-    pub plugin_type: PluginType,
-
     /// Plugin priority level
     pub priority: PluginPriority,
-
-    /// Whether this plugin is critical to system operation (legacy compatibility)
-    #[serde(default)]
-    pub system_critical: bool,
     
-    /// Supported file extensions (for document handlers)
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub extensions: Vec<String>,
-
-    /// Available service endpoints (for service plugins)  
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub service_endpoints: Vec<String>,
-    
-    /// Plugin capabilities
+    /// Plugin capabilities with file type specificity
     pub capabilities: PluginCapabilities,
     
     /// Plugin author/maintainer
@@ -244,34 +308,11 @@ pub struct PluginInfo {
 }
 
 impl PluginInfo {
-    /// Create a new document handler plugin info
-    pub fn new_document_handler(
+    /// Create a new plugin info
+    pub fn new(
         name: String,
         version: String,
         description: String,
-        extensions: Vec<String>,
-        capabilities: PluginCapabilities,
-    ) -> Self {
-        Self {
-            name,
-            version,
-            description,
-            plugin_type: PluginType::DocumentHandler,
-            priority: PluginPriority::Optional,
-            system_critical: false,
-            extensions,
-            service_endpoints: Vec::new(),
-            capabilities,
-            author: None,
-        }
-    }
-
-    /// Create a new model service plugin info
-    pub fn new_model_service(
-        name: String,
-        version: String,
-        description: String,
-        service_endpoints: Vec<String>,
         capabilities: PluginCapabilities,
         priority: PluginPriority,
     ) -> Self {
@@ -279,60 +320,16 @@ impl PluginInfo {
             name,
             version,
             description,
-            plugin_type: PluginType::ModelService,
-            priority: priority.clone(),
-            system_critical: matches!(priority, PluginPriority::Critical),
-            extensions: Vec::new(),
-            service_endpoints,
+            priority,
             capabilities,
             author: None,
         }
     }
-
-    /// Create a new embedding service plugin info
-    pub fn new_embedding_service(
-        name: String,
-        version: String,
-        description: String,
-        service_endpoints: Vec<String>,
-        capabilities: PluginCapabilities,
-        priority: PluginPriority,
-    ) -> Self {
-        Self {
-            name,
-            version,
-            description,
-            plugin_type: PluginType::EmbeddingService,
-            priority: priority.clone(),
-            system_critical: matches!(priority, PluginPriority::Critical),
-            extensions: Vec::new(),
-            service_endpoints,
-            capabilities,
-            author: None,
-        }
-    }
-
-    /// Create a new system service plugin info
-    pub fn new_system_service(
-        name: String,
-        version: String,
-        description: String,
-        service_endpoints: Vec<String>,
-        capabilities: PluginCapabilities,
-        priority: PluginPriority,
-    ) -> Self {
-        Self {
-            name,
-            version,
-            description,
-            plugin_type: PluginType::SystemService,
-            priority: priority.clone(),
-            system_critical: matches!(priority, PluginPriority::Critical),
-            extensions: Vec::new(),
-            service_endpoints,
-            capabilities,
-            author: None,
-        }
+    
+    /// Set the author of the plugin
+    pub fn with_author(mut self, author: String) -> Self {
+        self.author = Some(author);
+        self
     }
 }
 
