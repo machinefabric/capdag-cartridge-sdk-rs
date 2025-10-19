@@ -2,15 +2,6 @@
 //! 
 //! This module defines the unified plugin interfaces with standardized capability-based calling.
 
-/// Plugin priority levels
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum PluginPriority {
-    Optional,
-    Recommended,
-    Critical,
-}
-
 /// Plugin capabilities
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PluginCapabilities {
@@ -35,9 +26,6 @@ pub struct PluginInfo {
     
     /// Plugin description
     pub description: String,
-
-    /// Plugin priority level
-    pub priority: PluginPriority,
     
     /// Plugin capabilities with file type specificity
     pub capabilities: PluginCapabilities,
@@ -54,13 +42,11 @@ impl PluginInfo {
         version: String,
         description: String,
         capabilities: PluginCapabilities,
-        priority: PluginPriority,
     ) -> Self {
         Self {
             name,
             version,
             description,
-            priority,
             capabilities,
             author: None,
         }

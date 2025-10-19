@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0",
+  "capability": {
+    "name": "generate-thumbnail",
+    "description": "Generate a thumbnail image preview of the document",
+    "file_types": ["*"],
+    "version": "1.0.0"
+  },
+  "command_interface": {
+    "cli_flag": "--generate-thumbnail",
+    "usage_pattern": "plugin_binary --generate-thumbnail <file_path> [--width <width>] [--height <height>] [--output <output_file>]"
+  },
+  "arguments": {
+    "required": [
+      {
+        "name": "file_path",
+        "type": "string",
+        "description": "Path to the document file to process",
+        "position": 0,
+        "validation": {
+          "pattern": "^[^\\0]+$",
+          "min_length": 1
+        }
+      }
+    ],
+    "optional": [
+      {
+        "name": "width",
+        "type": "integer",
+        "description": "Width of the thumbnail in pixels",
+        "cli_flag": "--width",
+        "default": 200,
+        "validation": {
+          "min": 50,
+          "max": 2000
+        }
+      },
+      {
+        "name": "height",
+        "type": "integer",
+        "description": "Height of the thumbnail in pixels",
+        "cli_flag": "--height",
+        "default": 300,
+        "validation": {
+          "min": 50,
+          "max": 2000
+        }
+      },
+      {
+        "name": "output",
+        "type": "string",
+        "description": "Write thumbnail to specified file instead of stdout",
+        "cli_flag": "--output",
+        "validation": {
+          "pattern": "\\.(png|jpg|jpeg)$"
+        }
+      },
+      {
+        "name": "page",
+        "type": "integer",
+        "description": "Page number to generate thumbnail from (1-based, default: 1)",
+        "cli_flag": "--page",
+        "default": 1,
+        "validation": {
+          "min": 1
+        }
+      }
+    ]
+  },
+  "response": {
+    "type": "binary",
+    "content_type": "image/png",
+    "description": "PNG image data representing a thumbnail of the document"
+  },
+  "validation": {
+    "file_existence": true,
+    "file_type_check": true,
+    "custom_validators": ["validate_readable_file", "validate_document_has_visual_content"]
+  },
+  "error_handling": {
+    "error_codes": {
+      "FILE_NOT_FOUND": {
+        "code": 3,
+        "message": "File not found: {file_path}",
+        "description": "The specified file does not exist"
+      },
+      "UNSUPPORTED_FORMAT": {
+        "code": 4,
+        "message": "Unsupported file format: {file_path}",
+        "description": "The file format is not supported by this plugin"
+      },
+      "INVALID_PAGE": {
+        "code": 8,
+        "message": "Invalid page number: {page}",
+        "description": "The specified page number does not exist in the document"
+      },
+      "NO_VISUAL_CONTENT": {
+        "code": 9,
+        "message": "Document contains no visual content for thumbnail generation",
+        "description": "The document does not contain renderable visual content"
+      },
+      "THUMBNAIL_GENERATION_FAILED": {
+        "code": 10,
+        "message": "Failed to generate thumbnail: {error_details}",
+        "description": "Thumbnail generation process failed due to internal error"
+      }
+    },
+    "timeout_seconds": 60
+  }
+}

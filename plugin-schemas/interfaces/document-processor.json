@@ -1,0 +1,260 @@
+{
+  "schema_version": "1.0",
+  "interface": {
+    "name": "document-processor",
+    "description": "Standard interface for document processing plugins that extract metadata, content, and generate previews",
+    "version": "1.0.0",
+    "compatibility": {
+      "min_sdk_version": "0.1.0",
+      "max_sdk_version": null
+    },
+    "authors": ["LBVR Team"]
+  },
+  "capabilities": [
+    {
+      "capability_ref": "capabilities/extract-metadata.json"
+    },
+    {
+      "capability_ref": "capabilities/extract-outline.json"
+    },
+    {
+      "capability_ref": "capabilities/generate-thumbnail.json"
+    },
+    {
+      "schema_version": "1.0",
+      "capability": {
+        "name": "extract-pages",
+        "description": "Extract text content from document pages with page-by-page structure",
+        "file_types": ["*"],
+        "version": "1.0.0"
+      },
+      "command_interface": {
+        "cli_flag": "--extract-pages",
+        "usage_pattern": "plugin_binary --extract-pages <file_path> [--json] [--output <output_file>] [--page-range <start>-<end>]"
+      },
+      "arguments": {
+        "required": [
+          {
+            "name": "file_path",
+            "type": "string",
+            "description": "Path to the document file to process",
+            "position": 0,
+            "validation": {
+              "pattern": "^[^\\0]+$",
+              "min_length": 1
+            }
+          }
+        ],
+        "optional": [
+          {
+            "name": "json",
+            "type": "boolean",
+            "description": "Output pages in JSON format",
+            "cli_flag": "--json",
+            "default": false
+          },
+          {
+            "name": "output",
+            "type": "string",
+            "description": "Write output to specified file instead of stdout",
+            "cli_flag": "--output",
+            "validation": {
+              "pattern": "^[^\\0]+$"
+            }
+          },
+          {
+            "name": "page_range",
+            "type": "string",
+            "description": "Page range to extract (e.g., '1-5' or '10-')",
+            "cli_flag": "--page-range",
+            "validation": {
+              "pattern": "^\\d+(-\\d*)?$"
+            }
+          }
+        ]
+      },
+      "response": {
+        "type": "json",
+        "schema_ref": "document-pages.json",
+        "description": "Page-by-page text content with page numbers and metadata"
+      },
+      "validation": {
+        "file_existence": true,
+        "file_type_check": true,
+        "custom_validators": ["validate_readable_file"]
+      },
+      "error_handling": {
+        "error_codes": {
+          "FILE_NOT_FOUND": {
+            "code": 3,
+            "message": "File not found: {file_path}",
+            "description": "The specified file does not exist"
+          },
+          "UNSUPPORTED_FORMAT": {
+            "code": 4,
+            "message": "Unsupported file format: {file_path}",
+            "description": "The file format is not supported by this plugin"
+          },
+          "INVALID_PAGE_RANGE": {
+            "code": 13,
+            "message": "Invalid page range: {page_range}",
+            "description": "The specified page range is invalid or out of bounds"
+          }
+        },
+        "timeout_seconds": 120
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "capability": {
+        "name": "validate-file",
+        "description": "Validate that a file is readable and supported by this plugin",
+        "file_types": ["*"],
+        "version": "1.0.0"
+      },
+      "command_interface": {
+        "cli_flag": "--validate-file",
+        "usage_pattern": "plugin_binary --validate-file <file_path> [--json]"
+      },
+      "arguments": {
+        "required": [
+          {
+            "name": "file_path", 
+            "type": "string",
+            "description": "Path to the file to validate",
+            "position": 0,
+            "validation": {
+              "pattern": "^[^\\0]+$",
+              "min_length": 1
+            }
+          }
+        ],
+        "optional": [
+          {
+            "name": "json",
+            "type": "boolean",
+            "description": "Output validation result in JSON format",
+            "cli_flag": "--json",
+            "default": false
+          }
+        ]
+      },
+      "response": {
+        "type": "boolean",
+        "description": "True if file is valid and supported, false otherwise"
+      },
+      "validation": {
+        "file_existence": true,
+        "file_type_check": false,
+        "custom_validators": []
+      },
+      "error_handling": {
+        "error_codes": {
+          "FILE_NOT_FOUND": {
+            "code": 3,
+            "message": "File not found: {file_path}",
+            "description": "The specified file does not exist"
+          }
+        },
+        "timeout_seconds": 10
+      }
+    }
+  ],
+  "global_requirements": {
+    "plugin_info_command": {
+      "required": true,
+      "format": "json",
+      "schema_ref": "plugin-info.json"
+    },
+    "json_output_support": {
+      "required": true,
+      "flag": "--json"
+    },
+    "error_handling": {
+      "standard_exit_codes": {
+        "success": 0,
+        "general_error": 1,
+        "invalid_arguments": 2,
+        "file_not_found": 3,
+        "unsupported_file_type": 4,
+        "timeout": 5
+      },
+      "error_output_format": "stderr"
+    }
+  },
+  "validation_rules": {
+    "capability_uniqueness": {
+      "enforce": true,
+      "scope": "interface"
+    },
+    "file_type_consistency": {
+      "enforce": true,
+      "related_capabilities": [
+        ["extract-metadata", "extract-outline", "extract-pages"],
+        ["generate-thumbnail", "validate-file"]
+      ]
+    },
+    "version_compatibility": {
+      "enforce": true,
+      "breaking_change_detection": true
+    }
+  },
+  "testing": {
+    "test_files": {
+      "pdf": [
+        {
+          "name": "simple_document",
+          "path": "../test_files/simple.pdf",
+          "description": "Simple PDF with basic text and outline",
+          "expected_capabilities": ["extract-metadata", "extract-outline", "extract-pages", "generate-thumbnail", "validate-file"]
+        }
+      ],
+      "txt": [
+        {
+          "name": "plain_text",
+          "path": "../test_files/sample.txt",
+          "description": "Plain text file",
+          "expected_capabilities": ["extract-metadata", "extract-pages", "validate-file"]
+        }
+      ]
+    },
+    "test_scenarios": [
+      {
+        "name": "basic_metadata_extraction",
+        "description": "Test basic metadata extraction with JSON output",
+        "capability": "extract-metadata",
+        "arguments": {
+          "file_path": "../test_files/simple.pdf",
+          "json": true
+        },
+        "expected_result": {
+          "success": true,
+          "exit_code": 0,
+          "output_validation": {
+            "format": "json",
+            "required_fields": ["file_name", "file_size", "mime_type"]
+          }
+        }
+      },
+      {
+        "name": "thumbnail_generation_with_size",
+        "description": "Test thumbnail generation with custom dimensions",
+        "capability": "generate-thumbnail", 
+        "arguments": {
+          "file_path": "../test_files/simple.pdf",
+          "width": 150,
+          "height": 200,
+          "output": "/tmp/thumbnail.png"
+        },
+        "expected_result": {
+          "success": true,
+          "exit_code": 0,
+          "output_validation": {
+            "file_exists": "/tmp/thumbnail.png",
+            "file_type": "image/png"
+          }
+        }
+      }
+    ]
+  }
+}
