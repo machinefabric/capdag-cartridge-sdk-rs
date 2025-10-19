@@ -16,15 +16,6 @@
       "type": "string",
       "description": "Plugin description"
     },
-    "priority": {
-      "type": "string",
-      "enum": [
-        "optional",
-        "recommended",
-        "critical"
-      ],
-      "description": "Plugin priority level"
-    },
     "capabilities": {
       "$ref": "#/definitions/PluginCapabilities",
       "description": "Plugin capabilities with file type specificity"
@@ -38,7 +29,6 @@
     "name",
     "version",
     "description",
-    "priority",
     "capabilities"
   ],
   "definitions": {

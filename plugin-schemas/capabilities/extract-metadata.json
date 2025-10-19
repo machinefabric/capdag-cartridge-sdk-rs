@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "capability": {
+    "name": "extract-metadata",
+    "description": "Extract document metadata including title, author, creation date, file size, and other properties",
+    "file_types": ["*"],
+    "version": "1.0.0"
+  },
+  "command_interface": {
+    "cli_flag": "--extract-metadata",
+    "usage_pattern": "plugin_binary --extract-metadata <file_path> [--json] [--output <output_file>]"
+  },
+  "arguments": {
+    "required": [
+      {
+        "name": "file_path",
+        "type": "string",
+        "description": "Path to the document file to process",
+        "position": 0,
+        "validation": {
+          "pattern": "^[^\\0]+$",
+          "min_length": 1
+        }
+      }
+    ],
+    "optional": [
+      {
+        "name": "json",
+        "type": "boolean",
+        "description": "Output metadata in JSON format",
+        "cli_flag": "--json",
+        "default": false
+      },
+      {
+        "name": "output",
+        "type": "string",
+        "description": "Write output to specified file instead of stdout",
+        "cli_flag": "--output",
+        "validation": {
+          "pattern": "^[^\\0]+$"
+        }
+      }
+    ]
+  },
+  "response": {
+    "type": "json",
+    "schema_ref": "file-metadata.json",
+    "description": "Structured metadata including file properties, document properties, and format-specific metadata"
+  },
+  "validation": {
+    "file_existence": true,
+    "file_type_check": true,
+    "custom_validators": ["validate_readable_file"]
+  },
+  "error_handling": {
+    "error_codes": {
+      "FILE_NOT_FOUND": {
+        "code": 3,
+        "message": "File not found: {file_path}",
+        "description": "The specified file does not exist"
+      },
+      "UNSUPPORTED_FORMAT": {
+        "code": 4,
+        "message": "Unsupported file format: {file_path}",
+        "description": "The file format is not supported by this plugin"
+      },
+      "CORRUPTED_FILE": {
+        "code": 6,
+        "message": "File appears to be corrupted: {file_path}",
+        "description": "The file exists but cannot be parsed or is corrupted"
+      },
+      "PERMISSION_DENIED": {
+        "code": 7,
+        "message": "Permission denied accessing file: {file_path}",
+        "description": "Insufficient permissions to read the file"
+      }
+    },
+    "timeout_seconds": 30
+  }
+}

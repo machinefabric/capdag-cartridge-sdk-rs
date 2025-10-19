@@ -10,6 +10,7 @@ pub mod metadata;
 pub mod output;
 pub mod registry;
 pub mod response;
+pub mod validation;
 
 pub use document::*;
 pub use handler::*;
@@ -17,6 +18,7 @@ pub use metadata::*;
 pub use output::*;
 pub use registry::*;
 pub use response::*;
+pub use validation::*;
 
 // Re-export common dependencies
 pub use anyhow::{Result, Context};

@@ -128,7 +128,7 @@ func (h *MyHandler) ExtractMetadata(ctx context.Context, filePath string) (*sdk.
 The plugin system has been extended to support multiple plugin types beyond just document handlers:
 
 #### Schema Updates ✅ COMPLETE
-- ✅ `plugin-info.json` - Added `plugin_type`, `priority`, `system_critical`, `service_endpoints` fields  
+- ✅ `plugin-info.json` - Added `plugin_type`, `system_critical`, `service_endpoints` fields  
 - ✅ Updated capabilities enum to include service-specific capabilities
 - ✅ Made `extensions` field optional (only required for document handlers)
 - ✅ Added `service_endpoints` field for service plugins
@@ -138,11 +138,6 @@ The plugin system has been extended to support multiple plugin types beyond just
 - `model_service` - LLM model management (modelczar)
 - `embedding_service` - Text embedding generation (embeddingczar)  
 - `system_service` - General system services
-
-#### Priority Levels
-- `optional` - Can be disabled/removed
-- `recommended` - Important but not critical
-- `critical` - System-critical, cannot be disabled
 
 ### Implementation Status
 - ✅ JSON Schema updated
@@ -154,7 +149,7 @@ The plugin system has been extended to support multiple plugin types beyond just
 ## Next Steps
 
 1. **SDK Updates**: Update all SDKs (Objective-C, Rust, Go) to support new plugin types
-2. **Plugin Updates**: Update all czars to report correct plugin_type and priority
+2. **Plugin Updates**: Update all czars to report correct plugin_type
 3. **Discovery Logic**: Update LBVR plugin discovery to handle multiple plugin types
 4. **Validation**: Add schema validation tests for new plugin types
 5. **Documentation**: Update API documentation for multi-plugin architecture

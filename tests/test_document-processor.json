@@ -1,0 +1,75 @@
+{
+  "capabilities": 5,
+  "interface": "document-processor",
+  "test_files": {
+    "pdf": [
+      {
+        "description": "Simple PDF with basic text and outline",
+        "expected_capabilities": [
+          "extract-metadata",
+          "extract-outline",
+          "extract-pages",
+          "generate-thumbnail",
+          "validate-file"
+        ],
+        "name": "simple_document",
+        "path": "../test_files/simple.pdf"
+      }
+    ],
+    "txt": [
+      {
+        "description": "Plain text file",
+        "expected_capabilities": [
+          "extract-metadata",
+          "extract-pages",
+          "validate-file"
+        ],
+        "name": "plain_text",
+        "path": "../test_files/sample.txt"
+      }
+    ]
+  },
+  "test_scenarios": [
+    {
+      "arguments": {
+        "file_path": "../test_files/simple.pdf",
+        "json": true
+      },
+      "capability": "extract-metadata",
+      "description": "Test basic metadata extraction with JSON output",
+      "expected_result": {
+        "exit_code": 0,
+        "output_validation": {
+          "format": "json",
+          "required_fields": [
+            "file_name",
+            "file_size",
+            "mime_type"
+          ]
+        },
+        "success": true
+      },
+      "name": "basic_metadata_extraction"
+    },
+    {
+      "arguments": {
+        "file_path": "../test_files/simple.pdf",
+        "height": 200,
+        "output": "/tmp/thumbnail.png",
+        "width": 150
+      },
+      "capability": "generate-thumbnail",
+      "description": "Test thumbnail generation with custom dimensions",
+      "expected_result": {
+        "exit_code": 0,
+        "output_validation": {
+          "file_exists": "/tmp/thumbnail.png",
+          "file_type": "image/png"
+        },
+        "success": true
+      },
+      "name": "thumbnail_generation_with_size"
+    }
+  ],
+  "version": "1.0.0"
+}

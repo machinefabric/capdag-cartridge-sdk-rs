@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Capability Schema",
+  "description": "Formal definition of a plugin capability with typed arguments and validation rules",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Version of the capability schema format"
+    },
+    "capability": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z-]+$",
+          "description": "Capability name using hyphenated format (e.g., 'extract-metadata', 'generate-thumbnail')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this capability does"
+        },
+        "file_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([a-z]+|\\*)$"
+          },
+          "description": "File types this capability supports (e.g., ['pdf', 'epub'] or ['*'] for all types)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+          "description": "Semantic version of this capability definition"
+        }
+      },
+      "required": ["name", "description", "file_types", "version"]
+    },
+    "command_interface": {
+      "type": "object",
+      "properties": {
+        "cli_flag": {
+          "type": "string",
+          "pattern": "^--[a-z-]+$",
+          "description": "Command-line flag for this capability (e.g., '--extract-metadata')"
+        },
+        "usage_pattern": {
+          "type": "string",
+          "description": "Human-readable usage pattern showing how to call this capability"
+        }
+      },
+      "required": ["cli_flag", "usage_pattern"]
+    },
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Argument"
+          },
+          "description": "Required arguments for this capability"
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Argument"
+          },
+          "description": "Optional arguments for this capability"
+        }
+      },
+      "required": ["required", "optional"]
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["json", "binary", "text", "boolean"],
+          "description": "Type of response this capability returns"
+        },
+        "schema_ref": {
+          "type": ["string", "null"],
+          "description": "Reference to JSON schema file for structured responses (e.g., 'file-metadata.json')"
+        },
+        "content_type": {
+          "type": ["string", "null"],
+          "description": "MIME type for binary responses (e.g., 'image/png' for thumbnails)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of what the response contains"
+        }
+      },
+      "required": ["type", "description"]
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "file_existence": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to validate that input files exist"
+        },
+        "file_type_check": {
+          "type": "boolean", 
+          "default": true,
+          "description": "Whether to validate file type matches capability's supported types"
+        },
+        "custom_validators": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of custom validation functions to run"
+        }
+      }
+    },
+    "error_handling": {
+      "type": "object",
+      "properties": {
+        "error_codes": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z_]+$": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": ["code", "message", "description"]
+            }
+          },
+          "description": "Standard error codes and messages for this capability"
+        },
+        "timeout_seconds": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 300,
+          "default": 30,
+          "description": "Maximum execution time for this capability"
+        }
+      }
+    }
+  },
+  "required": ["schema_version", "capability", "command_interface", "arguments", "response"],
+  "definitions": {
+    "Argument": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_]+$",
+          "description": "Argument name in snake_case"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "integer", "number", "boolean", "array", "object"],
+          "description": "Type of the argument value"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this argument"
+        },
+        "cli_flag": {
+          "type": ["string", "null"],
+          "pattern": "^--[a-z-]+$",
+          "description": "Optional CLI flag for named arguments (e.g., '--width')"
+        },
+        "position": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Position for positional arguments (0-based). Null for named arguments."
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": ["number", "null"],
+              "description": "Minimum value for numeric types"
+            },
+            "max": {
+              "type": ["number", "null"],
+              "description": "Maximum value for numeric types"
+            },
+            "min_length": {
+              "type": ["integer", "null"],
+              "description": "Minimum length for string/array types"
+            },
+            "max_length": {
+              "type": ["integer", "null"],
+              "description": "Maximum length for string/array types"
+            },
+            "pattern": {
+              "type": ["string", "null"],
+              "description": "Regex pattern for string validation"
+            },
+            "allowed_values": {
+              "type": ["array", "null"],
+              "description": "List of allowed values (enum-like validation)"
+            }
+          }
+        },
+        "default": {
+          "description": "Default value if argument is not provided (for optional arguments)"
+        }
+      },
+      "required": ["name", "type", "description"],
+      "oneOf": [
+        {
+          "properties": {
+            "position": {
+              "type": "integer"
+            },
+            "cli_flag": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "cli_flag": {
+              "type": "string"
+            },
+            "position": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
