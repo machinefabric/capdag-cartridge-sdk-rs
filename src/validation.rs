@@ -364,11 +364,13 @@ impl PluginValidator {
         // Test plugin-info command
         self.validate_plugin_info_command(plugin_binary, interface, &mut report)?;
 
-        // Test each capability
+        // Test each capability with comprehensive validation
         for cap_ref in &interface.capabilities {
             match cap_ref {
                 CapabilityReference::Inline(cap_schema) => {
                     self.validate_capability_implementation(plugin_binary, cap_schema, &mut report)?;
+                    self.validate_capability_output_format(plugin_binary, cap_schema, &mut report)?;
+                    self.validate_capability_error_handling(plugin_binary, cap_schema, &mut report)?;
                 }
                 CapabilityReference::Reference { capability_ref } => {
                     // Load referenced capability and validate
@@ -377,12 +379,17 @@ impl PluginValidator {
                         let content = std::fs::read_to_string(&cap_path)?;
                         let cap_schema: CapabilitySchema = serde_json::from_str(&content)?;
                         self.validate_capability_implementation(plugin_binary, &cap_schema, &mut report)?;
+                        self.validate_capability_output_format(plugin_binary, &cap_schema, &mut report)?;
+                        self.validate_capability_error_handling(plugin_binary, &cap_schema, &mut report)?;
                     } else {
                         report.add_error(format!("Referenced capability schema not found: {}", capability_ref));
                     }
                 }
             }
         }
+
+        // Test with real files if available
+        self.validate_with_test_files(plugin_binary, interface, &mut report)?;
 
         Ok(report)
     }
@@ -506,9 +513,10 @@ impl PluginValidator {
     ) -> PluginResult<()> {
         let cap_name = &capability.capability.name;
         
-        // Test that the capability flag is recognized
+        // Test that the capability command is recognized
+        let command_name = capability.command_interface.cli_flag.trim_start_matches("--");
         let output = Command::new(plugin_binary)
-            .args(&[&capability.command_interface.cli_flag, "--help"])
+            .args(&[command_name, "--help"])
             .output();
 
         match output {
@@ -526,6 +534,229 @@ impl PluginValidator {
         }
 
         Ok(())
+    }
+
+    /// Validate that capability outputs correct format (JSON for structured data)
+    fn validate_capability_output_format(
+        &self,
+        plugin_binary: &Path,
+        capability: &CapabilitySchema,
+        report: &mut ValidationReport,
+    ) -> PluginResult<()> {
+        let cap_name = &capability.capability.name;
+        
+        // Only test structured data capabilities that we can validate output format
+        if !matches!(capability.response.response_type, ResponseType::Json) {
+            return Ok(());
+        }
+
+        // Create a temporary test file if needed
+        let test_file = if capability.arguments.required.iter().any(|arg| arg.name == "file_path") {
+            let temp_file = std::env::temp_dir().join(format!("plugin_test_{}.txt", uuid::Uuid::new_v4()));
+            std::fs::write(&temp_file, "Test content for plugin validation\n\nSecond paragraph.").ok();
+            Some(temp_file)
+        } else {
+            None
+        };
+
+        if let Some(ref test_file_path) = test_file {
+            // Test the capability with the test file
+            let test_file_str = test_file_path.to_string_lossy().to_string();
+            let command_name = capability.command_interface.cli_flag.trim_start_matches("--");
+            let args = vec![command_name, &test_file_str];
+            
+            let output = Command::new(plugin_binary)
+                .args(&args)
+                .output();
+
+            match output {
+                Ok(result) => {
+                    if result.status.success() {
+                        let stdout = String::from_utf8_lossy(&result.stdout);
+                        
+                        // Verify it's valid JSON
+                        match serde_json::from_str::<serde_json::Value>(&stdout) {
+                            Ok(_) => {
+                                // Check that it doesn't start with Debug format
+                                if stdout.trim().starts_with(&format!("{}{{", capability.response.schema_ref.as_ref().unwrap_or(&"Data".to_string()).replace(".json", ""))) {
+                                    report.add_error(format!("Capability {} outputs Debug format instead of JSON: starts with '{}{{", cap_name, capability.response.schema_ref.as_ref().unwrap_or(&"Data".to_string()).replace(".json", "")));
+                                } else {
+                                    report.add_success(format!("Capability {} outputs valid JSON", cap_name));
+                                }
+                            }
+                            Err(e) => {
+                                // Check if it's Debug format
+                                if stdout.trim().starts_with("FileMetadata {") || 
+                                   stdout.trim().starts_with("DocumentPages {") || 
+                                   stdout.trim().starts_with("DocumentOutline {") {
+                                    report.add_error(format!("Capability {} outputs Debug format instead of JSON", cap_name));
+                                } else {
+                                    report.add_error(format!("Capability {} outputs invalid JSON: {}", cap_name, e));
+                                }
+                            }
+                        }
+                    } else {
+                        let stderr = String::from_utf8_lossy(&result.stderr);
+                        report.add_error(format!("Capability {} failed on test file: {}", cap_name, stderr));
+                    }
+                }
+                Err(e) => {
+                    report.add_error(format!("Failed to test capability {} output format: {}", cap_name, e));
+                }
+            }
+
+            // Clean up test file
+            std::fs::remove_file(test_file_path).ok();
+        }
+
+        Ok(())
+    }
+
+    /// Validate capability error handling
+    fn validate_capability_error_handling(
+        &self,
+        plugin_binary: &Path,
+        capability: &CapabilitySchema,
+        report: &mut ValidationReport,
+    ) -> PluginResult<()> {
+        let cap_name = &capability.capability.name;
+        
+        // Test with non-existent file if capability takes file input
+        if capability.arguments.required.iter().any(|arg| arg.name == "file_path") {
+            let non_existent_file = "/tmp/non_existent_file_for_plugin_test.xyz";
+            let non_existent_str = non_existent_file.to_string();
+            let command_name = capability.command_interface.cli_flag.trim_start_matches("--");
+            
+            let args = vec![command_name, &non_existent_str];
+            
+            let output = Command::new(plugin_binary)
+                .args(&args)
+                .output();
+
+            match output {
+                Ok(result) => {
+                    if !result.status.success() {
+                        let exit_code = result.status.code().unwrap_or(-1);
+                        
+                        // Check if it uses standard exit codes
+                        if let Some(expected_code) = capability.error_handling.error_codes.get("FILE_NOT_FOUND") {
+                            if exit_code == expected_code.code {
+                                report.add_success(format!("Capability {} uses correct exit code for file not found", cap_name));
+                            } else {
+                                report.add_error(format!("Capability {} uses exit code {} instead of expected {} for file not found", cap_name, exit_code, expected_code.code));
+                            }
+                        } else {
+                            if exit_code > 0 {
+                                report.add_success(format!("Capability {} properly fails with non-zero exit code for invalid input", cap_name));
+                            } else {
+                                report.add_error(format!("Capability {} should fail with non-zero exit code for non-existent file", cap_name));
+                            }
+                        }
+                    } else {
+                        report.add_error(format!("Capability {} should fail when given non-existent file", cap_name));
+                    }
+                }
+                Err(e) => {
+                    report.add_error(format!("Failed to test capability {} error handling: {}", cap_name, e));
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Validate plugin with test files from interface definition
+    fn validate_with_test_files(
+        &self,
+        plugin_binary: &Path,
+        interface: &PluginInterfaceSchema,
+        report: &mut ValidationReport,
+    ) -> PluginResult<()> {
+        // Run test scenarios if defined
+        for scenario in &interface.testing.test_scenarios {
+            let cap_name = &scenario.capability;
+            
+            // Find the capability schema
+            let cap_schema = self.find_capability_in_interface(interface, cap_name);
+            if cap_schema.is_none() {
+                report.add_error(format!("Test scenario references unknown capability: {}", cap_name));
+                continue;
+            }
+            let cap_schema = cap_schema.unwrap();
+            
+            // Build command arguments from scenario
+            let mut args_strings = Vec::new();
+            let command_name = cap_schema.command_interface.cli_flag.trim_start_matches("--");
+            args_strings.push(command_name.to_string());
+            
+            // Add arguments from scenario
+            if let Some(file_path) = scenario.arguments.get("file_path").and_then(|v| v.as_str()) {
+                args_strings.push(file_path.to_string());
+            }
+            if let Some(width) = scenario.arguments.get("width").and_then(|v| v.as_u64()) {
+                args_strings.push("--width".to_string());
+                args_strings.push(width.to_string());
+            }
+            if let Some(height) = scenario.arguments.get("height").and_then(|v| v.as_u64()) {
+                args_strings.push("--height".to_string());
+                args_strings.push(height.to_string());
+            }
+            if let Some(output) = scenario.arguments.get("output").and_then(|v| v.as_str()) {
+                args_strings.push("--output".to_string());
+                args_strings.push(output.to_string());
+            }
+            
+            let args: Vec<&str> = args_strings.iter().map(|s| s.as_str()).collect();
+            
+            // Execute test scenario
+            let output = Command::new(plugin_binary)
+                .args(&args)
+                .output();
+
+            match output {
+                Ok(result) => {
+                    let success = result.status.success();
+                    let exit_code = result.status.code().unwrap_or(-1);
+                    
+                    if success == scenario.expected_result.success {
+                        if let Some(expected_exit_code) = scenario.expected_result.exit_code {
+                            if exit_code == expected_exit_code {
+                                report.add_success(format!("Test scenario '{}' passed", scenario.name));
+                            } else {
+                                report.add_error(format!("Test scenario '{}' exit code mismatch: got {}, expected {}", scenario.name, exit_code, expected_exit_code));
+                            }
+                        } else {
+                            report.add_success(format!("Test scenario '{}' passed", scenario.name));
+                        }
+                    } else {
+                        report.add_error(format!("Test scenario '{}' success mismatch: got {}, expected {}", scenario.name, success, scenario.expected_result.success));
+                    }
+                }
+                Err(e) => {
+                    report.add_error(format!("Failed to run test scenario '{}': {}", scenario.name, e));
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Find a capability schema in an interface
+    fn find_capability_in_interface<'a>(&self, interface: &'a PluginInterfaceSchema, cap_name: &str) -> Option<&'a CapabilitySchema> {
+        for cap_ref in &interface.capabilities {
+            match cap_ref {
+                CapabilityReference::Inline(cap_schema) => {
+                    if cap_schema.capability.name == cap_name {
+                        return Some(cap_schema);
+                    }
+                }
+                CapabilityReference::Reference { .. } => {
+                    // For simplicity, skip referenced capabilities in this implementation
+                    // In a full implementation, you'd load and check the referenced schema
+                }
+            }
+        }
+        None
     }
 }
 
