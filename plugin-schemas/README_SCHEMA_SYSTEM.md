@@ -281,7 +281,7 @@ enum Commands {
    - Check validation constraints (min/max values)
 
 3. **Missing plugin-info Command**
-   - Implement `plugin-info --json` command
+   - Implement `plugin-info` command (outputs JSON by default)
    - Return valid JSON with required fields
 
 4. **File Type Inconsistency**

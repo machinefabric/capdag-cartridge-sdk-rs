@@ -59,8 +59,7 @@ impl CapabilityCaller {
             }
         }
         
-        // Always request JSON output when available
-        // cmd_args.push("--json".to_string());
+        // Plugins output JSON by default
         
         // Convert to &str slice for XPC client
         let str_args: Vec<&str> = cmd_args.iter().map(|s| s.as_str()).collect();
@@ -100,9 +99,10 @@ impl CapabilityCaller {
     
     /// Check if this capability should produce JSON output
     fn is_json_capability(&self) -> bool {
-        matches!(
+        // All structured data capabilities now return JSON
+        !matches!(
             self.capability.split(':').next().unwrap_or(""),
-            "extract-metadata" | "extract-outline" | "extract-pages" | "list-models" | "get-model-status"
+            "generate-thumbnail"  // Only binary capabilities return non-JSON
         )
     }
 }

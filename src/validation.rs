@@ -168,8 +168,6 @@ pub struct GlobalRequirements {
     #[serde(default)]
     pub plugin_info_command: PluginInfoRequirement,
     #[serde(default)]
-    pub json_output_support: JsonOutputSupport,
-    #[serde(default)]
     pub error_handling: GlobalErrorHandling,
 }
 
@@ -177,43 +175,21 @@ pub struct GlobalRequirements {
 pub struct PluginInfoRequirement {
     #[serde(default = "default_true")]
     pub required: bool,
-    #[serde(default = "default_json_format")]
-    pub format: String,
     #[serde(default = "default_plugin_info_schema")]
     pub schema_ref: String,
 }
 
-fn default_json_format() -> String { "json".to_string() }
 fn default_plugin_info_schema() -> String { "plugin-info.json".to_string() }
 
 impl Default for PluginInfoRequirement {
     fn default() -> Self {
         Self {
             required: true,
-            format: default_json_format(),
             schema_ref: default_plugin_info_schema(),
         }
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct JsonOutputSupport {
-    #[serde(default = "default_true")]
-    pub required: bool,
-    #[serde(default = "default_json_flag")]
-    pub flag: String,
-}
-
-fn default_json_flag() -> String { "--json".to_string() }
-
-impl Default for JsonOutputSupport {
-    fn default() -> Self {
-        Self {
-            required: true,
-            flag: default_json_flag(),
-        }
-    }
-}
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct GlobalErrorHandling {
@@ -493,7 +469,7 @@ impl PluginValidator {
         }
 
         let output = Command::new(plugin_binary)
-            .args(&["plugin-info", "--json"])
+            .args(&["plugin-info"])
             .output()
             .context("Failed to execute plugin-info command")?;
 

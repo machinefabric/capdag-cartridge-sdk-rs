@@ -8,7 +8,7 @@
   },
   "command_interface": {
     "cli_flag": "--extract-metadata",
-    "usage_pattern": "plugin_binary --extract-metadata <file_path> [--json] [--output <output_file>]"
+    "usage_pattern": "plugin_binary --extract-metadata <file_path> [--output <output_file>]"
   },
   "arguments": {
     "required": [
@@ -24,13 +24,6 @@
       }
     ],
     "optional": [
-      {
-        "name": "json",
-        "type": "boolean",
-        "description": "Output metadata in JSON format",
-        "cli_flag": "--json",
-        "default": false
-      },
       {
         "name": "output",
         "type": "string",

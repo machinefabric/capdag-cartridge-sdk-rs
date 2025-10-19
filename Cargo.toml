@@ -19,3 +19,11 @@ uuid = { version = "1.0", features = ["v4", "serde"] }
 
 [features]
 default = []
+
+[[bin]]
+name = "plugin-validator"
+path = "src/bin/plugin-validator.rs"
+
+[[bin]]
+name = "test-serialization"
+path = "src/bin/test-serialization.rs"
