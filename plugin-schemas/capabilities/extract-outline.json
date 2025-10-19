@@ -8,7 +8,7 @@
   },
   "command_interface": {
     "cli_flag": "--extract-outline",
-    "usage_pattern": "plugin_binary --extract-outline <file_path> [--json] [--output <output_file>] [--max-depth <depth>]"
+    "usage_pattern": "plugin_binary --extract-outline <file_path> [--output <output_file>] [--max-depth <depth>]"
   },
   "arguments": {
     "required": [
@@ -24,13 +24,6 @@
       }
     ],
     "optional": [
-      {
-        "name": "json",
-        "type": "boolean",
-        "description": "Output outline in JSON format",
-        "cli_flag": "--json",
-        "default": false
-      },
       {
         "name": "output",
         "type": "string",

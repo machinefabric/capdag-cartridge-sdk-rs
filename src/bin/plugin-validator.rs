@@ -387,7 +387,7 @@ fn generate_test_script(interface: &lbvr_plugin_sdk::PluginInterfaceSchema, inte
 
     // Test plugin-info command
     script.push_str("echo \"Testing plugin-info command...\"\n");
-    script.push_str("\"$PLUGIN_BINARY\" plugin-info --json > /tmp/plugin-info.json\n");
+    script.push_str("\"$PLUGIN_BINARY\" plugin-info > /tmp/plugin-info.json\n");
     script.push_str("echo \"✅ plugin-info command passed\"\n\n");
 
     // Test each capability

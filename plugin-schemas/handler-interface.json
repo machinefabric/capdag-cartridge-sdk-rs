@@ -29,7 +29,7 @@
             "description": "Direct capability-to-CLI-flag mapping",
             "flag_format": "--{operation} (e.g., --extract-metadata, --generate-thumbnail)",
             "capability_advertising": "--plugin-info flag returns JSON with capabilities array",
-            "execution_pattern": "plugin_binary --{operation} file_path [additional_args] [--json]"
+            "execution_pattern": "plugin_binary --{operation} file_path [additional_args]"
           }
         }
       }
@@ -130,7 +130,7 @@
           "properties": {
             "description": "Must implement CLI flags for each advertised capability",
             "naming_convention": "--{operation} (hyphens, not underscores)",
-            "json_output": "Support --json flag for structured output when applicable"
+            "json_output": "Output structured data as JSON by default"
           }
         },
         "unified_calling": {

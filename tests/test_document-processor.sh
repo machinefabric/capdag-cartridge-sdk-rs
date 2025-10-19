@@ -14,7 +14,7 @@ echo "🧪 Testing plugin: $PLUGIN_BINARY"
 echo "📋 Interface: document-processor"
 
 echo "Testing plugin-info command..."
-"$PLUGIN_BINARY" plugin-info --json > /tmp/plugin-info.json
+"$PLUGIN_BINARY" plugin-info > /tmp/plugin-info.json
 echo "✅ plugin-info command passed"
 
 echo "Testing capability: extract-metadata..."

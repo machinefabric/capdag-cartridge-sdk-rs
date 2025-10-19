@@ -95,21 +95,6 @@
             }
           }
         },
-        "json_output_support": {
-          "type": "object",
-          "properties": {
-            "required": {
-              "type": "boolean",
-              "default": true,
-              "description": "Whether plugins must support --json flag for structured output"
-            },
-            "flag": {
-              "type": "string",
-              "default": "--json",
-              "description": "CLI flag for JSON output"
-            }
-          }
-        },
         "error_handling": {
           "type": "object",
           "properties": {
