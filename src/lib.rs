@@ -5,6 +5,7 @@
 //! a unified plugin architecture with standardized capability-based calling.
 
 pub mod document;
+pub mod document_capability;
 pub mod handler;
 pub mod metadata;
 pub mod output;
@@ -12,7 +13,11 @@ pub mod registry;
 pub mod response;
 pub mod validation;
 
+// Re-export capability SDK types
+pub use capability_sdk::*;
+
 pub use document::*;
+pub use document_capability::*;
 pub use handler::*;
 pub use metadata::*;
 pub use output::*;

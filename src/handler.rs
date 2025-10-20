@@ -2,18 +2,8 @@
 //! 
 //! This module defines the unified plugin interfaces with standardized capability-based calling.
 
-/// Plugin capabilities
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
-pub struct PluginCapabilities {
-    pub capabilities: Vec<String>,
-}
-
-impl PluginCapabilities {
-    /// Check if the plugin has a specific capability
-    pub fn can(&self, capability: &str) -> bool {
-        self.capabilities.iter().any(|c| c == capability)
-    }
-}
+use capability_sdk::{Capability, PluginCapabilities, CapabilityId, CapabilityMatcher};
+use std::collections::HashMap;
 
 /// Plugin information for --plugin-info output
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -27,7 +17,7 @@ pub struct PluginInfo {
     /// Plugin description
     pub description: String,
     
-    /// Plugin capabilities with file type specificity
+    /// Plugin capabilities with formal definitions
     pub capabilities: PluginCapabilities,
     
     /// Plugin author/maintainer
