@@ -99,6 +99,7 @@ impl DocumentCapabilityBuilder {
             Ok(Capability::with_description_and_metadata(
                 id,
                 version.to_string(),
+                "document-capability".to_string(),
                 desc.to_string(),
                 metadata,
             ))
@@ -106,6 +107,7 @@ impl DocumentCapabilityBuilder {
             Ok(Capability::with_metadata(
                 id,
                 version.to_string(),
+                "document-capability".to_string(),
                 metadata,
             ))
         }
