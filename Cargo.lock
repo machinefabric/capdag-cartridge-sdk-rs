@@ -159,6 +159,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
 
 [[package]]
+name = "capability_sdk"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "cc"
 version = "1.2.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -708,6 +716,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "capability_sdk",
  "chrono",
  "clap",
  "jsonschema",

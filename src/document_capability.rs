@@ -1,0 +1,190 @@
+//! Document processing specific capability extensions
+//!
+//! This module provides extensions to the general capability system for document processing,
+//! adding file type support and document-specific functionality.
+
+use capability_sdk::{Capability, PluginCapabilities, CapabilityId};
+use std::collections::HashMap;
+
+/// Extension trait for document processing capabilities
+pub trait DocumentCapabilityExt {
+    /// Check if this capability supports a given file type
+    fn supports_file_type(&self, file_type: &str) -> bool;
+    
+    /// Get supported file types for this capability
+    fn get_supported_file_types(&self) -> Vec<String>;
+    
+    /// Check if this capability supports all file types
+    fn supports_all_file_types(&self) -> bool;
+}
+
+impl DocumentCapabilityExt for Capability {
+    fn supports_file_type(&self, file_type: &str) -> bool {
+        if let Some(file_types_str) = self.get_metadata("file_types") {
+            let file_types: Vec<&str> = file_types_str.split(',').map(|s| s.trim()).collect();
+            file_types.contains(&"*") || file_types.contains(&file_type.to_lowercase().as_str())
+        } else {
+            false
+        }
+    }
+    
+    fn get_supported_file_types(&self) -> Vec<String> {
+        if let Some(file_types_str) = self.get_metadata("file_types") {
+            file_types_str.split(',').map(|s| s.trim().to_string()).collect()
+        } else {
+            Vec::new()
+        }
+    }
+    
+    fn supports_all_file_types(&self) -> bool {
+        self.get_supported_file_types().contains(&"*".to_string())
+    }
+}
+
+/// Extension trait for document processing capability collections
+pub trait DocumentCapabilitiesExt {
+    /// Get capabilities that support a specific file type
+    fn capabilities_for_file_type(&self, file_type: &str) -> Vec<&Capability>;
+    
+    /// Get all supported file types across all capabilities
+    fn get_all_supported_file_types(&self) -> Vec<String>;
+    
+    /// Check if any capability supports all file types
+    fn supports_all_file_types(&self) -> bool;
+}
+
+impl DocumentCapabilitiesExt for PluginCapabilities {
+    fn capabilities_for_file_type(&self, file_type: &str) -> Vec<&Capability> {
+        self.capabilities
+            .iter()
+            .filter(|c| c.supports_file_type(file_type))
+            .collect()
+    }
+    
+    fn get_all_supported_file_types(&self) -> Vec<String> {
+        let mut file_types = Vec::new();
+        for capability in &self.capabilities {
+            for file_type in capability.get_supported_file_types() {
+                if !file_types.contains(&file_type) {
+                    file_types.push(file_type);
+                }
+            }
+        }
+        file_types.sort();
+        file_types
+    }
+    
+    fn supports_all_file_types(&self) -> bool {
+        self.capabilities.iter().any(|c| c.supports_all_file_types())
+    }
+}
+
+/// Helper functions for creating document processing capabilities
+pub struct DocumentCapabilityBuilder;
+
+impl DocumentCapabilityBuilder {
+    /// Create a document processing capability with file type support
+    pub fn new_document_capability(
+        id_str: &str, 
+        version: &str, 
+        file_types: Vec<&str>, 
+        description: Option<&str>
+    ) -> Result<Capability, capability_sdk::CapabilityIdError> {
+        let id = CapabilityId::from_string(id_str)?;
+        let mut metadata = HashMap::new();
+        metadata.insert("file_types".to_string(), file_types.join(","));
+        
+        if let Some(desc) = description {
+            Ok(Capability::with_description_and_metadata(
+                id,
+                version.to_string(),
+                desc.to_string(),
+                metadata,
+            ))
+        } else {
+            Ok(Capability::with_metadata(
+                id,
+                version.to_string(),
+                metadata,
+            ))
+        }
+    }
+    
+    /// Create a capability that supports all file types
+    pub fn new_universal_capability(
+        id_str: &str, 
+        version: &str, 
+        description: Option<&str>
+    ) -> Result<Capability, capability_sdk::CapabilityIdError> {
+        Self::new_document_capability(id_str, version, vec!["*"], description)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_document_capability_file_types() {
+        let cap = DocumentCapabilityBuilder::new_document_capability(
+            "document:extract:metadata",
+            "1.0.0",
+            vec!["pdf", "txt", "md"],
+            Some("Extract document metadata")
+        ).unwrap();
+        
+        assert!(cap.supports_file_type("pdf"));
+        assert!(cap.supports_file_type("txt"));
+        assert!(cap.supports_file_type("md"));
+        assert!(!cap.supports_file_type("jpg"));
+        
+        let file_types = cap.get_supported_file_types();
+        assert_eq!(file_types, vec!["pdf", "txt", "md"]);
+    }
+    
+    #[test]
+    fn test_universal_capability() {
+        let cap = DocumentCapabilityBuilder::new_universal_capability(
+            "document:extract:text",
+            "1.0.0",
+            Some("Extract text from any document")
+        ).unwrap();
+        
+        assert!(cap.supports_all_file_types());
+        assert!(cap.supports_file_type("pdf"));
+        assert!(cap.supports_file_type("anything"));
+    }
+    
+    #[test]
+    fn test_document_capabilities_collection() {
+        let mut capabilities = PluginCapabilities::new();
+        
+        let cap1 = DocumentCapabilityBuilder::new_document_capability(
+            "document:extract:metadata",
+            "1.0.0",
+            vec!["pdf"],
+            None
+        ).unwrap();
+        
+        let cap2 = DocumentCapabilityBuilder::new_document_capability(
+            "document:extract:text",
+            "1.0.0",
+            vec!["txt", "md"],
+            None
+        ).unwrap();
+        
+        capabilities.add_capability(cap1);
+        capabilities.add_capability(cap2);
+        
+        let pdf_caps = capabilities.capabilities_for_file_type("pdf");
+        assert_eq!(pdf_caps.len(), 1);
+        
+        let txt_caps = capabilities.capabilities_for_file_type("txt");
+        assert_eq!(txt_caps.len(), 1);
+        
+        let all_types = capabilities.get_all_supported_file_types();
+        assert!(all_types.contains(&"pdf".to_string()));
+        assert!(all_types.contains(&"txt".to_string()));
+        assert!(all_types.contains(&"md".to_string()));
+    }
+}
