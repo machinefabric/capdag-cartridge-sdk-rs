@@ -7,8 +7,7 @@
     "version": "1.0.0"
   },
   "command_interface": {
-    "cli_flag": "--extract-metadata",
-    "usage_pattern": "plugin_binary --extract-metadata <file_path> [--output <output_file>]"
+    "command": "extract-metadata"
   },
   "arguments": {
     "required": [
@@ -28,7 +27,7 @@
         "name": "output",
         "type": "string",
         "description": "Write output to specified file instead of stdout",
-        "cli_flag": "--output",
+        "command": "output",
         "validation": {
           "pattern": "^[^\\0]+$"
         }

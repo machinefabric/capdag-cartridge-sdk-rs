@@ -7,8 +7,7 @@
     "version": "1.0.0"
   },
   "command_interface": {
-    "cli_flag": "--generate-thumbnail",
-    "usage_pattern": "plugin_binary --generate-thumbnail <file_path> [--width <width>] [--height <height>] [--output <output_file>]"
+    "command": "generate-thumbnail"
   },
   "arguments": {
     "required": [
@@ -28,7 +27,7 @@
         "name": "width",
         "type": "integer",
         "description": "Width of the thumbnail in pixels",
-        "cli_flag": "--width",
+        "command": "width",
         "default": 200,
         "validation": {
           "min": 50,
@@ -39,7 +38,7 @@
         "name": "height",
         "type": "integer",
         "description": "Height of the thumbnail in pixels",
-        "cli_flag": "--height",
+        "command": "height",
         "default": 300,
         "validation": {
           "min": 50,
@@ -50,7 +49,7 @@
         "name": "output",
         "type": "string",
         "description": "Write thumbnail to specified file instead of stdout",
-        "cli_flag": "--output",
+        "command": "output",
         "validation": {
           "pattern": "\\.(png|jpg|jpeg)$"
         }
@@ -59,7 +58,7 @@
         "name": "page",
         "type": "integer",
         "description": "Page number to generate thumbnail from (1-based, default: 1)",
-        "cli_flag": "--page",
+        "command": "page",
         "default": 1,
         "validation": {
           "min": 1

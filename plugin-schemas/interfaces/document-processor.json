@@ -29,8 +29,7 @@
         "version": "1.0.0"
       },
       "command_interface": {
-        "cli_flag": "--extract-pages",
-        "usage_pattern": "plugin_binary --extract-pages <file_path> [--output <output_file>] [--page-range <start>-<end>]"
+        "command": "extract-pages"
       },
       "arguments": {
         "required": [
@@ -50,7 +49,7 @@
             "name": "output",
             "type": "string",
             "description": "Write output to specified file instead of stdout",
-            "cli_flag": "--output",
+            "command": "output",
             "validation": {
               "pattern": "^[^\\0]+$"
             }
@@ -59,7 +58,7 @@
             "name": "page_range",
             "type": "string",
             "description": "Page range to extract (e.g., '1-5' or '10-')",
-            "cli_flag": "--page-range",
+            "command": "page-range",
             "validation": {
               "pattern": "^\\d+(-\\d*)?$"
             }
@@ -106,8 +105,7 @@
         "version": "1.0.0"
       },
       "command_interface": {
-        "cli_flag": "--validate-file",
-        "usage_pattern": "plugin_binary --validate-file <file_path>"
+        "command": "validate-file"
       },
       "arguments": {
         "required": [

@@ -41,7 +41,7 @@
           "type": "object",
           "properties": {
             "description": "Extract document metadata",
-            "cli_flag": "--extract-metadata",
+            "command": "extract-metadata",
             "args_format": ["file_path:string"],
             "response_type": {
               "$ref": "file-metadata.json"
@@ -53,7 +53,7 @@
           "type": "object",
           "properties": {
             "description": "Extract document outline/table of contents",
-            "cli_flag": "--extract-outline",
+            "command": "extract-outline",
             "args_format": ["file_path:string"],
             "response_type": {
               "$ref": "document-outline.json"
@@ -65,7 +65,7 @@
           "type": "object",
           "properties": {
             "description": "Extract document pages with text content",
-            "cli_flag": "--extract-pages",
+            "command": "extract-pages",
             "args_format": ["file_path:string"],
             "response_type": {
               "$ref": "document-pages.json"
@@ -77,7 +77,7 @@
           "type": "object",
           "properties": {
             "description": "Generate thumbnail image for the document",
-            "cli_flag": "--generate-thumbnail",
+            "command": "generate-thumbnail",
             "args_format": ["file_path:string", "width:number", "height:number"],
             "response_type": "byte array - PNG image data",
             "file_type_specificity": "Can be file-type specific (e.g., generate-thumbnail:pdf)"
@@ -87,7 +87,7 @@
           "type": "object",
           "properties": {
             "description": "Validate file integrity and processability",
-            "cli_flag": "--validate-file",
+            "command": "validate-file",
             "args_format": ["file_path:string"],
             "response_type": "boolean",
             "file_type_specificity": "Can be file-type specific (e.g., validate-file:epub)"

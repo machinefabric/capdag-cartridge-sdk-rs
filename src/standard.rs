@@ -4,7 +4,7 @@
 //! all LBVR plugins, including their formal argument specifications.
 
 use capdef::{
-    CapabilityId, Capability, CapabilityArgument, CapabilityArguments, CommandInterface,
+    CapabilityId, Capability, CapabilityArgument, CapabilityArguments,
     CapabilityOutput, ArgumentType, ArgumentValidation, OutputType
 };
 use crate::PluginCapabilities;
@@ -15,10 +15,7 @@ pub fn extract_metadata_capability() -> Capability {
     let id = CapabilityId::from_string("document:extract:metadata")
         .expect("Invalid capability ID");
     
-    let command_interface = CommandInterface {
-        cli_flag: "--extract-metadata".to_string(),
-        usage_pattern: "plugin_binary --extract-metadata <file_path> [--output <output_file>]".to_string(),
-    };
+    let command = "extract-metadata".to_string();
     
     let mut arguments = CapabilityArguments::new();
     
@@ -27,7 +24,7 @@ pub fn extract_metadata_capability() -> Capability {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
-        cli_flag: None,
+        command: None,
         position: Some(0),
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
@@ -43,7 +40,7 @@ pub fn extract_metadata_capability() -> Capability {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write output to specified file instead of stdout".to_string(),
-        cli_flag: Some("--output".to_string()),
+        command: Some("--output".to_string()),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
@@ -66,7 +63,7 @@ pub fn extract_metadata_capability() -> Capability {
         "1.0.0".to_string(),
         Some("Extract document metadata including title, author, creation date, file size, and other properties".to_string()),
         HashMap::new(),
-        Some(command_interface),
+        Some(command),
         arguments,
         Some(output),
     )
@@ -77,10 +74,7 @@ pub fn generate_thumbnail_capability() -> Capability {
     let id = CapabilityId::from_string("document:generate:thumbnail")
         .expect("Invalid capability ID");
     
-    let command_interface = CommandInterface {
-        cli_flag: "--generate-thumbnail".to_string(),
-        usage_pattern: "plugin_binary --generate-thumbnail <file_path> [--width <width>] [--height <height>] [--output <output_file>] [--page <page>]".to_string(),
-    };
+    let command = "generate-thumbnail".to_string();
     
     let mut arguments = CapabilityArguments::new();
     
@@ -89,7 +83,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
-        cli_flag: None,
+        command: None,
         position: Some(0),
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
@@ -105,7 +99,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         name: "width".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Width of the thumbnail in pixels".to_string(),
-        cli_flag: Some("--width".to_string()),
+        command: Some("--width".to_string()),
         position: None,
         validation: ArgumentValidation {
             min: Some(50.0),
@@ -121,7 +115,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         name: "height".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Height of the thumbnail in pixels".to_string(),
-        cli_flag: Some("--height".to_string()),
+        command: Some("--height".to_string()),
         position: None,
         validation: ArgumentValidation {
             min: Some(50.0),
@@ -137,7 +131,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write thumbnail to specified file instead of stdout".to_string(),
-        cli_flag: Some("--output".to_string()),
+        command: Some("--output".to_string()),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("\\.(png|jpg|jpeg)$".to_string()),
@@ -152,7 +146,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         name: "page".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Page number to generate thumbnail from (1-based, default: 1)".to_string(),
-        cli_flag: Some("--page".to_string()),
+        command: Some("--page".to_string()),
         position: None,
         validation: ArgumentValidation {
             min: Some(1.0),
@@ -175,7 +169,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         "1.0.0".to_string(),
         Some("Generate a thumbnail image preview of the document".to_string()),
         HashMap::new(),
-        Some(command_interface),
+        Some(command),
         arguments,
         Some(output),
     )
@@ -186,10 +180,7 @@ pub fn extract_outline_capability() -> Capability {
     let id = CapabilityId::from_string("document:extract:outline")
         .expect("Invalid capability ID");
     
-    let command_interface = CommandInterface {
-        cli_flag: "--extract-outline".to_string(),
-        usage_pattern: "plugin_binary --extract-outline <file_path> [--max-depth <depth>] [--include-page-numbers] [--output <output_file>]".to_string(),
-    };
+    let command = "extract-outline".to_string();
     
     let mut arguments = CapabilityArguments::new();
     
@@ -198,7 +189,7 @@ pub fn extract_outline_capability() -> Capability {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
-        cli_flag: None,
+        command: None,
         position: Some(0),
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
@@ -214,7 +205,7 @@ pub fn extract_outline_capability() -> Capability {
         name: "max_depth".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Maximum outline depth to extract (1-10)".to_string(),
-        cli_flag: Some("--max-depth".to_string()),
+        command: Some("--max-depth".to_string()),
         position: None,
         validation: ArgumentValidation {
             min: Some(1.0),
@@ -230,7 +221,7 @@ pub fn extract_outline_capability() -> Capability {
         name: "include_page_numbers".to_string(),
         arg_type: ArgumentType::Boolean,
         description: "Include page numbers in the outline (default: true)".to_string(),
-        cli_flag: Some("--include-page-numbers".to_string()),
+        command: Some("--include-page-numbers".to_string()),
         position: None,
         validation: ArgumentValidation::default(),
         default: Some(serde_json::Value::Bool(true)),
@@ -242,7 +233,7 @@ pub fn extract_outline_capability() -> Capability {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write output to specified file instead of stdout".to_string(),
-        cli_flag: Some("--output".to_string()),
+        command: Some("--output".to_string()),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
@@ -265,7 +256,7 @@ pub fn extract_outline_capability() -> Capability {
         "1.0.0".to_string(),
         Some("Extract document outline/table of contents with hierarchical structure".to_string()),
         HashMap::new(),
-        Some(command_interface),
+        Some(command),
         arguments,
         Some(output),
     )
@@ -276,10 +267,7 @@ pub fn extract_pages_capability() -> Capability {
     let id = CapabilityId::from_string("document:extract:pages")
         .expect("Invalid capability ID");
     
-    let command_interface = CommandInterface {
-        cli_flag: "--extract-pages".to_string(),
-        usage_pattern: "plugin_binary --extract-pages <file_path> [--output <output_file>]".to_string(),
-    };
+    let command = "extract-pages".to_string();
     
     let mut arguments = CapabilityArguments::new();
     
@@ -288,7 +276,7 @@ pub fn extract_pages_capability() -> Capability {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
-        cli_flag: None,
+        command: None,
         position: Some(0),
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
@@ -304,7 +292,7 @@ pub fn extract_pages_capability() -> Capability {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write output to specified file instead of stdout".to_string(),
-        cli_flag: Some("--output".to_string()),
+        command: Some("--output".to_string()),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
@@ -327,7 +315,7 @@ pub fn extract_pages_capability() -> Capability {
         "1.0.0".to_string(),
         Some("Extract structured page content from the document".to_string()),
         HashMap::new(),
-        Some(command_interface),
+        Some(command),
         arguments,
         Some(output),
     )
