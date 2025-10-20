@@ -27,7 +27,7 @@
         "name": "output",
         "type": "string",
         "description": "Write output to specified file instead of stdout",
-        "command": "output",
+        "cli_flag": "output",
         "validation": {
           "pattern": "^[^\\0]+$"
         }

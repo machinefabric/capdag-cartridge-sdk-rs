@@ -46,7 +46,8 @@ pub struct ArgumentDef {
     #[serde(rename = "type")]
     pub arg_type: ArgumentType,
     pub description: String,
-    pub command: Option<String>,
+    #[serde(rename = "cli_flag")]
+    pub cli_flag: Option<String>,
     pub position: Option<usize>,
     #[serde(default)]
     pub validation: ArgumentValidation,
@@ -414,15 +415,15 @@ impl PluginValidator {
 
     /// Validate an argument definition
     fn validate_argument_def(&self, arg: &ArgumentDef) -> PluginResult<()> {
-        // Check that either position or command is specified, but not both
-        match (arg.position, &arg.command) {
-            (Some(_), Some(_)) => bail!("Argument cannot have both position and command: {}", arg.name),
-            (None, None) => bail!("Argument must have either position or command: {}", arg.name),
+        // Check that either position or cli_flag is specified, but not both
+        match (arg.position, &arg.cli_flag) {
+            (Some(_), Some(_)) => bail!("Argument cannot have both position and cli_flag: {}", arg.name),
+            (None, None) => bail!("Argument must have either position or cli_flag: {}", arg.name),
             _ => {}
         }
 
         // Validate CLI flag format if present
-        if let Some(flag) = &arg.command {
+        if let Some(flag) = &arg.cli_flag {
             if !flag.starts_with("--") {
                 bail!("CLI flag must start with '--': {}", flag);
             }
