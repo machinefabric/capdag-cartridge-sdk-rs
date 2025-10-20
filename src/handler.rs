@@ -2,8 +2,7 @@
 //! 
 //! This module defines the unified plugin interfaces with standardized capability-based calling.
 
-use capdef::{Capability, PluginCapabilities, CapabilityId, CapabilityMatcher};
-use std::collections::HashMap;
+use crate::PluginCapabilities;
 
 /// Plugin information for --plugin-info output
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

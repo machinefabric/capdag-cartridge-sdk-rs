@@ -3,7 +3,8 @@
 //! This module provides extensions to the general capability system for document processing,
 //! adding file type support and document-specific functionality.
 
-use capdef::{Capability, PluginCapabilities, CapabilityId};
+use capdef::{Capability, CapabilityId};
+use crate::PluginCapabilities;
 use std::collections::HashMap;
 
 /// Extension trait for document processing capabilities
