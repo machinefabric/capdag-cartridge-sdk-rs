@@ -271,14 +271,14 @@ pub fn extract_outline_capability() -> Capability {
     )
 }
 
-/// Create the standard extract-text capability with full argument definition
-pub fn extract_text_capability() -> Capability {
-    let id = CapabilityId::from_string("document:extract:text")
+/// Create the standard extract-pages capability with full argument definition
+pub fn extract_pages_capability() -> Capability {
+    let id = CapabilityId::from_string("document:extract:pages")
         .expect("Invalid capability ID");
     
     let command_interface = CommandInterface {
-        cli_flag: "--extract-text".to_string(),
-        usage_pattern: "plugin_binary --extract-text <file_path> [--output <output_file>]".to_string(),
+        cli_flag: "--extract-pages".to_string(),
+        usage_pattern: "plugin_binary --extract-pages <file_path> [--output <output_file>]".to_string(),
     };
     
     let mut arguments = CapabilityArguments::new();
@@ -315,17 +315,17 @@ pub fn extract_text_capability() -> Capability {
     arguments.add_optional(output_arg);
     
     let output = CapabilityOutput {
-        output_type: OutputType::String,
-        schema_ref: None,
-        content_type: Some("text/plain".to_string()),
+        output_type: OutputType::Object,
+        schema_ref: Some("document-pages.json".to_string()),
+        content_type: Some("application/json".to_string()),
         validation: ArgumentValidation::default(),
-        description: "Plain text content extracted from the document".to_string(),
+        description: "Structured page content extracted from the document".to_string(),
     };
     
     Capability::with_full_definition(
         id,
         "1.0.0".to_string(),
-        Some("Extract plain text content from the document".to_string()),
+        Some("Extract structured page content from the document".to_string()),
         HashMap::new(),
         Some(command_interface),
         arguments,
@@ -339,7 +339,7 @@ pub fn get_all_standard_capabilities() -> PluginCapabilities {
     capabilities.add_capability(extract_metadata_capability());
     capabilities.add_capability(generate_thumbnail_capability());
     capabilities.add_capability(extract_outline_capability());
-    capabilities.add_capability(extract_text_capability());
+    capabilities.add_capability(extract_pages_capability());
     capabilities
 }
 
@@ -349,7 +349,7 @@ pub fn get_standard_capability(name: &str) -> Option<Capability> {
         "extract-metadata" => Some(extract_metadata_capability()),
         "generate-thumbnail" => Some(generate_thumbnail_capability()),
         "extract-outline" => Some(extract_outline_capability()),
-        "extract-text" => Some(extract_text_capability()),
+        "extract-pages" => Some(extract_pages_capability()),
         _ => None,
     }
 }
@@ -360,7 +360,7 @@ pub fn get_standard_capability_by_id(id_str: &str) -> Option<Capability> {
         "document:extract:metadata" => Some(extract_metadata_capability()),
         "document:generate:thumbnail" => Some(generate_thumbnail_capability()),
         "document:extract:outline" => Some(extract_outline_capability()),
-        "document:extract:text" => Some(extract_text_capability()),
+        "document:extract:pages" => Some(extract_pages_capability()),
         _ => None,
     }
 }
