@@ -146,9 +146,9 @@ mod tests {
     #[test]
     fn test_universal_capability() {
         let cap = DocumentCapabilityBuilder::new_universal_capability(
-            "document:extract:text",
+            "document:extract:pages",
             "1.0.0",
-            Some("Extract text from any document")
+            Some("Extract pages from any document")
         ).unwrap();
         
         assert!(cap.supports_all_file_types());
