@@ -18,23 +18,23 @@ echo "Testing plugin-info command..."
 echo "✅ plugin-info command passed"
 
 echo "Testing capability: extract-metadata..."
-"$PLUGIN_BINARY" --extract-metadata --help >/dev/null 2>&1 || true
+"$PLUGIN_BINARY" extract-metadata --help >/dev/null 2>&1 || true
 echo "✅ extract-metadata capability flag recognized"
 
 echo "Testing capability: extract-outline..."
-"$PLUGIN_BINARY" --extract-outline --help >/dev/null 2>&1 || true
+"$PLUGIN_BINARY" extract-outline --help >/dev/null 2>&1 || true
 echo "✅ extract-outline capability flag recognized"
 
 echo "Testing capability: generate-thumbnail..."
-"$PLUGIN_BINARY" --generate-thumbnail --help >/dev/null 2>&1 || true
+"$PLUGIN_BINARY" generate-thumbnail --help >/dev/null 2>&1 || true
 echo "✅ generate-thumbnail capability flag recognized"
 
 echo "Testing capability: extract-pages..."
-"$PLUGIN_BINARY" --extract-pages --help >/dev/null 2>&1 || true
+"$PLUGIN_BINARY" extract-pages --help >/dev/null 2>&1 || true
 echo "✅ extract-pages capability flag recognized"
 
 echo "Testing capability: validate-file..."
-"$PLUGIN_BINARY" --validate-file --help >/dev/null 2>&1 || true
+"$PLUGIN_BINARY" validate-file --help >/dev/null 2>&1 || true
 echo "✅ validate-file capability flag recognized"
 
 echo "🎉 All tests passed!"

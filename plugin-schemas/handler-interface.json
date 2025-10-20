@@ -23,15 +23,11 @@
             "error_handling": "Result<ResponseWrapper, Error> with descriptive error messages"
           }
         },
-        "command_line_interface": {
-          "type": "object",
-          "properties": {
-            "description": "Direct capability-to-CLI-flag mapping",
-            "flag_format": "--{operation} (e.g., --extract-metadata, --generate-thumbnail)",
-            "capability_advertising": "--plugin-info flag returns JSON with capabilities array",
-            "execution_pattern": "plugin_binary --{operation} file_path [additional_args]"
-          }
-        }
+        "command": {
+			"type": "string",
+			"pattern": "^[a-z-]+$",
+			"description": "Command for this capability (e.g., 'extract-metadata')"
+		}
       }
     },
     "standardized_capabilities": {

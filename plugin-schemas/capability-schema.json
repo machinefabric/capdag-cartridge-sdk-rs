@@ -37,16 +37,10 @@
       },
       "required": ["name", "description", "file_types", "version"]
     },
-    "command_interface": {
-      "type": "object",
-      "properties": {
-        "command": {
-          "type": "string",
-          "pattern": "^--[a-z-]+$",
-          "description": "Command-line flag for this capability (e.g., '--extract-metadata')"
-        }
-      },
-      "required": ["command"]
+    "command": {
+		"type": "string",
+		"pattern": "^[a-z-]+$",
+		"description": "Command for this capability (e.g., 'extract-metadata')"
     },
     "arguments": {
       "type": "object",
