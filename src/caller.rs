@@ -7,11 +7,11 @@ use crate::ResponseWrapper;
 /// Capability caller that executes via XPC service
 pub struct CapabilityCaller {
     capability: String,
-    xpc_client: Box<dyn XPCClient>,
+    plugin_host: Box<dyn PluginHost>,
 }
 
-/// Trait for XPC client communication
-pub trait XPCClient: Send + Sync {
+/// Trait for Plugin Host communication
+pub trait PluginHost: Send + Sync {
     fn execute_capability(
         &self,
         capability: &str,
@@ -23,11 +23,11 @@ impl CapabilityCaller {
     /// Create a new capability caller
     pub fn new(
         capability: String,
-        xpc_client: Box<dyn XPCClient>,
+        plugin_host: Box<dyn PluginHost>,
     ) -> Self {
         Self {
             capability,
-            xpc_client,
+            plugin_host,
         }
     }
     
@@ -59,13 +59,11 @@ impl CapabilityCaller {
             }
         }
         
-        // Plugins output JSON by default
-        
-        // Convert to &str slice for XPC client
+        // Convert to &str slice for Plugin Host
         let str_args: Vec<&str> = cmd_args.iter().map(|s| s.as_str()).collect();
         
         // Execute via XPC service
-        let output = self.xpc_client.execute_capability(&self.capability, &str_args).await?;
+        let output = self.plugin_host.execute_capability(&self.capability, &str_args).await?;
         
         // Determine response type based on capability
         let response = if self.is_binary_capability() {
@@ -105,12 +103,4 @@ impl CapabilityCaller {
             "generate-thumbnail"  // Only binary capabilities return non-JSON
         )
     }
-}
-
-/// Plugin registry statistics
-#[derive(Debug, Clone)]
-pub struct PluginRegistryStats {
-    pub plugin_count: usize,
-    pub capability_count: usize,
-    pub plugin_names: Vec<String>,
 }

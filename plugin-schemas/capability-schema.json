@@ -40,17 +40,13 @@
     "command_interface": {
       "type": "object",
       "properties": {
-        "cli_flag": {
+        "command": {
           "type": "string",
           "pattern": "^--[a-z-]+$",
           "description": "Command-line flag for this capability (e.g., '--extract-metadata')"
-        },
-        "usage_pattern": {
-          "type": "string",
-          "description": "Human-readable usage pattern showing how to call this capability"
         }
       },
-      "required": ["cli_flag", "usage_pattern"]
+      "required": ["command"]
     },
     "arguments": {
       "type": "object",
@@ -170,7 +166,7 @@
           "type": "string",
           "description": "Human-readable description of this argument"
         },
-        "cli_flag": {
+        "command": {
           "type": ["string", "null"],
           "pattern": "^--[a-z-]+$",
           "description": "Optional CLI flag for named arguments (e.g., '--width')"
@@ -220,14 +216,14 @@
             "position": {
               "type": "integer"
             },
-            "cli_flag": {
+            "command": {
               "type": "null"
             }
           }
         },
         {
           "properties": {
-            "cli_flag": {
+            "command": {
               "type": "string"
             },
             "position": {

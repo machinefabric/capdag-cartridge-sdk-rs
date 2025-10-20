@@ -38,7 +38,7 @@ A **capability** defines a single operation that a plugin can perform, such as `
 - **Arguments** - Required and optional parameters with type validation
 - **Response Format** - Expected output type and schema
 - **Error Handling** - Standard error codes and timeout settings
-- **Command Interface** - CLI flag and usage pattern
+- **Command Interface** - Command
 
 ### Plugin Interfaces
 
@@ -85,8 +85,7 @@ Define a new capability by creating a JSON file following the capability schema:
     "version": "1.0.0"
   },
   "command_interface": {
-    "cli_flag": "--extract-images",
-    "usage_pattern": "plugin_binary --extract-images <file_path> [--output-dir <dir>]"
+    "command": "extract-images",
   },
   "arguments": {
     "required": [
@@ -102,7 +101,7 @@ Define a new capability by creating a JSON file following the capability schema:
         "name": "output_dir",
         "type": "string",
         "description": "Directory to save extracted images",
-        "cli_flag": "--output-dir",
+        "command": "output-dir",
         "default": "./images"
       }
     ]

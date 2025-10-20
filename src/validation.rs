@@ -16,7 +16,7 @@ use anyhow::{Context, bail};
 pub struct CapabilitySchema {
     pub schema_version: String,
     pub capability: CapabilityInfo,
-    pub command_interface: CommandInterface,
+    pub command: String,
     pub arguments: ArgumentsSpec,
     pub response: ResponseSpec,
     #[serde(default)]
@@ -33,11 +33,6 @@ pub struct CapabilityInfo {
     pub version: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CommandInterface {
-    pub cli_flag: String,
-    pub usage_pattern: String,
-}
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ArgumentsSpec {
@@ -51,7 +46,7 @@ pub struct ArgumentDef {
     #[serde(rename = "type")]
     pub arg_type: ArgumentType,
     pub description: String,
-    pub cli_flag: Option<String>,
+    pub command: Option<String>,
     pub position: Option<usize>,
     #[serde(default)]
     pub validation: ArgumentValidation,
@@ -402,8 +397,8 @@ impl PluginValidator {
         }
 
         // Validate CLI flag format
-        if !schema.command_interface.cli_flag.starts_with("--") {
-            bail!("CLI flag must start with '--': {}", schema.command_interface.cli_flag);
+        if !schema.command.starts_with("--") {
+            bail!("CLI flag must start with '--': {}", schema.command);
         }
 
         // Validate argument definitions
@@ -419,15 +414,15 @@ impl PluginValidator {
 
     /// Validate an argument definition
     fn validate_argument_def(&self, arg: &ArgumentDef) -> PluginResult<()> {
-        // Check that either position or cli_flag is specified, but not both
-        match (arg.position, &arg.cli_flag) {
-            (Some(_), Some(_)) => bail!("Argument cannot have both position and cli_flag: {}", arg.name),
-            (None, None) => bail!("Argument must have either position or cli_flag: {}", arg.name),
+        // Check that either position or command is specified, but not both
+        match (arg.position, &arg.command) {
+            (Some(_), Some(_)) => bail!("Argument cannot have both position and command: {}", arg.name),
+            (None, None) => bail!("Argument must have either position or command: {}", arg.name),
             _ => {}
         }
 
         // Validate CLI flag format if present
-        if let Some(flag) = &arg.cli_flag {
+        if let Some(flag) = &arg.command {
             if !flag.starts_with("--") {
                 bail!("CLI flag must start with '--': {}", flag);
             }
@@ -514,7 +509,7 @@ impl PluginValidator {
         let cap_name = &capability.capability.name;
         
         // Test that the capability command is recognized
-        let command_name = capability.command_interface.cli_flag.trim_start_matches("--");
+        let command_name = capability.command.trim_start_matches("--");
         let output = Command::new(plugin_binary)
             .args(&[command_name, "--help"])
             .output();
@@ -562,7 +557,7 @@ impl PluginValidator {
         if let Some(ref test_file_path) = test_file {
             // Test the capability with the test file
             let test_file_str = test_file_path.to_string_lossy().to_string();
-            let command_name = capability.command_interface.cli_flag.trim_start_matches("--");
+            let command_name = capability.command.trim_start_matches("--");
             let args = vec![command_name, &test_file_str];
             
             let output = Command::new(plugin_binary)
@@ -625,7 +620,7 @@ impl PluginValidator {
         if capability.arguments.required.iter().any(|arg| arg.name == "file_path") {
             let non_existent_file = "/tmp/non_existent_file_for_plugin_test.xyz";
             let non_existent_str = non_existent_file.to_string();
-            let command_name = capability.command_interface.cli_flag.trim_start_matches("--");
+            let command_name = capability.command.trim_start_matches("--");
             
             let args = vec![command_name, &non_existent_str];
             
@@ -686,7 +681,7 @@ impl PluginValidator {
             
             // Build command arguments from scenario
             let mut args_strings = Vec::new();
-            let command_name = cap_schema.command_interface.cli_flag.trim_start_matches("--");
+            let command_name = cap_schema.command.trim_start_matches("--");
             args_strings.push(command_name.to_string());
             
             // Add arguments from scenario

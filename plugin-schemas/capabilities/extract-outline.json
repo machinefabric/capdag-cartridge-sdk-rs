@@ -7,8 +7,7 @@
     "version": "1.0.0"
   },
   "command_interface": {
-    "cli_flag": "--extract-outline",
-    "usage_pattern": "plugin_binary --extract-outline <file_path> [--output <output_file>] [--max-depth <depth>]"
+    "command": "extract-outline"
   },
   "arguments": {
     "required": [
@@ -28,7 +27,7 @@
         "name": "output",
         "type": "string",
         "description": "Write output to specified file instead of stdout",
-        "cli_flag": "--output",
+        "command": "output",
         "validation": {
           "pattern": "^[^\\0]+$"
         }
@@ -37,7 +36,7 @@
         "name": "max_depth",
         "type": "integer",
         "description": "Maximum depth of outline hierarchy to extract",
-        "cli_flag": "--max-depth",
+        "command": "max-depth",
         "validation": {
           "min": 1,
           "max": 10
@@ -47,7 +46,7 @@
         "name": "include_page_numbers",
         "type": "boolean",
         "description": "Include page numbers in outline entries where available",
-        "cli_flag": "--include-page-numbers",
+        "command": "include-page-numbers",
         "default": true
       }
     ]
