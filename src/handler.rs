@@ -2,7 +2,7 @@
 //! 
 //! This module defines the unified plugin interfaces with standardized capability-based calling.
 
-use capability_sdk::{Capability, PluginCapabilities, CapabilityId, CapabilityMatcher};
+use capdef::{Capability, PluginCapabilities, CapabilityId, CapabilityMatcher};
 use std::collections::HashMap;
 
 /// Plugin information for --plugin-info output

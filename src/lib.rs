@@ -14,7 +14,7 @@ pub mod response;
 pub mod validation;
 
 // Re-export capability SDK types
-pub use capability_sdk::*;
+pub use capdef::*;
 
 pub use document::*;
 pub use document_capability::*;

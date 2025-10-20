@@ -159,7 +159,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
 
 [[package]]
-name = "capability_sdk"
+name = "capdef"
 version = "0.1.0"
 dependencies = [
  "serde",
@@ -716,7 +716,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "capability_sdk",
+ "capdef",
  "chrono",
  "clap",
  "jsonschema",
