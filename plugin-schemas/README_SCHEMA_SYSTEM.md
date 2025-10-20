@@ -101,7 +101,7 @@ Define a new capability by creating a JSON file following the capability schema:
         "name": "output_dir",
         "type": "string",
         "description": "Directory to save extracted images",
-        "command": "output-dir",
+        "cli_flag": "output-dir",
         "default": "./images"
       }
     ]

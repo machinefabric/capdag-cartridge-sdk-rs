@@ -49,7 +49,7 @@
             "name": "output",
             "type": "string",
             "description": "Write output to specified file instead of stdout",
-            "command": "output",
+            "cli_flag": "output",
             "validation": {
               "pattern": "^[^\\0]+$"
             }
@@ -58,7 +58,7 @@
             "name": "page_range",
             "type": "string",
             "description": "Page range to extract (e.g., '1-5' or '10-')",
-            "command": "page-range",
+            "cli_flag": "page-range",
             "validation": {
               "pattern": "^\\d+(-\\d*)?$"
             }

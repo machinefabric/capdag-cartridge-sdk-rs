@@ -160,7 +160,7 @@
           "type": "string",
           "description": "Human-readable description of this argument"
         },
-        "command": {
+        "cli_flag": {
           "type": ["string", "null"],
           "pattern": "^--[a-z-]+$",
           "description": "Optional CLI flag for named arguments (e.g., '--width')"
@@ -210,14 +210,14 @@
             "position": {
               "type": "integer"
             },
-            "command": {
+            "cli_flag": {
               "type": "null"
             }
           }
         },
         {
           "properties": {
-            "command": {
+            "cli_flag": {
               "type": "string"
             },
             "position": {
