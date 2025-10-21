@@ -15,12 +15,6 @@ pub trait PluginHost: Send + Sync {
     fn execute_capability(
         &self,
         capability: &str,
-        args: &[&str]
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<String>> + Send + '_>>;
-    
-    fn execute_capability_structured(
-        &self,
-        capability: &str,
         positional_args: &[String],
         named_args: &[(String, String)]
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<String>> + Send + '_>>;
@@ -38,54 +32,8 @@ impl CapabilityCaller {
         }
     }
     
-    /// Call the capability with JSON arguments via XPC service
-    pub async fn call(&self, args: Vec<JsonValue>) -> Result<ResponseWrapper> {
-        // Convert capability to command
-        let command = self.capability_to_command(&self.capability);
-        
-        // Build command arguments
-        let mut cmd_args = Vec::new();
-        
-        // Add the main command
-        cmd_args.push(command);
-        
-        // Convert JSON args to command line arguments
-        for arg in args {
-            match arg {
-                JsonValue::String(s) => cmd_args.push(s),
-                JsonValue::Number(n) => cmd_args.push(n.to_string()),
-                JsonValue::Bool(b) => cmd_args.push(b.to_string()),
-                JsonValue::Array(_) | JsonValue::Object(_) => {
-                    // For complex JSON, pass as JSON string
-                    cmd_args.push(serde_json::to_string(&arg)?);
-                }
-                JsonValue::Null => {
-                    // Skip null values
-                    continue;
-                }
-            }
-        }
-        
-        // Convert to &str slice for Plugin Host
-        let str_args: Vec<&str> = cmd_args.iter().map(|s| s.as_str()).collect();
-        
-        // Execute via XPC service
-        let output = self.plugin_host.execute_capability(&self.capability, &str_args).await?;
-        
-        // Determine response type based on capability
-        let response = if self.is_binary_capability() {
-            ResponseWrapper::from_binary(output.as_bytes().to_vec())
-        } else if self.is_json_capability() {
-            ResponseWrapper::from_json(output.into_bytes())
-        } else {
-            ResponseWrapper::from_text(output.into_bytes())
-        };
-        
-        Ok(response)
-    }
-    
     /// Call the capability with structured arguments (positional and named)
-    pub async fn call_structured(
+    pub async fn call(
         &self,
         positional_args: Vec<JsonValue>,
         named_args: Vec<JsonValue>
@@ -124,14 +72,14 @@ impl CapabilityCaller {
             })
             .collect();
 
-        // Execute via structured plugin host method
-        let output = self.plugin_host.execute_capability_structured(
+        // Execute via plugin host method
+        let output = self.plugin_host.execute_capability(
             &self.capability, 
             &string_positional_args,
             &string_named_args
         ).await?;
         
-        // Determine response type based on capability (same logic as call method)
+        // Determine response type based on capability
         let response = if self.is_binary_capability() {
             ResponseWrapper::from_binary(output.as_bytes().to_vec())
         } else if self.is_json_capability() {
