@@ -385,10 +385,10 @@ fn generate_test_script(interface: &lbvr_plugin_sdk::PluginInterfaceSchema, inte
     script.push_str(interface_name);
     script.push_str("\"\n\n");
 
-    // Test plugin-info command
-    script.push_str("echo \"Testing plugin-info command...\"\n");
-    script.push_str("\"$PLUGIN_BINARY\" plugin-info > /tmp/plugin-info.json\n");
-    script.push_str("echo \"✅ plugin-info command passed\"\n\n");
+    // Test manifest command
+    script.push_str("echo \"Testing manifest command...\"\n");
+    script.push_str("\"$PLUGIN_BINARY\" manifest > /tmp/manifest.json\n");
+    script.push_str("echo \"✅ manifest command passed\"\n\n");
 
     // Test each capability
     for cap_ref in interface.capabilities.iter() {

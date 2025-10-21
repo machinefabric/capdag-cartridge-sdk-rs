@@ -162,26 +162,26 @@ pub enum CapabilityReference {
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct GlobalRequirements {
     #[serde(default)]
-    pub plugin_info_command: PluginInfoRequirement,
+    pub plugin_manifest_command: PluginManifestRequirement,
     #[serde(default)]
     pub error_handling: GlobalErrorHandling,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct PluginInfoRequirement {
+pub struct PluginManifestRequirement {
     #[serde(default = "default_true")]
     pub required: bool,
-    #[serde(default = "default_plugin_info_schema")]
+    #[serde(default = "default_plugin_manifest_schema")]
     pub schema_ref: String,
 }
 
-fn default_plugin_info_schema() -> String { "plugin-info.json".to_string() }
+fn default_plugin_manifest_schema() -> String { "manifest.json".to_string() }
 
-impl Default for PluginInfoRequirement {
+impl Default for PluginManifestRequirement {
     fn default() -> Self {
         Self {
             required: true,
-            schema_ref: default_plugin_info_schema(),
+            schema_ref: default_plugin_manifest_schema(),
         }
     }
 }
@@ -357,8 +357,8 @@ impl PluginValidator {
 
         let mut report = ValidationReport::new(plugin_binary, interface_name);
 
-        // Test plugin-info command
-        self.validate_plugin_info_command(plugin_binary, interface, &mut report)?;
+        // Test manifest command
+        self.validate_plugin_manifest_command(plugin_binary, interface, &mut report)?;
 
         // Test each capability with comprehensive validation
         for cap_ref in &interface.capabilities {
@@ -460,43 +460,43 @@ impl PluginValidator {
         Ok(())
     }
 
-    /// Validate plugin-info command implementation
-    fn validate_plugin_info_command(
+    /// Validate manifest command implementation
+    fn validate_plugin_manifest_command(
         &self,
         plugin_binary: &Path,
         interface: &PluginInterfaceSchema,
         report: &mut ValidationReport,
     ) -> PluginResult<()> {
-        if !interface.global_requirements.plugin_info_command.required {
+        if !interface.global_requirements.plugin_manifest_command.required {
             return Ok(());
         }
 
         let output = Command::new(plugin_binary)
-            .args(&["plugin-info"])
+            .args(&["manifest"])
             .output()
-            .context("Failed to execute plugin-info command")?;
+            .context("Failed to execute manifest command")?;
 
         if !output.status.success() {
-            report.add_error("plugin-info command failed".to_string());
+            report.add_error("manifest command failed".to_string());
             return Ok(());
         }
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        let plugin_info: Value = serde_json::from_str(&stdout)
+        let plugin_manifest: Value = serde_json::from_str(&stdout)
             .map_err(|e| {
-                report.add_error(format!("plugin-info output is not valid JSON: {}", e));
+                report.add_error(format!("manifest output is not valid JSON: {}", e));
                 e
             })?;
 
         // Validate required fields
         let required_fields = ["name", "version", "capabilities"];
         for field in &required_fields {
-            if !plugin_info.get(field).is_some() {
-                report.add_error(format!("plugin-info missing required field: {}", field));
+            if !plugin_manifest.get(field).is_some() {
+                report.add_error(format!("manifest missing required field: {}", field));
             }
         }
 
-        report.add_success("plugin-info command validation passed".to_string());
+        report.add_success("manifest command validation passed".to_string());
         Ok(())
     }
 
