@@ -13,9 +13,9 @@ fi
 echo "🧪 Testing plugin: $PLUGIN_BINARY"
 echo "📋 Interface: document-processor"
 
-echo "Testing plugin-info command..."
-"$PLUGIN_BINARY" plugin-info > /tmp/plugin-info.json
-echo "✅ plugin-info command passed"
+echo "Testing manifest command..."
+"$PLUGIN_BINARY" manifest > /tmp/manifest.json
+echo "✅ manifest command passed"
 
 echo "Testing capability: extract-metadata..."
 "$PLUGIN_BINARY" extract-metadata --help >/dev/null 2>&1 || true

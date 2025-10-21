@@ -4,9 +4,9 @@
 
 use crate::PluginCapabilities;
 
-/// Plugin information for --plugin-info output
+/// Plugin manifest for --manifest output
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct PluginInfo {
+pub struct PluginManifest {
     /// Plugin name
     pub name: String,
     
@@ -24,8 +24,8 @@ pub struct PluginInfo {
     pub author: Option<String>,
 }
 
-impl PluginInfo {
-    /// Create a new plugin info
+impl PluginManifest {
+    /// Create a new plugin manifest
     pub fn new(
         name: String,
         version: String,
@@ -50,12 +50,12 @@ impl PluginInfo {
 
 /// Trait for plugins to provide metadata about themselves
 pub trait PluginMetadata {
-    /// Get plugin information
-    fn plugin_info(&self) -> PluginInfo;
+    /// Get plugin manifest
+    fn plugin_manifest(&self) -> PluginManifest;
     
     /// Get plugin capabilities
     fn capabilities(&self) -> PluginCapabilities {
-        self.plugin_info().capabilities
+        self.plugin_manifest().capabilities
     }
 }
 
