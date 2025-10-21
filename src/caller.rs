@@ -17,6 +17,13 @@ pub trait PluginHost: Send + Sync {
         capability: &str,
         args: &[&str]
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<String>> + Send + '_>>;
+    
+    fn execute_capability_structured(
+        &self,
+        capability: &str,
+        positional_args: &[String],
+        named_args: &[(String, String)]
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<String>> + Send + '_>>;
 }
 
 impl CapabilityCaller {
@@ -66,6 +73,65 @@ impl CapabilityCaller {
         let output = self.plugin_host.execute_capability(&self.capability, &str_args).await?;
         
         // Determine response type based on capability
+        let response = if self.is_binary_capability() {
+            ResponseWrapper::from_binary(output.as_bytes().to_vec())
+        } else if self.is_json_capability() {
+            ResponseWrapper::from_json(output.into_bytes())
+        } else {
+            ResponseWrapper::from_text(output.into_bytes())
+        };
+        
+        Ok(response)
+    }
+    
+    /// Call the capability with structured arguments (positional and named)
+    pub async fn call_structured(
+        &self,
+        positional_args: Vec<JsonValue>,
+        named_args: Vec<JsonValue>
+    ) -> Result<ResponseWrapper> {
+        // Convert JsonValue positional args to strings
+        let string_positional_args: Vec<String> = positional_args
+            .into_iter()
+            .map(|arg| match arg {
+                JsonValue::String(s) => s,
+                JsonValue::Number(n) => n.to_string(),
+                JsonValue::Bool(b) => b.to_string(),
+                JsonValue::Array(_) | JsonValue::Object(_) => {
+                    serde_json::to_string(&arg).unwrap_or_default()
+                }
+                JsonValue::Null => String::new(),
+            })
+            .collect();
+
+        // Convert JsonValue named args to (String, String) tuples
+        let string_named_args: Vec<(String, String)> = named_args
+            .into_iter()
+            .filter_map(|arg| {
+                if let JsonValue::Object(map) = arg {
+                    if let (Some(JsonValue::String(name)), Some(value)) = 
+                        (map.get("name"), map.get("value")) {
+                        let value_str = match value {
+                            JsonValue::String(s) => s.clone(),
+                            JsonValue::Number(n) => n.to_string(),
+                            JsonValue::Bool(b) => b.to_string(),
+                            _ => serde_json::to_string(value).unwrap_or_default(),
+                        };
+                        return Some((name.clone(), value_str));
+                    }
+                }
+                None
+            })
+            .collect();
+
+        // Execute via structured plugin host method
+        let output = self.plugin_host.execute_capability_structured(
+            &self.capability, 
+            &string_positional_args,
+            &string_named_args
+        ).await?;
+        
+        // Determine response type based on capability (same logic as call method)
         let response = if self.is_binary_capability() {
             ResponseWrapper::from_binary(output.as_bytes().to_vec())
         } else if self.is_json_capability() {
