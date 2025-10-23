@@ -17,7 +17,7 @@ pub trait PluginHost: Send + Sync {
         capability: &str,
         positional_args: &[String],
         named_args: &[(String, String)]
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<String>> + Send + '_>>;
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(Option<Vec<u8>>, Option<String>)>> + Send + '_>>;
 }
 
 impl CapabilityCaller {
@@ -73,19 +73,23 @@ impl CapabilityCaller {
             .collect();
 
         // Execute via plugin host method
-        let output = self.plugin_host.execute_capability(
+        let (binary_output, text_output) = self.plugin_host.execute_capability(
             &self.capability, 
             &string_positional_args,
             &string_named_args
         ).await?;
         
-        // Determine response type based on capability
-        let response = if self.is_binary_capability() {
-            ResponseWrapper::from_binary(output.as_bytes().to_vec())
-        } else if self.is_json_capability() {
-            ResponseWrapper::from_json(output.into_bytes())
+        // Determine response type based on what was returned
+        let response = if let Some(binary_data) = binary_output {
+            ResponseWrapper::from_binary(binary_data)
+        } else if let Some(text_data) = text_output {
+            if self.is_json_capability() {
+                ResponseWrapper::from_json(text_data.into_bytes())
+            } else {
+                ResponseWrapper::from_text(text_data.into_bytes())
+            }
         } else {
-            ResponseWrapper::from_text(output.into_bytes())
+            return Err(anyhow::anyhow!("Plugin returned no output"));
         };
         
         Ok(response)
@@ -106,15 +110,16 @@ impl CapabilityCaller {
     
     /// Check if this capability produces binary output
     fn is_binary_capability(&self) -> bool {
-        self.capability.starts_with("generate-thumbnail")
+        // Use the formal capability identifier system to detect binary capabilities
+        let capability_id = capdef::CapabilityId::from_string(&self.capability)
+            .expect("Invalid capability identifier");
+        capability_id.is_binary()
     }
     
     /// Check if this capability should produce JSON output
     fn is_json_capability(&self) -> bool {
-        // All structured data capabilities now return JSON
-        !matches!(
-            self.capability.split(':').next().unwrap_or(""),
-            "generate-thumbnail"  // Only binary capabilities return non-JSON
-        )
+        let capability_id = capdef::CapabilityId::from_string(&self.capability)
+            .expect("Invalid capability identifier");
+        !capability_id.is_binary()
     }
 }

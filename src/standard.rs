@@ -71,7 +71,7 @@ pub fn extract_metadata_capability() -> Capability {
 
 /// Create the standard generate-thumbnail capability with full argument definition
 pub fn generate_thumbnail_capability() -> Capability {
-    let id = CapabilityId::from_string("document:generate:thumbnail")
+    let id = CapabilityId::from_string("bin:document:generate:thumbnail")
         .expect("Invalid capability ID");
     
     let command = "generate-thumbnail".to_string();
@@ -361,7 +361,7 @@ pub fn get_standard_capability(name: &str) -> Option<Capability> {
 pub fn get_standard_capability_by_id(id_str: &str) -> Option<Capability> {
     match id_str {
         "document:extract:metadata" => Some(extract_metadata_capability()),
-        "document:generate:thumbnail" => Some(generate_thumbnail_capability()),
+        "bin:document:generate:thumbnail" => Some(generate_thumbnail_capability()),
         "document:extract:outline" => Some(extract_outline_capability()),
         "document:extract:pages" => Some(extract_pages_capability()),
         _ => None,
