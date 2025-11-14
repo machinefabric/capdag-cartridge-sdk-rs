@@ -111,15 +111,15 @@ impl CapabilityCaller {
     /// Check if this capability produces binary output
     fn is_binary_capability(&self) -> bool {
         // Use the formal capability identifier system to detect binary capabilities
-        let capability_id = capdef::CapabilityId::from_string(&self.capability)
+        let capability_key = capdef::CapabilityKey::from_string(&self.capability)
             .expect("Invalid capability identifier");
-        capability_id.is_binary()
+        capability_key.is_binary()
     }
     
     /// Check if this capability should produce JSON output
     fn is_json_capability(&self) -> bool {
-        let capability_id = capdef::CapabilityId::from_string(&self.capability)
+        let capability_key = capdef::CapabilityKey::from_string(&self.capability)
             .expect("Invalid capability identifier");
-        !capability_id.is_binary()
+        !capability_key.is_binary()
     }
 }
