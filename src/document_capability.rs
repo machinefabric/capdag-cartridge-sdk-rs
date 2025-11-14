@@ -3,7 +3,7 @@
 //! This module provides extensions to the general capability system for document processing,
 //! adding file type support and document-specific functionality.
 
-use capdef::{Capability, CapabilityId};
+use capdef::{Capability, CapabilityKey};
 use crate::PluginCapabilities;
 use std::collections::HashMap;
 
@@ -90,8 +90,8 @@ impl DocumentCapabilityBuilder {
         version: &str, 
         file_types: Vec<&str>, 
         description: Option<&str>
-    ) -> Result<Capability, capdef::CapabilityIdError> {
-        let id = CapabilityId::from_string(id_str)?;
+    ) -> Result<Capability, capdef::CapabilityKeyError> {
+        let id = CapabilityKey::from_string(id_str)?;
         let mut metadata = HashMap::new();
         metadata.insert("file_types".to_string(), file_types.join(","));
         
@@ -118,7 +118,7 @@ impl DocumentCapabilityBuilder {
         id_str: &str, 
         version: &str, 
         description: Option<&str>
-    ) -> Result<Capability, capdef::CapabilityIdError> {
+    ) -> Result<Capability, capdef::CapabilityKeyError> {
         Self::new_document_capability(id_str, version, vec!["*"], description)
     }
 }

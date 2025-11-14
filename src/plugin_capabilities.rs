@@ -3,7 +3,7 @@
 //! This module defines the PluginCapabilities type that collects capabilities
 //! that plugins can provide.
 
-use capdef::{Capability, CapabilityId, CapabilityMatcher};
+use capdef::{Capability, CapabilityKey, CapabilityMatcher};
 use serde::{Deserialize, Serialize};
 
 /// Plugin capabilities collection
@@ -36,21 +36,21 @@ impl PluginCapabilities {
     }
     
     /// Get all capability identifiers as strings
-    pub fn get_capability_identifiers(&self) -> Vec<String> {
+    pub fn get_capability_keys(&self) -> Vec<String> {
         self.capabilities.iter().map(|c| c.id.to_string()).collect()
     }
     
     /// Find a capability by identifier
     pub fn find_capability(&self, id: &str) -> Option<&Capability> {
-        let search_id = CapabilityId::from_string(id).ok()?;
+        let search_id = CapabilityKey::from_string(id).ok()?;
         self.capabilities.iter().find(|c| c.id == search_id)
     }
     
     /// Find the most specific capability that can handle a request
     pub fn find_best_capability(&self, request: &str) -> Option<&Capability> {
-        let request_id = CapabilityId::from_string(request).ok()?;
-        let capability_ids: Vec<CapabilityId> = self.capabilities.iter().map(|c| c.id.clone()).collect();
-        let best_id = CapabilityMatcher::find_best_match(&capability_ids, &request_id)?;
+        let request_id = CapabilityKey::from_string(request).ok()?;
+        let capability_keys: Vec<CapabilityKey> = self.capabilities.iter().map(|c| c.id.clone()).collect();
+        let best_id = CapabilityMatcher::find_best_match(&capability_keys, &request_id)?;
         self.capabilities.iter().find(|c| &c.id == best_id)
     }
 
@@ -100,17 +100,17 @@ impl Default for PluginCapabilities {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use capdef::{CapabilityId, Capability};
+    use capdef::{CapabilityKey, Capability};
     use std::collections::HashMap;
 
     #[test]
     fn test_plugin_capabilities() {
         let mut capabilities = PluginCapabilities::new();
         
-        let id1 = CapabilityId::from_string("data_processing:transform:json").unwrap();
+        let id1 = CapabilityKey::from_string("data_processing:transform:json").unwrap();
         let cap1 = Capability::new(id1, "1.0.0".to_string());
         
-        let id2 = CapabilityId::from_string("data_processing:validate:*").unwrap();
+        let id2 = CapabilityKey::from_string("data_processing:validate:*").unwrap();
         let mut metadata = HashMap::new();
         metadata.insert("formats".to_string(), "json,xml,yaml".to_string());
         let cap2 = Capability::with_metadata(id2, "1.0.0".to_string(), metadata);
