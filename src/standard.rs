@@ -12,7 +12,7 @@ use std::collections::HashMap;
 
 /// Create the standard extract-metadata capability with full argument definition
 pub fn extract_metadata_capability() -> Capability {
-    let id = CapabilityKey::from_string("document:extract:metadata")
+    let id = CapabilityKey::from_string("action=extract;target=metadata;type=document")
         .expect("Invalid capability ID");
     
     let command = "extract-metadata".to_string();
@@ -71,7 +71,7 @@ pub fn extract_metadata_capability() -> Capability {
 
 /// Create the standard generate-thumbnail capability with full argument definition
 pub fn generate_thumbnail_capability() -> Capability {
-    let id = CapabilityKey::from_string("bin:document:generate:thumbnail")
+    let id = CapabilityKey::from_string("action=generate;output=binary;target=thumbnail;type=document")
         .expect("Invalid capability ID");
     
     let command = "generate-thumbnail".to_string();
@@ -177,7 +177,7 @@ pub fn generate_thumbnail_capability() -> Capability {
 
 /// Create the standard extract-outline capability with full argument definition
 pub fn extract_outline_capability() -> Capability {
-    let id = CapabilityKey::from_string("document:extract:outline")
+    let id = CapabilityKey::from_string("action=extract;target=outline;type=document")
         .expect("Invalid capability ID");
     
     let command = "extract-outline".to_string();
@@ -264,7 +264,7 @@ pub fn extract_outline_capability() -> Capability {
 
 /// Create the standard extract-pages capability with full argument definition
 pub fn extract_pages_capability() -> Capability {
-    let id = CapabilityKey::from_string("document:extract:pages")
+    let id = CapabilityKey::from_string("action=extract;target=pages;type=document")
         .expect("Invalid capability ID");
     
     let command = "extract-pages".to_string();
