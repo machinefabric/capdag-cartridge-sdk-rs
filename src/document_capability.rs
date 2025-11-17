@@ -130,7 +130,7 @@ mod tests {
     #[test]
     fn test_document_capability_file_types() {
         let cap = DocumentCapabilityBuilder::new_document_capability(
-            "document:extract:metadata",
+            "action=extract;target=metadata;type=document",
             "1.0.0",
             vec!["pdf", "txt", "md"],
             Some("Extract document metadata")
@@ -148,7 +148,7 @@ mod tests {
     #[test]
     fn test_universal_capability() {
         let cap = DocumentCapabilityBuilder::new_universal_capability(
-            "document:extract:pages",
+            "action=extract;target=pages;type=document",
             "1.0.0",
             Some("Extract pages from any document")
         ).unwrap();
@@ -163,14 +163,14 @@ mod tests {
         let mut capabilities = PluginCapabilities::new();
         
         let cap1 = DocumentCapabilityBuilder::new_document_capability(
-            "document:extract:metadata",
+            "action=extract;target=metadata;type=document",
             "1.0.0",
             vec!["pdf"],
             None
         ).unwrap();
         
         let cap2 = DocumentCapabilityBuilder::new_document_capability(
-            "document:extract:text",
+            "action=extract;target=text;type=document",
             "1.0.0",
             vec!["txt", "md"],
             None

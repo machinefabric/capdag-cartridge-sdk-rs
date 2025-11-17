@@ -360,10 +360,10 @@ pub fn get_standard_capability(name: &str) -> Option<Capability> {
 /// Get a standard capability by capability ID string
 pub fn get_standard_capability_by_id(id_str: &str) -> Option<Capability> {
     match id_str {
-        "document:extract:metadata" => Some(extract_metadata_capability()),
-        "bin:document:generate:thumbnail" => Some(generate_thumbnail_capability()),
-        "document:extract:outline" => Some(extract_outline_capability()),
-        "document:extract:pages" => Some(extract_pages_capability()),
+        "action=extract;target=metadata;type=document" => Some(extract_metadata_capability()),
+        "action=generate;output=binary;target=thumbnail;type=document" => Some(generate_thumbnail_capability()),
+        "action=extract;target=outline;type=document" => Some(extract_outline_capability()),
+        "action=extract;target=pages;type=document" => Some(extract_pages_capability()),
         _ => None,
     }
 }
