@@ -107,20 +107,20 @@ mod tests {
     fn test_plugin_capabilities() {
         let mut capabilities = PluginCapabilities::new();
         
-        let id1 = CapabilityKey::from_string("data_processing:transform:json").unwrap();
-        let cap1 = Capability::new(id1, "1.0.0".to_string());
+        let id1 = CapabilityKey::from_string("action=transform;type=data;format=json").unwrap();
+        let cap1 = Capability::new(id1, "1.0.0".to_string(), "transform-json".to_string());
         
-        let id2 = CapabilityKey::from_string("data_processing:validate:*").unwrap();
+        let id2 = CapabilityKey::from_string("action=validate;type=data;format=*").unwrap();
         let mut metadata = HashMap::new();
         metadata.insert("formats".to_string(), "json,xml,yaml".to_string());
-        let cap2 = Capability::with_metadata(id2, "1.0.0".to_string(), metadata);
+        let cap2 = Capability::with_metadata(id2, "1.0.0".to_string(), "validate-data".to_string(), metadata);
         
         capabilities.add_capability(cap1);
         capabilities.add_capability(cap2);
         
-        assert!(capabilities.can("data_processing:transform:json"));
-        assert!(capabilities.can("data_processing:validate:xml"));
-        assert!(!capabilities.can("compute:math"));
+        assert!(capabilities.can("action=transform;type=data;format=json"));
+        assert!(capabilities.can("action=validate;type=data;format=xml"));
+        assert!(!capabilities.can("action=compute;type=math"));
         
         let metadata_caps = capabilities.capabilities_with_metadata("formats", None);
         assert_eq!(metadata_caps.len(), 1);
