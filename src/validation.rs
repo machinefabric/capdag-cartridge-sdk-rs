@@ -1,7 +1,7 @@
 //! Plugin interface schema validation framework
 //! 
 //! This module provides type-safe validation of plugin implementations against formal schemas.
-//! It validates capability definitions, plugin interfaces, and runtime plugin behavior.
+//! It validates cap definitions, plugin interfaces, and runtime plugin behavior.
 
 use crate::PluginResult;
 use serde::{Deserialize, Serialize};
@@ -11,11 +11,11 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use anyhow::{Context, bail};
 
-/// Represents a formal capability definition with typed arguments and validation rules
+/// Represents a formal cap definition with typed arguments and validation rules
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CapabilitySchema {
+pub struct CapSchema {
     pub schema_version: String,
-    pub capability: CapabilityInfo,
+    pub cap: CapInfo,
     pub command: String,
     pub arguments: ArgumentsSpec,
     pub response: ResponseSpec,
@@ -26,7 +26,7 @@ pub struct CapabilitySchema {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CapabilityInfo {
+pub struct CapInfo {
     pub name: String,
     pub description: String,
     pub file_types: Vec<String>,
@@ -122,12 +122,12 @@ pub struct ErrorCode {
     pub description: String,
 }
 
-/// Represents a complete plugin interface with multiple capabilities
+/// Represents a complete plugin interface with multiple caps
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PluginInterfaceSchema {
     pub schema_version: String,
     pub interface: InterfaceInfo,
-    pub capabilities: Vec<CapabilityReference>,
+    pub caps: Vec<CapReference>,
     #[serde(default)]
     pub global_requirements: GlobalRequirements,
     #[serde(default)]
@@ -154,9 +154,9 @@ pub struct CompatibilitySpec {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged)]
-pub enum CapabilityReference {
-    Inline(CapabilitySchema),
-    Reference { capability_ref: String },
+pub enum CapReference {
+    Inline(CapSchema),
+    Reference { cap_ref: String },
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
@@ -200,7 +200,7 @@ fn default_stderr() -> String { "stderr".to_string() }
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct InterfaceValidationRules {
     #[serde(default)]
-    pub capability_uniqueness: UniquenessRule,
+    pub cap_uniqueness: UniquenessRule,
     #[serde(default)]
     pub file_type_consistency: FileTypeConsistencyRule,
     #[serde(default)]
@@ -231,7 +231,7 @@ pub struct FileTypeConsistencyRule {
     #[serde(default = "default_true")]
     pub enforce: bool,
     #[serde(default)]
-    pub related_capabilities: Vec<Vec<String>>,
+    pub related_caps: Vec<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -264,14 +264,14 @@ pub struct TestFile {
     pub name: String,
     pub path: String,
     pub description: Option<String>,
-    pub expected_capabilities: Vec<String>,
+    pub expected_caps: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TestScenario {
     pub name: String,
     pub description: Option<String>,
-    pub capability: String,
+    pub cap: String,
     pub arguments: HashMap<String, Value>,
     pub expected_result: ExpectedResult,
 }
@@ -286,7 +286,7 @@ pub struct ExpectedResult {
 /// Plugin schema validator for type-safe validation of plugin implementations
 pub struct PluginValidator {
     schema_dir: PathBuf,
-    capability_schemas: HashMap<String, CapabilitySchema>,
+    cap_schemas: HashMap<String, CapSchema>,
     interface_schemas: HashMap<String, PluginInterfaceSchema>,
 }
 
@@ -301,26 +301,26 @@ impl PluginValidator {
 
         Ok(Self {
             schema_dir,
-            capability_schemas: HashMap::new(),
+            cap_schemas: HashMap::new(),
             interface_schemas: HashMap::new(),
         })
     }
 
-    /// Load and validate a capability schema from file
-    pub fn load_capability_schema<P: AsRef<Path>>(&mut self, path: P) -> PluginResult<&CapabilitySchema> {
+    /// Load and validate a cap schema from file
+    pub fn load_cap_schema<P: AsRef<Path>>(&mut self, path: P) -> PluginResult<&CapSchema> {
         let path = path.as_ref();
         let content = std::fs::read_to_string(path)
-            .with_context(|| format!("Failed to read capability schema: {}", path.display()))?;
+            .with_context(|| format!("Failed to read cap schema: {}", path.display()))?;
         
-        let schema: CapabilitySchema = serde_json::from_str(&content)
-            .with_context(|| format!("Failed to parse capability schema: {}", path.display()))?;
+        let schema: CapSchema = serde_json::from_str(&content)
+            .with_context(|| format!("Failed to parse cap schema: {}", path.display()))?;
 
-        self.validate_capability_schema(&schema)?;
+        self.validate_cap_schema(&schema)?;
         
-        let name = schema.capability.name.clone();
-        self.capability_schemas.insert(name.clone(), schema);
+        let name = schema.cap.name.clone();
+        self.cap_schemas.insert(name.clone(), schema);
         
-        Ok(&self.capability_schemas[&name])
+        Ok(&self.cap_schemas[&name])
     }
 
     /// Load and validate a plugin interface schema from file
@@ -360,25 +360,25 @@ impl PluginValidator {
         // Test manifest command
         self.validate_plugin_manifest_command(plugin_binary, interface, &mut report)?;
 
-        // Test each capability with comprehensive validation
-        for cap_ref in &interface.capabilities {
+        // Test each cap with comprehensive validation
+        for cap_ref in &interface.caps {
             match cap_ref {
-                CapabilityReference::Inline(cap_schema) => {
-                    self.validate_capability_implementation(plugin_binary, cap_schema, &mut report)?;
-                    self.validate_capability_output_format(plugin_binary, cap_schema, &mut report)?;
-                    self.validate_capability_error_handling(plugin_binary, cap_schema, &mut report)?;
+                CapReference::Inline(cap_schema) => {
+                    self.validate_cap_implementation(plugin_binary, cap_schema, &mut report)?;
+                    self.validate_cap_output_format(plugin_binary, cap_schema, &mut report)?;
+                    self.validate_cap_error_handling(plugin_binary, cap_schema, &mut report)?;
                 }
-                CapabilityReference::Reference { capability_ref } => {
-                    // Load referenced capability and validate
-                    let cap_path = self.schema_dir.join(capability_ref);
+                CapReference::Reference { cap_ref } => {
+                    // Load referenced cap and validate
+                    let cap_path = self.schema_dir.join(cap_ref);
                     if cap_path.exists() {
                         let content = std::fs::read_to_string(&cap_path)?;
-                        let cap_schema: CapabilitySchema = serde_json::from_str(&content)?;
-                        self.validate_capability_implementation(plugin_binary, &cap_schema, &mut report)?;
-                        self.validate_capability_output_format(plugin_binary, &cap_schema, &mut report)?;
-                        self.validate_capability_error_handling(plugin_binary, &cap_schema, &mut report)?;
+                        let cap_schema: CapSchema = serde_json::from_str(&content)?;
+                        self.validate_cap_implementation(plugin_binary, &cap_schema, &mut report)?;
+                        self.validate_cap_output_format(plugin_binary, &cap_schema, &mut report)?;
+                        self.validate_cap_error_handling(plugin_binary, &cap_schema, &mut report)?;
                     } else {
-                        report.add_error(format!("Referenced capability schema not found: {}", capability_ref));
+                        report.add_error(format!("Referenced cap schema not found: {}", cap_ref));
                     }
                 }
             }
@@ -390,11 +390,11 @@ impl PluginValidator {
         Ok(report)
     }
 
-    /// Validate that a capability schema is well-formed
-    fn validate_capability_schema(&self, schema: &CapabilitySchema) -> PluginResult<()> {
-        // Validate capability name format
-        if !schema.capability.name.chars().all(|c| c.is_ascii_lowercase() || c == '-') {
-            bail!("Invalid capability name format: {}", schema.capability.name);
+    /// Validate that a cap schema is well-formed
+    fn validate_cap_schema(&self, schema: &CapSchema) -> PluginResult<()> {
+        // Validate cap name format
+        if !schema.cap.name.chars().all(|c| c.is_ascii_lowercase() || c == '-') {
+            bail!("Invalid cap name format: {}", schema.cap.name);
         }
 
         // Validate CLI flag format
@@ -439,20 +439,20 @@ impl PluginValidator {
             bail!("Invalid interface name format: {}", schema.interface.name);
         }
 
-        // Check for capability uniqueness if enforced
-        if schema.validation_rules.capability_uniqueness.enforce {
-            let mut seen_capabilities = std::collections::HashSet::new();
-            for cap_ref in &schema.capabilities {
+        // Check for cap uniqueness if enforced
+        if schema.validation_rules.cap_uniqueness.enforce {
+            let mut seen_caps = std::collections::HashSet::new();
+            for cap_ref in &schema.caps {
                 let cap_name = match cap_ref {
-                    CapabilityReference::Inline(cap) => &cap.capability.name,
-                    CapabilityReference::Reference { capability_ref } => {
-                        // Extract capability name from reference (basic heuristic)
-                        capability_ref.split('/').last().unwrap_or(capability_ref).trim_end_matches(".json")
+                    CapReference::Inline(cap) => &cap.cap.name,
+                    CapReference::Reference { cap_ref } => {
+                        // Extract cap name from reference (basic heuristic)
+                        cap_ref.split('/').last().unwrap_or(cap_ref).trim_end_matches(".json")
                     }
                 };
                 
-                if !seen_capabilities.insert(cap_name) {
-                    bail!("Duplicate capability in interface: {}", cap_name);
+                if !seen_caps.insert(cap_name) {
+                    bail!("Duplicate cap in interface: {}", cap_name);
                 }
             }
         }
@@ -489,7 +489,7 @@ impl PluginValidator {
             })?;
 
         // Validate required fields
-        let required_fields = ["name", "version", "capabilities"];
+        let required_fields = ["name", "version", "caps"];
         for field in &required_fields {
             if !plugin_manifest.get(field).is_some() {
                 report.add_error(format!("manifest missing required field: {}", field));
@@ -500,17 +500,17 @@ impl PluginValidator {
         Ok(())
     }
 
-    /// Validate a specific capability implementation
-    fn validate_capability_implementation(
+    /// Validate a specific cap implementation
+    fn validate_cap_implementation(
         &self,
         plugin_binary: &Path,
-        capability: &CapabilitySchema,
+        cap: &CapSchema,
         report: &mut ValidationReport,
     ) -> PluginResult<()> {
-        let cap_name = &capability.capability.name;
+        let cap_name = &cap.cap.name;
         
-        // Test that the capability command is recognized
-        let command_name = capability.command.trim_start_matches("--");
+        // Test that the cap command is recognized
+        let command_name = cap.command.trim_start_matches("--");
         let output = Command::new(plugin_binary)
             .args(&[command_name, "--help"])
             .output();
@@ -519,35 +519,35 @@ impl PluginValidator {
             Ok(result) => {
                 if result.status.success() || result.status.code() == Some(2) {
                     // Exit code 2 is common for --help in many CLI tools
-                    report.add_success(format!("Capability {} CLI flag recognized", cap_name));
+                    report.add_success(format!("Cap {} CLI flag recognized", cap_name));
                 } else {
-                    report.add_error(format!("Capability {} CLI flag not recognized", cap_name));
+                    report.add_error(format!("Cap {} CLI flag not recognized", cap_name));
                 }
             }
             Err(e) => {
-                report.add_error(format!("Failed to test capability {}: {}", cap_name, e));
+                report.add_error(format!("Failed to test cap {}: {}", cap_name, e));
             }
         }
 
         Ok(())
     }
 
-    /// Validate that capability outputs correct format (JSON for structured data)
-    fn validate_capability_output_format(
+    /// Validate that cap outputs correct format (JSON for structured data)
+    fn validate_cap_output_format(
         &self,
         plugin_binary: &Path,
-        capability: &CapabilitySchema,
+        cap: &CapSchema,
         report: &mut ValidationReport,
     ) -> PluginResult<()> {
-        let cap_name = &capability.capability.name;
+        let cap_name = &cap.cap.name;
         
-        // Only test structured data capabilities that we can validate output format
-        if !matches!(capability.response.response_type, ResponseType::Json) {
+        // Only test structured data caps that we can validate output format
+        if !matches!(cap.response.response_type, ResponseType::Json) {
             return Ok(());
         }
 
         // Create a temporary test file if needed
-        let test_file = if capability.arguments.required.iter().any(|arg| arg.name == "file_path") {
+        let test_file = if cap.arguments.required.iter().any(|arg| arg.name == "file_path") {
             let temp_file = std::env::temp_dir().join(format!("plugin_test_{}.txt", uuid::Uuid::new_v4()));
             std::fs::write(&temp_file, "Test content for plugin validation\n\nSecond paragraph.").ok();
             Some(temp_file)
@@ -556,9 +556,9 @@ impl PluginValidator {
         };
 
         if let Some(ref test_file_path) = test_file {
-            // Test the capability with the test file
+            // Test the cap with the test file
             let test_file_str = test_file_path.to_string_lossy().to_string();
-            let command_name = capability.command.trim_start_matches("--");
+            let command_name = cap.command.trim_start_matches("--");
             let args = vec![command_name, &test_file_str];
             
             let output = Command::new(plugin_binary)
@@ -574,10 +574,10 @@ impl PluginValidator {
                         match serde_json::from_str::<serde_json::Value>(&stdout) {
                             Ok(_) => {
                                 // Check that it doesn't start with Debug format
-                                if stdout.trim().starts_with(&format!("{}{{", capability.response.schema_ref.as_ref().unwrap_or(&"Data".to_string()).replace(".json", ""))) {
-                                    report.add_error(format!("Capability {} outputs Debug format instead of JSON: starts with '{}{{", cap_name, capability.response.schema_ref.as_ref().unwrap_or(&"Data".to_string()).replace(".json", "")));
+                                if stdout.trim().starts_with(&format!("{}{{", cap.response.schema_ref.as_ref().unwrap_or(&"Data".to_string()).replace(".json", ""))) {
+                                    report.add_error(format!("Cap {} outputs Debug format instead of JSON: starts with '{}{{", cap_name, cap.response.schema_ref.as_ref().unwrap_or(&"Data".to_string()).replace(".json", "")));
                                 } else {
-                                    report.add_success(format!("Capability {} outputs valid JSON", cap_name));
+                                    report.add_success(format!("Cap {} outputs valid JSON", cap_name));
                                 }
                             }
                             Err(e) => {
@@ -585,19 +585,19 @@ impl PluginValidator {
                                 if stdout.trim().starts_with("FileMetadata {") || 
                                    stdout.trim().starts_with("DocumentPages {") || 
                                    stdout.trim().starts_with("DocumentOutline {") {
-                                    report.add_error(format!("Capability {} outputs Debug format instead of JSON", cap_name));
+                                    report.add_error(format!("Cap {} outputs Debug format instead of JSON", cap_name));
                                 } else {
-                                    report.add_error(format!("Capability {} outputs invalid JSON: {}", cap_name, e));
+                                    report.add_error(format!("Cap {} outputs invalid JSON: {}", cap_name, e));
                                 }
                             }
                         }
                     } else {
                         let stderr = String::from_utf8_lossy(&result.stderr);
-                        report.add_error(format!("Capability {} failed on test file: {}", cap_name, stderr));
+                        report.add_error(format!("Cap {} failed on test file: {}", cap_name, stderr));
                     }
                 }
                 Err(e) => {
-                    report.add_error(format!("Failed to test capability {} output format: {}", cap_name, e));
+                    report.add_error(format!("Failed to test cap {} output format: {}", cap_name, e));
                 }
             }
 
@@ -608,20 +608,20 @@ impl PluginValidator {
         Ok(())
     }
 
-    /// Validate capability error handling
-    fn validate_capability_error_handling(
+    /// Validate cap error handling
+    fn validate_cap_error_handling(
         &self,
         plugin_binary: &Path,
-        capability: &CapabilitySchema,
+        cap: &CapSchema,
         report: &mut ValidationReport,
     ) -> PluginResult<()> {
-        let cap_name = &capability.capability.name;
+        let cap_name = &cap.cap.name;
         
-        // Test with non-existent file if capability takes file input
-        if capability.arguments.required.iter().any(|arg| arg.name == "file_path") {
+        // Test with non-existent file if cap takes file input
+        if cap.arguments.required.iter().any(|arg| arg.name == "file_path") {
             let non_existent_file = "/tmp/non_existent_file_for_plugin_test.xyz";
             let non_existent_str = non_existent_file.to_string();
-            let command_name = capability.command.trim_start_matches("--");
+            let command_name = cap.command.trim_start_matches("--");
             
             let args = vec![command_name, &non_existent_str];
             
@@ -635,25 +635,25 @@ impl PluginValidator {
                         let exit_code = result.status.code().unwrap_or(-1);
                         
                         // Check if it uses standard exit codes
-                        if let Some(expected_code) = capability.error_handling.error_codes.get("FILE_NOT_FOUND") {
+                        if let Some(expected_code) = cap.error_handling.error_codes.get("FILE_NOT_FOUND") {
                             if exit_code == expected_code.code {
-                                report.add_success(format!("Capability {} uses correct exit code for file not found", cap_name));
+                                report.add_success(format!("Cap {} uses correct exit code for file not found", cap_name));
                             } else {
-                                report.add_error(format!("Capability {} uses exit code {} instead of expected {} for file not found", cap_name, exit_code, expected_code.code));
+                                report.add_error(format!("Cap {} uses exit code {} instead of expected {} for file not found", cap_name, exit_code, expected_code.code));
                             }
                         } else {
                             if exit_code > 0 {
-                                report.add_success(format!("Capability {} properly fails with non-zero exit code for invalid input", cap_name));
+                                report.add_success(format!("Cap {} properly fails with non-zero exit code for invalid input", cap_name));
                             } else {
-                                report.add_error(format!("Capability {} should fail with non-zero exit code for non-existent file", cap_name));
+                                report.add_error(format!("Cap {} should fail with non-zero exit code for non-existent file", cap_name));
                             }
                         }
                     } else {
-                        report.add_error(format!("Capability {} should fail when given non-existent file", cap_name));
+                        report.add_error(format!("Cap {} should fail when given non-existent file", cap_name));
                     }
                 }
                 Err(e) => {
-                    report.add_error(format!("Failed to test capability {} error handling: {}", cap_name, e));
+                    report.add_error(format!("Failed to test cap {} error handling: {}", cap_name, e));
                 }
             }
         }
@@ -670,12 +670,12 @@ impl PluginValidator {
     ) -> PluginResult<()> {
         // Run test scenarios if defined
         for scenario in &interface.testing.test_scenarios {
-            let cap_name = &scenario.capability;
+            let cap_name = &scenario.cap;
             
-            // Find the capability schema
-            let cap_schema = self.find_capability_in_interface(interface, cap_name);
+            // Find the cap schema
+            let cap_schema = self.find_cap_in_interface(interface, cap_name);
             if cap_schema.is_none() {
-                report.add_error(format!("Test scenario references unknown capability: {}", cap_name));
+                report.add_error(format!("Test scenario references unknown cap: {}", cap_name));
                 continue;
             }
             let cap_schema = cap_schema.unwrap();
@@ -737,17 +737,17 @@ impl PluginValidator {
         Ok(())
     }
 
-    /// Find a capability schema in an interface
-    fn find_capability_in_interface<'a>(&self, interface: &'a PluginInterfaceSchema, cap_name: &str) -> Option<&'a CapabilitySchema> {
-        for cap_ref in &interface.capabilities {
+    /// Find a cap schema in an interface
+    fn find_cap_in_interface<'a>(&self, interface: &'a PluginInterfaceSchema, cap_name: &str) -> Option<&'a CapSchema> {
+        for cap_ref in &interface.caps {
             match cap_ref {
-                CapabilityReference::Inline(cap_schema) => {
-                    if cap_schema.capability.name == cap_name {
+                CapReference::Inline(cap_schema) => {
+                    if cap_schema.cap.name == cap_name {
                         return Some(cap_schema);
                     }
                 }
-                CapabilityReference::Reference { .. } => {
-                    // For simplicity, skip referenced capabilities in this implementation
+                CapReference::Reference { .. } => {
+                    // For simplicity, skip referenced caps in this implementation
                     // In a full implementation, you'd load and check the referenced schema
                 }
             }

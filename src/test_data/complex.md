@@ -33,7 +33,7 @@ def test_function():
 {
   "name": "test-document",
   "version": "1.0",
-  "capabilities": ["extract-metadata", "extract-outline"]
+  "caps": ["extract-metadata", "extract-outline"]
 }
 ```
 

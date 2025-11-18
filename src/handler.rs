@@ -1,19 +1,19 @@
-//! Unified capability-based plugin interface
+//! Unified cap-based plugin interface
 //! 
-//! This module defines the unified plugin interfaces with standardized capability-based calling.
+//! This module defines the unified plugin interfaces with standardized cap-based calling.
 
 // Re-export the unified manifest from capdef
-pub use capdef::CapabilityManifest;
+pub use capdef::CapManifest;
 pub use capdef::ComponentMetadata;
 
 /// Trait for plugins to provide metadata about themselves
 pub trait PluginMetadata {
     /// Get plugin manifest
-    fn plugin_manifest(&self) -> CapabilityManifest;
+    fn plugin_manifest(&self) -> CapManifest;
     
-    /// Get plugin capabilities
-    fn capabilities(&self) -> Vec<capdef::Capability> {
-        self.plugin_manifest().capabilities
+    /// Get plugin caps
+    fn caps(&self) -> Vec<capdef::Cap> {
+        self.plugin_manifest().caps
     }
 }
 

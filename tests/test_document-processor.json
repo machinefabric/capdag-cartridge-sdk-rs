@@ -1,11 +1,11 @@
 {
-  "capabilities": 5,
+  "caps": 5,
   "interface": "document-processor",
   "test_files": {
     "pdf": [
       {
         "description": "Simple PDF with basic text and outline",
-        "expected_capabilities": [
+        "expected_caps": [
           "extract-metadata",
           "extract-outline",
           "extract-pages",
@@ -19,7 +19,7 @@
     "txt": [
       {
         "description": "Plain text file",
-        "expected_capabilities": [
+        "expected_caps": [
           "extract-metadata",
           "extract-pages",
           "validate-file"
@@ -35,7 +35,7 @@
         "file_path": "../test_files/simple.pdf",
         "json": true
       },
-      "capability": "extract-metadata",
+      "cap": "extract-metadata",
       "description": "Test basic metadata extraction with JSON output",
       "expected_result": {
         "exit_code": 0,
@@ -58,7 +58,7 @@
         "output": "/tmp/thumbnail.png",
         "width": 150
       },
-      "capability": "generate-thumbnail",
+      "cap": "generate-thumbnail",
       "description": "Test thumbnail generation with custom dimensions",
       "expected_result": {
         "exit_code": 0,

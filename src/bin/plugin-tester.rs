@@ -58,9 +58,9 @@ enum Commands {
         #[arg(short, long)]
         plugin: PathBuf,
         
-        /// Capability to test
+        /// Cap to test
         #[arg(short, long)]
-        capability: String,
+        cap: String,
         
         /// Test file path
         #[arg(short, long)]
@@ -101,8 +101,8 @@ fn main() -> Result<()> {
         Commands::TestPlugin { plugin, interface, schema_dir, stress, file_sizes, serialization, verbose } => {
             test_plugin_comprehensive(plugin, interface, schema_dir, stress, file_sizes, serialization, verbose)
         }
-        Commands::TestSerialization { plugin, capability, file } => {
-            test_serialization_integrity(plugin, capability, file)
+        Commands::TestSerialization { plugin, cap, file } => {
+            test_serialization_integrity(plugin, cap, file)
         }
         Commands::TestErrorHandling { plugin, interface, schema_dir } => {
             test_error_handling(plugin, interface, schema_dir)
@@ -149,7 +149,7 @@ fn test_plugin_comprehensive(
     // Run serialization tests if requested
     if serialization {
         println!("\n🔧 Testing serialization integrity...");
-        test_all_capabilities_serialization(&plugin, &interface)?;
+        test_all_caps_serialization(&plugin, &interface)?;
     }
 
     // Run file size tests if requested
@@ -173,8 +173,8 @@ fn test_plugin_comprehensive(
     }
 }
 
-fn test_serialization_integrity(plugin: PathBuf, capability: String, file: Option<PathBuf>) -> Result<()> {
-    println!("🔧 Testing serialization integrity for capability: {}", capability);
+fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathBuf>) -> Result<()> {
+    println!("🔧 Testing serialization integrity for cap: {}", cap);
     
     let test_file = if let Some(ref file_path) = file {
         file_path.clone()
@@ -185,10 +185,10 @@ fn test_serialization_integrity(plugin: PathBuf, capability: String, file: Optio
         temp_file
     };
 
-    // Test the capability (use as subcommand, not flag)
+    // Test the cap (use as subcommand, not flag)
     let test_file_str = test_file.to_string_lossy().to_string();
     let output = Command::new(&plugin)
-        .args(&[&capability, &test_file_str])
+        .args(&[&cap, &test_file_str])
         .output()
         .context("Failed to execute plugin")?;
 
@@ -227,8 +227,8 @@ fn test_serialization_integrity(plugin: PathBuf, capability: String, file: Optio
                 println!("📊 Output size: {} bytes", stdout.len());
             }
             
-            // Verify structure based on capability
-            match capability.as_str() {
+            // Verify structure based on cap
+            match cap.as_str() {
                 "extract-metadata" => {
                     if json_value.get("file_path").is_some() && json_value.get("file_size_bytes").is_some() {
                         println!("✅ Metadata structure validation passed");
@@ -274,9 +274,9 @@ fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf
     // Test with non-existent file
     let non_existent = "/tmp/absolutely_non_existent_file_12345.xyz";
     
-    let capabilities = ["extract-metadata", "extract-pages", "extract-outline"];
+    let caps = ["extract-metadata", "extract-pages", "extract-outline"];
     
-    for cap in &capabilities {
+    for cap in &caps {
         let output = Command::new(&plugin)
             .args(&[cap, non_existent])
             .output()
@@ -298,7 +298,7 @@ fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf
     let invalid_file = std::env::temp_dir().join("test.invalid");
     std::fs::write(&invalid_file, "invalid content")?;
     
-    for cap in &capabilities {
+    for cap in &caps {
         let invalid_file_str = invalid_file.to_string_lossy();
         let output = Command::new(&plugin)
             .args(&[*cap, invalid_file_str.as_ref()])
@@ -321,10 +321,10 @@ fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf
     Ok(())
 }
 
-fn test_all_capabilities_serialization(plugin: &PathBuf, _interface: &str) -> Result<()> {
-    let capabilities = ["extract-metadata", "extract-pages", "extract-outline"];
+fn test_all_caps_serialization(plugin: &PathBuf, _interface: &str) -> Result<()> {
+    let caps = ["extract-metadata", "extract-pages", "extract-outline"];
     
-    for cap in &capabilities {
+    for cap in &caps {
         println!("  Testing {} serialization...", cap);
         if let Err(e) = test_serialization_integrity(plugin.clone(), cap.to_string(), None) {
             println!("  ❌ Failed: {}", e);
