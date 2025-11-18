@@ -1,25 +1,25 @@
-//! Standard plugin capability definitions with arguments
+//! Standard plugin cap definitions with arguments
 //!
-//! This module provides the standard capability definitions used across
+//! This module provides the standard cap definitions used across
 //! all LBVR plugins, including their formal argument specifications.
 
 use capdef::{
-    CapabilityKey, Capability, CapabilityArgument, CapabilityArguments,
-    CapabilityOutput, ArgumentType, ArgumentValidation, OutputType
+    CapCard, Cap, CapArgument, CapArguments,
+    CapOutput, ArgumentType, ArgumentValidation, OutputType
 };
 use std::collections::HashMap;
 
-/// Create the standard extract-metadata capability with full argument definition
-pub fn extract_metadata_capability() -> Capability {
-    let id = CapabilityKey::from_string("action=extract;target=metadata;type=document")
-        .expect("Invalid capability ID");
+/// Create the standard extract-metadata cap with full argument definition
+pub fn extract_metadata_cap() -> Cap {
+    let id = CapCard::from_string("action=extract;target=metadata;type=document")
+        .expect("Invalid cap ID");
     
     let command = "extract-metadata".to_string();
     
-    let mut arguments = CapabilityArguments::new();
+    let mut arguments = CapArguments::new();
     
     // Required file_path argument
-    let file_path_arg = CapabilityArgument {
+    let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
@@ -35,7 +35,7 @@ pub fn extract_metadata_capability() -> Capability {
     arguments.add_required(file_path_arg);
     
     // Optional output argument
-    let output_arg = CapabilityArgument {
+    let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write output to specified file instead of stdout".to_string(),
@@ -49,7 +49,7 @@ pub fn extract_metadata_capability() -> Capability {
     };
     arguments.add_optional(output_arg);
     
-    let output = CapabilityOutput {
+    let output = CapOutput {
         output_type: OutputType::Object,
         schema_ref: Some("file-metadata.json".to_string()),
         content_type: Some("application/json".to_string()),
@@ -57,7 +57,7 @@ pub fn extract_metadata_capability() -> Capability {
         description: "Structured metadata including file properties, document properties, and format-specific metadata".to_string(),
     };
     
-    let mut capability = Capability::with_full_definition(
+    let mut cap = Cap::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Extract document metadata including title, author, creation date, file size, and other properties".to_string()),
@@ -68,21 +68,21 @@ pub fn extract_metadata_capability() -> Capability {
     );
     
     // Metadata extraction can accept stdin for direct file content processing
-    capability.accepts_stdin = true;
-    capability
+    cap.accepts_stdin = true;
+    cap
 }
 
-/// Create the standard generate-thumbnail capability with full argument definition
-pub fn generate_thumbnail_capability() -> Capability {
-    let id = CapabilityKey::from_string("action=generate;output=binary;target=thumbnail;type=document")
-        .expect("Invalid capability ID");
+/// Create the standard generate-thumbnail cap with full argument definition
+pub fn generate_thumbnail_cap() -> Cap {
+    let id = CapCard::from_string("action=generate;output=binary;target=thumbnail;type=document")
+        .expect("Invalid cap ID");
     
     let command = "generate-thumbnail".to_string();
     
-    let mut arguments = CapabilityArguments::new();
+    let mut arguments = CapArguments::new();
     
     // Required file_path argument
-    let file_path_arg = CapabilityArgument {
+    let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
@@ -98,7 +98,7 @@ pub fn generate_thumbnail_capability() -> Capability {
     arguments.add_required(file_path_arg);
     
     // Optional width argument
-    let width_arg = CapabilityArgument {
+    let width_arg = CapArgument {
         name: "width".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Width of the thumbnail in pixels".to_string(),
@@ -114,7 +114,7 @@ pub fn generate_thumbnail_capability() -> Capability {
     arguments.add_optional(width_arg);
     
     // Optional height argument
-    let height_arg = CapabilityArgument {
+    let height_arg = CapArgument {
         name: "height".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Height of the thumbnail in pixels".to_string(),
@@ -130,7 +130,7 @@ pub fn generate_thumbnail_capability() -> Capability {
     arguments.add_optional(height_arg);
     
     // Optional output argument
-    let output_arg = CapabilityArgument {
+    let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write thumbnail to specified file instead of stdout".to_string(),
@@ -145,7 +145,7 @@ pub fn generate_thumbnail_capability() -> Capability {
     arguments.add_optional(output_arg);
     
     // Optional page argument
-    let page_arg = CapabilityArgument {
+    let page_arg = CapArgument {
         name: "page".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Page number to generate thumbnail from (1-based, default: 1)".to_string(),
@@ -159,7 +159,7 @@ pub fn generate_thumbnail_capability() -> Capability {
     };
     arguments.add_optional(page_arg);
     
-    let output = CapabilityOutput {
+    let output = CapOutput {
         output_type: OutputType::Binary,
         schema_ref: None,
         content_type: Some("image/png".to_string()),
@@ -167,7 +167,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         description: "PNG image data representing a thumbnail of the document".to_string(),
     };
     
-    let mut capability = Capability::with_full_definition(
+    let mut cap = Cap::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Generate a thumbnail image preview of the document".to_string()),
@@ -178,21 +178,21 @@ pub fn generate_thumbnail_capability() -> Capability {
     );
     
     // Thumbnail generation can accept stdin for direct file content processing
-    capability.accepts_stdin = true;
-    capability
+    cap.accepts_stdin = true;
+    cap
 }
 
-/// Create the standard extract-outline capability with full argument definition
-pub fn extract_outline_capability() -> Capability {
-    let id = CapabilityKey::from_string("action=extract;target=outline;type=document")
-        .expect("Invalid capability ID");
+/// Create the standard extract-outline cap with full argument definition
+pub fn extract_outline_cap() -> Cap {
+    let id = CapCard::from_string("action=extract;target=outline;type=document")
+        .expect("Invalid cap ID");
     
     let command = "extract-outline".to_string();
     
-    let mut arguments = CapabilityArguments::new();
+    let mut arguments = CapArguments::new();
     
     // Required file_path argument
-    let file_path_arg = CapabilityArgument {
+    let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
@@ -208,7 +208,7 @@ pub fn extract_outline_capability() -> Capability {
     arguments.add_required(file_path_arg);
     
     // Optional max_depth argument
-    let max_depth_arg = CapabilityArgument {
+    let max_depth_arg = CapArgument {
         name: "max_depth".to_string(),
         arg_type: ArgumentType::Integer,
         description: "Maximum outline depth to extract (1-10)".to_string(),
@@ -224,7 +224,7 @@ pub fn extract_outline_capability() -> Capability {
     arguments.add_optional(max_depth_arg);
     
     // Optional include_page_numbers argument
-    let include_page_numbers_arg = CapabilityArgument {
+    let include_page_numbers_arg = CapArgument {
         name: "include_page_numbers".to_string(),
         arg_type: ArgumentType::Boolean,
         description: "Include page numbers in the outline (default: true)".to_string(),
@@ -236,7 +236,7 @@ pub fn extract_outline_capability() -> Capability {
     arguments.add_optional(include_page_numbers_arg);
     
     // Optional output argument
-    let output_arg = CapabilityArgument {
+    let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write output to specified file instead of stdout".to_string(),
@@ -250,7 +250,7 @@ pub fn extract_outline_capability() -> Capability {
     };
     arguments.add_optional(output_arg);
     
-    let output = CapabilityOutput {
+    let output = CapOutput {
         output_type: OutputType::Object,
         schema_ref: Some("document-outline.json".to_string()),
         content_type: Some("application/json".to_string()),
@@ -258,7 +258,7 @@ pub fn extract_outline_capability() -> Capability {
         description: "Hierarchical document outline with section titles and optional page numbers".to_string(),
     };
     
-    let mut capability = Capability::with_full_definition(
+    let mut cap = Cap::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Extract document outline/table of contents with hierarchical structure".to_string()),
@@ -269,21 +269,21 @@ pub fn extract_outline_capability() -> Capability {
     );
     
     // Outline extraction can accept stdin for direct file content processing
-    capability.accepts_stdin = true;
-    capability
+    cap.accepts_stdin = true;
+    cap
 }
 
-/// Create the standard extract-pages capability with full argument definition
-pub fn extract_pages_capability() -> Capability {
-    let id = CapabilityKey::from_string("action=extract;target=pages;type=document")
-        .expect("Invalid capability ID");
+/// Create the standard extract-pages cap with full argument definition
+pub fn extract_pages_cap() -> Cap {
+    let id = CapCard::from_string("action=extract;target=pages;type=document")
+        .expect("Invalid cap ID");
     
     let command = "extract-pages".to_string();
     
-    let mut arguments = CapabilityArguments::new();
+    let mut arguments = CapArguments::new();
     
     // Required file_path argument
-    let file_path_arg = CapabilityArgument {
+    let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
         description: "Path to the document file to process".to_string(),
@@ -299,7 +299,7 @@ pub fn extract_pages_capability() -> Capability {
     arguments.add_required(file_path_arg);
     
     // Optional output argument
-    let output_arg = CapabilityArgument {
+    let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
         description: "Write output to specified file instead of stdout".to_string(),
@@ -314,7 +314,7 @@ pub fn extract_pages_capability() -> Capability {
     arguments.add_optional(output_arg);
     
     // Optional page_range argument
-    let page_range_arg = CapabilityArgument {
+    let page_range_arg = CapArgument {
         name: "page_range".to_string(),
         arg_type: ArgumentType::String,
         description: "Page range to extract (e.g., '1-5' or '10-')".to_string(),
@@ -328,7 +328,7 @@ pub fn extract_pages_capability() -> Capability {
     };
     arguments.add_optional(page_range_arg);
     
-    let output = CapabilityOutput {
+    let output = CapOutput {
         output_type: OutputType::Object,
         schema_ref: Some("document-pages.json".to_string()),
         content_type: Some("application/json".to_string()),
@@ -336,7 +336,7 @@ pub fn extract_pages_capability() -> Capability {
         description: "Structured page content extracted from the document".to_string(),
     };
     
-    let mut capability = Capability::with_full_definition(
+    let mut cap = Cap::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Extract structured page content from the document".to_string()),
@@ -347,38 +347,38 @@ pub fn extract_pages_capability() -> Capability {
     );
     
     // Page extraction can accept stdin for direct file content processing
-    capability.accepts_stdin = true;
-    capability
+    cap.accepts_stdin = true;
+    cap
 }
 
-/// Get all standard plugin capabilities
-pub fn get_all_standard_capabilities() -> Vec<Capability> {
+/// Get all standard plugin caps
+pub fn get_all_standard_caps() -> Vec<Cap> {
     vec![
-        extract_metadata_capability(),
-        generate_thumbnail_capability(),
-        extract_outline_capability(),
-        extract_pages_capability(),
+        extract_metadata_cap(),
+        generate_thumbnail_cap(),
+        extract_outline_cap(),
+        extract_pages_cap(),
     ]
 }
 
-/// Get a standard capability by name
-pub fn get_standard_capability(name: &str) -> Option<Capability> {
+/// Get a standard cap by name
+pub fn get_standard_cap(name: &str) -> Option<Cap> {
     match name {
-        "extract-metadata" => Some(extract_metadata_capability()),
-        "generate-thumbnail" => Some(generate_thumbnail_capability()),
-        "extract-outline" => Some(extract_outline_capability()),
-        "extract-pages" => Some(extract_pages_capability()),
+        "extract-metadata" => Some(extract_metadata_cap()),
+        "generate-thumbnail" => Some(generate_thumbnail_cap()),
+        "extract-outline" => Some(extract_outline_cap()),
+        "extract-pages" => Some(extract_pages_cap()),
         _ => None,
     }
 }
 
-/// Get a standard capability by capability ID string
-pub fn get_standard_capability_by_id(id_str: &str) -> Option<Capability> {
+/// Get a standard cap by cap ID string
+pub fn get_standard_cap_by_id(id_str: &str) -> Option<Cap> {
     match id_str {
-        "action=extract;target=metadata;type=document" => Some(extract_metadata_capability()),
-        "action=generate;output=binary;target=thumbnail;type=document" => Some(generate_thumbnail_capability()),
-        "action=extract;target=outline;type=document" => Some(extract_outline_capability()),
-        "action=extract;target=pages;type=document" => Some(extract_pages_capability()),
+        "action=extract;target=metadata;type=document" => Some(extract_metadata_cap()),
+        "action=generate;output=binary;target=thumbnail;type=document" => Some(generate_thumbnail_cap()),
+        "action=extract;target=outline;type=document" => Some(extract_outline_cap()),
+        "action=extract;target=pages;type=document" => Some(extract_pages_cap()),
         _ => None,
     }
 }

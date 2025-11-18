@@ -2,10 +2,10 @@
 //! 
 //! This library provides common data structures and traits for LBVR document processing plugins.
 //! It ensures consistency across different file handlers (PDF, EPUB, etc.) and enables
-//! a unified plugin architecture with standardized capability-based calling.
+//! a unified plugin architecture with standardized cap-based calling.
 
 pub mod document;
-pub mod document_capability;
+pub mod document_cap;
 pub mod handler;
 pub mod metadata;
 pub mod output;
@@ -14,11 +14,11 @@ pub mod response;
 pub mod standard;
 pub mod validation;
 
-// Re-export capability SDK types
+// Re-export cap SDK types
 pub use capdef::*;
 
 pub use document::*;
-pub use document_capability::*;
+pub use document_cap::*;
 pub use handler::*;
 pub use metadata::*;
 pub use output::*;

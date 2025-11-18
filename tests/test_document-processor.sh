@@ -17,24 +17,24 @@ echo "Testing manifest command..."
 "$PLUGIN_BINARY" manifest > /tmp/manifest.json
 echo "✅ manifest command passed"
 
-echo "Testing capability: extract-metadata..."
+echo "Testing cap: extract-metadata..."
 "$PLUGIN_BINARY" extract-metadata --help >/dev/null 2>&1 || true
-echo "✅ extract-metadata capability flag recognized"
+echo "✅ extract-metadata cap flag recognized"
 
-echo "Testing capability: extract-outline..."
+echo "Testing cap: extract-outline..."
 "$PLUGIN_BINARY" extract-outline --help >/dev/null 2>&1 || true
-echo "✅ extract-outline capability flag recognized"
+echo "✅ extract-outline cap flag recognized"
 
-echo "Testing capability: generate-thumbnail..."
+echo "Testing cap: generate-thumbnail..."
 "$PLUGIN_BINARY" generate-thumbnail --help >/dev/null 2>&1 || true
-echo "✅ generate-thumbnail capability flag recognized"
+echo "✅ generate-thumbnail cap flag recognized"
 
-echo "Testing capability: extract-pages..."
+echo "Testing cap: extract-pages..."
 "$PLUGIN_BINARY" extract-pages --help >/dev/null 2>&1 || true
-echo "✅ extract-pages capability flag recognized"
+echo "✅ extract-pages cap flag recognized"
 
-echo "Testing capability: validate-file..."
+echo "Testing cap: validate-file..."
 "$PLUGIN_BINARY" validate-file --help >/dev/null 2>&1 || true
-echo "✅ validate-file capability flag recognized"
+echo "✅ validate-file cap flag recognized"
 
 echo "🎉 All tests passed!"

@@ -1,38 +1,38 @@
-//! Pure capability-based plugin execution via XPC
+//! Pure cap-based plugin execution via XPC
 
 use anyhow::Result;
 use serde_json::Value as JsonValue;
 use crate::ResponseWrapper;
 
-/// Capability caller that executes via XPC service
-pub struct CapabilityCaller {
-    capability: String,
+/// Cap caller that executes via XPC service
+pub struct CapCaller {
+    cap: String,
     plugin_host: Box<dyn PluginHost>,
 }
 
 /// Trait for Plugin Host communication
 pub trait PluginHost: Send + Sync {
-    fn execute_capability(
+    fn execute_cap(
         &self,
-        capability: &str,
+        cap: &str,
         positional_args: &[String],
         named_args: &[(String, String)]
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(Option<Vec<u8>>, Option<String>)>> + Send + '_>>;
 }
 
-impl CapabilityCaller {
-    /// Create a new capability caller
+impl CapCaller {
+    /// Create a new cap caller
     pub fn new(
-        capability: String,
+        cap: String,
         plugin_host: Box<dyn PluginHost>,
     ) -> Self {
         Self {
-            capability,
+            cap,
             plugin_host,
         }
     }
     
-    /// Call the capability with structured arguments (positional and named)
+    /// Call the cap with structured arguments (positional and named)
     pub async fn call(
         &self,
         positional_args: Vec<JsonValue>,
@@ -73,8 +73,8 @@ impl CapabilityCaller {
             .collect();
 
         // Execute via plugin host method
-        let (binary_output, text_output) = self.plugin_host.execute_capability(
-            &self.capability, 
+        let (binary_output, text_output) = self.plugin_host.execute_cap(
+            &self.cap, 
             &string_positional_args,
             &string_named_args
         ).await?;
@@ -83,7 +83,7 @@ impl CapabilityCaller {
         let response = if let Some(binary_data) = binary_output {
             ResponseWrapper::from_binary(binary_data)
         } else if let Some(text_data) = text_output {
-            if self.is_json_capability() {
+            if self.is_json_cap() {
                 ResponseWrapper::from_json(text_data.into_bytes())
             } else {
                 ResponseWrapper::from_text(text_data.into_bytes())
@@ -95,31 +95,31 @@ impl CapabilityCaller {
         Ok(response)
     }
     
-    /// Convert capability name to command
-    fn capability_to_command(&self, capability: &str) -> String {
+    /// Convert cap name to command
+    fn cap_to_command(&self, cap: &str) -> String {
         // Extract operation part (everything before the last colon)
-        let operation = if let Some(colon_pos) = capability.rfind(':') {
-            &capability[..colon_pos]
+        let operation = if let Some(colon_pos) = cap.rfind(':') {
+            &cap[..colon_pos]
         } else {
-            capability
+            cap
         };
         
         // Convert underscores to hyphens for command name
         operation.replace('_', "-")
     }
     
-    /// Check if this capability produces binary output
-    fn is_binary_capability(&self) -> bool {
-        // Use the formal capability identifier system to detect binary capabilities
-        let capability_key = capdef::CapabilityKey::from_string(&self.capability)
-            .expect("Invalid capability identifier");
-        capability_key.is_binary()
+    /// Check if this cap produces binary output
+    fn is_binary_cap(&self) -> bool {
+        // Use the formal cap identifier system to detect binary caps
+        let cap_card = capdef::CapCard::from_string(&self.cap)
+            .expect("Invalid cap identifier");
+        cap_card.is_binary()
     }
     
-    /// Check if this capability should produce JSON output
-    fn is_json_capability(&self) -> bool {
-        let capability_key = capdef::CapabilityKey::from_string(&self.capability)
-            .expect("Invalid capability identifier");
-        !capability_key.is_binary()
+    /// Check if this cap should produce JSON output
+    fn is_json_cap(&self) -> bool {
+        let cap_card = capdef::CapCard::from_string(&self.cap)
+            .expect("Invalid cap identifier");
+        !cap_card.is_binary()
     }
 }

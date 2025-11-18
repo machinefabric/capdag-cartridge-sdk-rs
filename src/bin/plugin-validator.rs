@@ -41,11 +41,11 @@ enum Commands {
         verbose: bool,
     },
     
-    /// Validate a capability schema file
-    ValidateCapability {
-        /// Path to the capability schema file
+    /// Validate a cap schema file
+    ValidateCap {
+        /// Path to the cap schema file
         #[arg(short, long)]
-        capability: PathBuf,
+        cap: PathBuf,
         
         /// Directory containing schema files  
         #[arg(short, long, default_value = "./plugin-schemas")]
@@ -101,8 +101,8 @@ fn main() -> Result<()> {
         Commands::ValidatePlugin { plugin, interface, schema_dir, output, verbose } => {
             validate_plugin(plugin, interface, schema_dir, output, verbose)
         }
-        Commands::ValidateCapability { capability, schema_dir, verbose } => {
-            validate_capability(capability, schema_dir, verbose)
+        Commands::ValidateCap { cap, schema_dir, verbose } => {
+            validate_cap(cap, schema_dir, verbose)
         }
         Commands::ValidateInterface { interface, schema_dir, verbose } => {
             validate_interface(interface, schema_dir, verbose)
@@ -156,27 +156,27 @@ fn validate_plugin(
     Ok(())
 }
 
-fn validate_capability(capability_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result<()> {
-    println!("🔍 Validating capability schema...");
-    println!("Capability: {}", capability_path.display());
+fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result<()> {
+    println!("🔍 Validating cap schema...");
+    println!("Cap: {}", cap_path.display());
     println!("Schema directory: {}", schema_dir.display());
     println!();
 
     let mut validator = PluginValidator::new(&schema_dir)
         .context("Failed to create plugin validator")?;
 
-    match validator.load_capability_schema(&capability_path) {
+    match validator.load_cap_schema(&cap_path) {
         Ok(schema) => {
-            println!("✅ Capability schema is valid!");
+            println!("✅ Cap schema is valid!");
             if verbose {
-                println!("Capability name: {}", schema.capability.name);
-                println!("Description: {}", schema.capability.description);
-                println!("File types: {:?}", schema.capability.file_types);
-                println!("Version: {}", schema.capability.version);
+                println!("Cap name: {}", schema.cap.name);
+                println!("Description: {}", schema.cap.description);
+                println!("File types: {:?}", schema.cap.file_types);
+                println!("Version: {}", schema.cap.version);
             }
         }
         Err(e) => {
-            println!("❌ Capability schema validation failed:");
+            println!("❌ Cap schema validation failed:");
             println!("{}", e);
             std::process::exit(1);
         }
@@ -201,7 +201,7 @@ fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: boo
                 println!("Interface name: {}", schema.interface.name);
                 println!("Description: {}", schema.interface.description);
                 println!("Version: {}", schema.interface.version);
-                println!("Capabilities: {}", schema.capabilities.len());
+                println!("Caps: {}", schema.caps.len());
                 println!("Authors: {:?}", schema.interface.authors);
             }
         }
@@ -390,18 +390,18 @@ fn generate_test_script(interface: &lbvr_plugin_sdk::PluginInterfaceSchema, inte
     script.push_str("\"$PLUGIN_BINARY\" manifest > /tmp/manifest.json\n");
     script.push_str("echo \"✅ manifest command passed\"\n\n");
 
-    // Test each capability
-    for cap_ref in interface.capabilities.iter() {
+    // Test each cap
+    for cap_ref in interface.caps.iter() {
         let cap_name = match cap_ref {
-            lbvr_plugin_sdk::CapabilityReference::Inline(cap) => &cap.capability.name,
-            lbvr_plugin_sdk::CapabilityReference::Reference { capability_ref } => {
-                capability_ref.split('/').last().unwrap_or(capability_ref).trim_end_matches(".json")
+            lbvr_plugin_sdk::CapReference::Inline(cap) => &cap.cap.name,
+            lbvr_plugin_sdk::CapReference::Reference { cap_ref } => {
+                cap_ref.split('/').last().unwrap_or(cap_ref).trim_end_matches(".json")
             }
         };
 
-        script.push_str(&format!("echo \"Testing capability: {}...\"\n", cap_name));
+        script.push_str(&format!("echo \"Testing cap: {}...\"\n", cap_name));
         script.push_str(&format!("\"$PLUGIN_BINARY\" --{} --help >/dev/null 2>&1 || true\n", cap_name));
-        script.push_str(&format!("echo \"✅ {} capability flag recognized\"\n\n", cap_name));
+        script.push_str(&format!("echo \"✅ {} cap flag recognized\"\n\n", cap_name));
     }
 
     script.push_str("echo \"🎉 All tests passed!\"\n");
@@ -414,7 +414,7 @@ fn generate_test_config(interface: &lbvr_plugin_sdk::PluginInterfaceSchema) -> S
         "version": interface.interface.version,
         "test_scenarios": interface.testing.test_scenarios,
         "test_files": interface.testing.test_files,
-        "capabilities": interface.capabilities.len()
+        "caps": interface.caps.len()
     });
 
     serde_json::to_string_pretty(&config).unwrap_or_else(|_| "{}".to_string())
