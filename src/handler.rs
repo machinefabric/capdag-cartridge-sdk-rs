@@ -2,59 +2,17 @@
 //! 
 //! This module defines the unified plugin interfaces with standardized capability-based calling.
 
-use crate::PluginCapabilities;
-
-/// Plugin manifest for --manifest output
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct PluginManifest {
-    /// Plugin name
-    pub name: String,
-    
-    /// Plugin version
-    pub version: String,
-    
-    /// Plugin description
-    pub description: String,
-    
-    /// Plugin capabilities with formal definitions
-    pub capabilities: PluginCapabilities,
-    
-    /// Plugin author/maintainer
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub author: Option<String>,
-}
-
-impl PluginManifest {
-    /// Create a new plugin manifest
-    pub fn new(
-        name: String,
-        version: String,
-        description: String,
-        capabilities: PluginCapabilities,
-    ) -> Self {
-        Self {
-            name,
-            version,
-            description,
-            capabilities,
-            author: None,
-        }
-    }
-    
-    /// Set the author of the plugin
-    pub fn with_author(mut self, author: String) -> Self {
-        self.author = Some(author);
-        self
-    }
-}
+// Re-export the unified manifest from capdef
+pub use capdef::CapabilityManifest;
+pub use capdef::ComponentMetadata;
 
 /// Trait for plugins to provide metadata about themselves
 pub trait PluginMetadata {
     /// Get plugin manifest
-    fn plugin_manifest(&self) -> PluginManifest;
+    fn plugin_manifest(&self) -> CapabilityManifest;
     
     /// Get plugin capabilities
-    fn capabilities(&self) -> PluginCapabilities {
+    fn capabilities(&self) -> Vec<capdef::Capability> {
         self.plugin_manifest().capabilities
     }
 }

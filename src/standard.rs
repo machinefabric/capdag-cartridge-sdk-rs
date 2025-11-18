@@ -7,7 +7,6 @@ use capdef::{
     CapabilityKey, Capability, CapabilityArgument, CapabilityArguments,
     CapabilityOutput, ArgumentType, ArgumentValidation, OutputType
 };
-use crate::PluginCapabilities;
 use std::collections::HashMap;
 
 /// Create the standard extract-metadata capability with full argument definition
@@ -353,13 +352,13 @@ pub fn extract_pages_capability() -> Capability {
 }
 
 /// Get all standard plugin capabilities
-pub fn get_all_standard_capabilities() -> PluginCapabilities {
-    let mut capabilities = PluginCapabilities::new();
-    capabilities.add_capability(extract_metadata_capability());
-    capabilities.add_capability(generate_thumbnail_capability());
-    capabilities.add_capability(extract_outline_capability());
-    capabilities.add_capability(extract_pages_capability());
-    capabilities
+pub fn get_all_standard_capabilities() -> Vec<Capability> {
+    vec![
+        extract_metadata_capability(),
+        generate_thumbnail_capability(),
+        extract_outline_capability(),
+        extract_pages_capability(),
+    ]
 }
 
 /// Get a standard capability by name
