@@ -4,7 +4,6 @@
 //! adding file type support and document-specific functionality.
 
 use capdef::{Capability, CapabilityKey};
-use crate::PluginCapabilities;
 use std::collections::HashMap;
 
 /// Extension trait for document processing capabilities
@@ -54,17 +53,16 @@ pub trait DocumentCapabilitiesExt {
     fn supports_all_file_types(&self) -> bool;
 }
 
-impl DocumentCapabilitiesExt for PluginCapabilities {
+impl DocumentCapabilitiesExt for Vec<Capability> {
     fn capabilities_for_file_type(&self, file_type: &str) -> Vec<&Capability> {
-        self.capabilities
-            .iter()
+        self.iter()
             .filter(|c| c.supports_file_type(file_type))
             .collect()
     }
     
     fn get_all_supported_file_types(&self) -> Vec<String> {
         let mut file_types = Vec::new();
-        for capability in &self.capabilities {
+        for capability in self {
             for file_type in capability.get_supported_file_types() {
                 if !file_types.contains(&file_type) {
                     file_types.push(file_type);
@@ -76,7 +74,7 @@ impl DocumentCapabilitiesExt for PluginCapabilities {
     }
     
     fn supports_all_file_types(&self) -> bool {
-        self.capabilities.iter().any(|c| c.supports_all_file_types())
+        self.iter().any(|c| c.supports_all_file_types())
     }
 }
 
@@ -160,7 +158,7 @@ mod tests {
     
     #[test]
     fn test_document_capabilities_collection() {
-        let mut capabilities = PluginCapabilities::new();
+        let mut capabilities = Vec::new();
         
         let cap1 = DocumentCapabilityBuilder::new_document_capability(
             "action=extract;target=metadata;type=document",
@@ -176,8 +174,8 @@ mod tests {
             None
         ).unwrap();
         
-        capabilities.add_capability(cap1);
-        capabilities.add_capability(cap2);
+        capabilities.push(cap1);
+        capabilities.push(cap2);
         
         let pdf_caps = capabilities.capabilities_for_file_type("pdf");
         assert_eq!(pdf_caps.len(), 1);
