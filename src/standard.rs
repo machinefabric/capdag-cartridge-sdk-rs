@@ -58,7 +58,7 @@ pub fn extract_metadata_capability() -> Capability {
         description: "Structured metadata including file properties, document properties, and format-specific metadata".to_string(),
     };
     
-    Capability::with_full_definition(
+    let mut capability = Capability::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Extract document metadata including title, author, creation date, file size, and other properties".to_string()),
@@ -66,7 +66,11 @@ pub fn extract_metadata_capability() -> Capability {
         command,
         arguments,
         Some(output),
-    )
+    );
+    
+    // Metadata extraction can accept stdin for direct file content processing
+    capability.accepts_stdin = true;
+    capability
 }
 
 /// Create the standard generate-thumbnail capability with full argument definition
@@ -164,7 +168,7 @@ pub fn generate_thumbnail_capability() -> Capability {
         description: "PNG image data representing a thumbnail of the document".to_string(),
     };
     
-    Capability::with_full_definition(
+    let mut capability = Capability::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Generate a thumbnail image preview of the document".to_string()),
@@ -172,7 +176,11 @@ pub fn generate_thumbnail_capability() -> Capability {
         command,
         arguments,
         Some(output),
-    )
+    );
+    
+    // Thumbnail generation can accept stdin for direct file content processing
+    capability.accepts_stdin = true;
+    capability
 }
 
 /// Create the standard extract-outline capability with full argument definition
@@ -251,7 +259,7 @@ pub fn extract_outline_capability() -> Capability {
         description: "Hierarchical document outline with section titles and optional page numbers".to_string(),
     };
     
-    Capability::with_full_definition(
+    let mut capability = Capability::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Extract document outline/table of contents with hierarchical structure".to_string()),
@@ -259,7 +267,11 @@ pub fn extract_outline_capability() -> Capability {
         command,
         arguments,
         Some(output),
-    )
+    );
+    
+    // Outline extraction can accept stdin for direct file content processing
+    capability.accepts_stdin = true;
+    capability
 }
 
 /// Create the standard extract-pages capability with full argument definition
@@ -325,7 +337,7 @@ pub fn extract_pages_capability() -> Capability {
         description: "Structured page content extracted from the document".to_string(),
     };
     
-    Capability::with_full_definition(
+    let mut capability = Capability::with_full_definition(
         id,
         "1.0.0".to_string(),
         Some("Extract structured page content from the document".to_string()),
@@ -333,7 +345,11 @@ pub fn extract_pages_capability() -> Capability {
         command,
         arguments,
         Some(output),
-    )
+    );
+    
+    // Page extraction can accept stdin for direct file content processing
+    capability.accepts_stdin = true;
+    capability
 }
 
 /// Get all standard plugin capabilities
