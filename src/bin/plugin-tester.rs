@@ -205,7 +205,7 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
         "FileMetadata {",
         "DocumentPages {", 
         "DocumentOutline {",
-        "TocEntry {",
+        "OutlineEntry {",
         "DocumentPage {",
         "ExtractionInfo {",
     ];
