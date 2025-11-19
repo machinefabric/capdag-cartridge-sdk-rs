@@ -5,7 +5,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use crate::{DocumentOutline, FileMetadata, TocEntry};
+use crate::{DocumentOutline, FileMetadata, OutlineEntry};
 
 /// Output format options
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -57,9 +57,9 @@ impl OutlineFormatter {
         serde_json::to_string_pretty(outline)
     }
     
-    /// Format TOC entries as text (recursive helper)
+    /// Format Outline entries as text (recursive helper)
     fn format_entries_text(
-        entries: &[TocEntry], 
+        entries: &[OutlineEntry], 
         output: &mut String, 
         base_level: usize, 
         counter: &mut usize
@@ -178,7 +178,7 @@ pub struct ExtractedData {
     /// Document metadata
     pub metadata: Option<FileMetadata>,
     
-    /// Document outline/TOC
+    /// Document outline
     pub outline: Option<DocumentOutline>,
     
     /// Extracted text content

@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 
 /// A single entry in a document's table of contents
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct TocEntry {
-    /// The title/label of this TOC entry
+pub struct OutlineEntry {
+    /// The title/label of this Outline entry
     pub title: String,
     
     /// Hierarchical level (0 = top level, 1 = first sublevel, etc.)
@@ -22,11 +22,11 @@ pub struct TocEntry {
     pub source_ref: Option<String>,
     
     /// Child entries under this one
-    pub children: Vec<TocEntry>,
+    pub children: Vec<OutlineEntry>,
 }
 
-impl TocEntry {
-    /// Create a new TOC entry
+impl OutlineEntry {
+    /// Create a new Outline entry
     pub fn new(title: impl Into<String>, level: usize) -> Self {
         Self {
             title: title.into(),
@@ -50,7 +50,7 @@ impl TocEntry {
     }
     
     /// Add a child entry
-    pub fn add_child(&mut self, child: TocEntry) {
+    pub fn add_child(&mut self, child: OutlineEntry) {
         self.children.push(child);
     }
     
@@ -60,7 +60,7 @@ impl TocEntry {
     }
     
     /// Find entry by title (depth-first search)
-    pub fn find_by_title(&self, title: &str) -> Option<&TocEntry> {
+    pub fn find_by_title(&self, title: &str) -> Option<&OutlineEntry> {
         if self.title == title {
             return Some(self);
         }
@@ -90,8 +90,8 @@ pub struct DocumentOutline {
     /// Total number of pages/sections in document
     pub total_pages: usize,
     
-    /// Root-level TOC entries
-    pub entries: Vec<TocEntry>,
+    /// Root-level Outline entries
+    pub entries: Vec<OutlineEntry>,
     
     /// Whether this document has any outline/bookmarks
     pub has_outline: bool,
@@ -124,13 +124,13 @@ impl DocumentOutline {
         self
     }
     
-    /// Add a root-level TOC entry
-    pub fn add_entry(&mut self, entry: TocEntry) {
+    /// Add a root-level Outline entry
+    pub fn add_entry(&mut self, entry: OutlineEntry) {
         self.entries.push(entry);
         self.has_outline = true;
     }
     
-    /// Get total number of TOC entries (including all children)
+    /// Get total number of Outline entries (including all children)
     pub fn total_entries(&self) -> usize {
         self.entries.iter().map(|entry| entry.count_all_entries()).sum()
     }
@@ -415,8 +415,8 @@ mod tests {
     use super::*;
     
     #[test]
-    fn test_toc_entry_creation() {
-        let entry = TocEntry::new("Chapter 1", 0)
+    fn test_outline_entry_creation() {
+        let entry = OutlineEntry::new("Chapter 1", 0)
             .with_page(5)
             .with_source_ref("chapter1.html");
         
@@ -431,7 +431,7 @@ mod tests {
         let mut outline = DocumentOutline::new("test.pdf", "pdf".to_string(), 10)
             .with_title("Test Document");
         
-        let entry = TocEntry::new("Introduction", 0).with_page(1);
+        let entry = OutlineEntry::new("Introduction", 0).with_page(1);
         outline.add_entry(entry);
         
         assert_eq!(outline.document_title, Some("Test Document".to_string()));
@@ -441,10 +441,10 @@ mod tests {
     }
     
     #[test]
-    fn test_nested_toc_entries() {
-        let mut parent = TocEntry::new("Chapter 1", 0);
-        let child1 = TocEntry::new("Section 1.1", 1);
-        let child2 = TocEntry::new("Section 1.2", 1);
+    fn test_nested_outline_entries() {
+        let mut parent = OutlineEntry::new("Chapter 1", 0);
+        let child1 = OutlineEntry::new("Section 1.1", 1);
+        let child2 = OutlineEntry::new("Section 1.2", 1);
         
         parent.add_child(child1);
         parent.add_child(child2);
