@@ -113,13 +113,13 @@ impl CapCaller {
         // Use the formal cap identifier system to detect binary caps
         let cap_card = capdef::CapCard::from_string(&self.cap)
             .expect("Invalid cap identifier");
-        cap_card.is_binary()
+        cap_card.get_tag("output") == Some(&"binary".to_string())
     }
     
     /// Check if this cap should produce JSON output
     fn is_json_cap(&self) -> bool {
         let cap_card = capdef::CapCard::from_string(&self.cap)
             .expect("Invalid cap identifier");
-        !cap_card.is_binary()
+        cap_card.get_tag("output") != Some(&"binary".to_string())
     }
 }
