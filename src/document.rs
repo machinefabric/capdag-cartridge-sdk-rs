@@ -141,52 +141,6 @@ impl DocumentOutline {
     }
 }
 
-/// A single paragraph within a page
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DocumentParagraph {
-    /// Paragraph number within the page (1-indexed)
-    pub paragraph_number: usize,
-    
-    /// Text content of this paragraph
-    pub text_content: String,
-    
-    /// Optional source reference (filename, section, etc.)
-    pub source_ref: Option<String>,
-    
-    /// Word count for this paragraph
-    pub word_count: Option<usize>,
-    
-    /// Character count for this paragraph
-    pub character_count: Option<usize>,
-}
-
-impl DocumentParagraph {
-    /// Create a new document paragraph
-    pub fn new(paragraph_number: usize, text_content: impl Into<String>) -> Self {
-        let content = text_content.into();
-        let word_count = Some(content.split_whitespace().count());
-        let character_count = Some(content.len());
-        
-        Self {
-            paragraph_number,
-            text_content: content,
-            source_ref: None,
-            word_count,
-            character_count,
-        }
-    }
-    
-    /// Set the source reference
-    pub fn with_source_ref(mut self, source_ref: impl Into<String>) -> Self {
-        self.source_ref = Some(source_ref.into());
-        self
-    }
-    
-    /// Check if paragraph is empty
-    pub fn is_empty(&self) -> bool {
-        self.text_content.trim().is_empty()
-    }
-}
 
 /// A single page within a document
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -194,11 +148,17 @@ pub struct DocumentPage {
     /// Page number (1-indexed)
     pub page_number: usize,
     
-    /// Paragraphs within this page
-    pub paragraphs: Vec<DocumentParagraph>,
+    /// Text content of this page as a single string
+    pub text_content: String,
     
     /// Optional source reference (filename, section, etc.)
     pub source_ref: Option<String>,
+    
+    /// Word count for this page
+    pub word_count: Option<usize>,
+    
+    /// Character count for this page
+    pub character_count: Option<usize>,
 }
 
 impl DocumentPage {
@@ -206,35 +166,33 @@ impl DocumentPage {
     pub fn new(page_number: usize) -> Self {
         Self {
             page_number,
-            paragraphs: Vec::new(),
+            text_content: String::new(),
             source_ref: None,
+            word_count: None,
+            character_count: None,
         }
     }
     
-    /// Create a new document page with text content split into paragraphs
+    /// Create a new document page with text content
     pub fn new_with_text(page_number: usize, text_content: impl Into<String>) -> Self {
         let content = text_content.into();
-        let mut page = Self::new(page_number);
+        let trimmed_content = content.trim().to_string();
         
-        // Split text into paragraphs (separated by double newlines or single newlines)
-        let paragraphs: Vec<&str> = content
-            .split("\n\n")
-            .flat_map(|chunk| chunk.split('\n'))
-            .filter(|p| !p.trim().is_empty())
-            .collect();
+        // Calculate word and character counts
+        let word_count = if trimmed_content.is_empty() {
+            0
+        } else {
+            trimmed_content.split_whitespace().count()
+        };
+        let character_count = trimmed_content.chars().count();
         
-        for (index, paragraph_text) in paragraphs.iter().enumerate() {
-            let paragraph = DocumentParagraph::new(index + 1, paragraph_text.trim().to_string());
-            page.add_paragraph(paragraph);
+        Self {
+            page_number,
+            text_content: trimmed_content,
+            source_ref: None,
+            word_count: Some(word_count),
+            character_count: Some(character_count),
         }
-        
-        // If no paragraphs were created but we have content, create a single paragraph
-        if page.paragraphs.is_empty() && !content.trim().is_empty() {
-            let paragraph = DocumentParagraph::new(1, content.trim().to_string());
-            page.add_paragraph(paragraph);
-        }
-        
-        page
     }
     
     /// Set the source reference
@@ -243,36 +201,30 @@ impl DocumentPage {
         self
     }
     
-    /// Add a paragraph to this page
-    pub fn add_paragraph(&mut self, paragraph: DocumentParagraph) {
-        self.paragraphs.push(paragraph);
-    }
-    
-    /// Get all text content from paragraphs concatenated
+    /// Get text content for this page
     pub fn get_text_content(&self) -> String {
-        self.paragraphs.iter()
-            .map(|p| p.text_content.as_str())
-            .collect::<Vec<_>>()
-            .join("\n\n")
+        self.text_content.clone()
     }
     
     /// Get word count for this page
     pub fn word_count(&self) -> usize {
-        self.paragraphs.iter()
-            .map(|p| p.word_count.unwrap_or(0))
-            .sum()
+        self.word_count.unwrap_or_else(|| {
+            if self.text_content.trim().is_empty() {
+                0
+            } else {
+                self.text_content.split_whitespace().count()
+            }
+        })
     }
     
     /// Get character count for this page
     pub fn character_count(&self) -> usize {
-        self.paragraphs.iter()
-            .map(|p| p.character_count.unwrap_or(0))
-            .sum()
+        self.character_count.unwrap_or_else(|| self.text_content.chars().count())
     }
     
     /// Check if page is empty
     pub fn is_empty(&self) -> bool {
-        self.paragraphs.is_empty() || self.paragraphs.iter().all(|p| p.is_empty())
+        self.text_content.trim().is_empty()
     }
 }
 
@@ -353,12 +305,6 @@ impl DocumentPages {
             .sum()
     }
     
-    /// Get total paragraph count across all pages
-    pub fn total_paragraph_count(&self) -> usize {
-        self.pages.iter()
-            .map(|page| page.paragraphs.len())
-            .sum()
-    }
     
     /// Check if document is empty
     pub fn is_empty(&self) -> bool {
