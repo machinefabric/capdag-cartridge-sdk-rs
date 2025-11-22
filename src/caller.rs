@@ -12,13 +12,6 @@ pub struct CapCaller {
 
 /// Trait for Plugin Host communication
 pub trait PluginHost: Send + Sync {
-    fn execute_cap(
-        &self,
-        cap: &str,
-        positional_args: &[String],
-        named_args: &[(String, String)]
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(Option<Vec<u8>>, Option<String>)>> + Send + '_>>;
-    
     fn execute_cap_with_stdin(
         &self,
         cap: &str,
@@ -38,15 +31,6 @@ impl CapCaller {
             cap,
             plugin_host,
         }
-    }
-    
-    /// Call the cap with structured arguments (positional and named)
-    pub async fn call(
-        &self,
-        positional_args: Vec<JsonValue>,
-        named_args: Vec<JsonValue>
-    ) -> Result<ResponseWrapper> {
-        self.call_with_stdin(positional_args, named_args, None).await
     }
     
     /// Call the cap with structured arguments and optional stdin data
@@ -90,21 +74,13 @@ impl CapCaller {
             })
             .collect();
 
-        // Execute via plugin host method
-        let (binary_output, text_output) = if stdin_data.is_some() {
-            self.plugin_host.execute_cap_with_stdin(
-                &self.cap, 
-                &string_positional_args,
-                &string_named_args,
-                stdin_data
-            ).await?
-        } else {
-            self.plugin_host.execute_cap(
-                &self.cap, 
-                &string_positional_args,
-                &string_named_args
-            ).await?
-        };
+        // Execute via plugin host method with stdin support
+        let (binary_output, text_output) = self.plugin_host.execute_cap_with_stdin(
+            &self.cap, 
+            &string_positional_args,
+            &string_named_args,
+            stdin_data
+        ).await?;
         
         // Determine response type based on what was returned
         let response = if let Some(binary_data) = binary_output {
