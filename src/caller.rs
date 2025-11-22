@@ -12,7 +12,7 @@ pub struct CapCaller {
 
 /// Trait for Plugin Host communication
 pub trait PluginHost: Send + Sync {
-    fn execute_cap_with_stdin(
+    fn execute_cap(
         &self,
         cap: &str,
         positional_args: &[String],
@@ -34,7 +34,7 @@ impl CapCaller {
     }
     
     /// Call the cap with structured arguments and optional stdin data
-    pub async fn call_with_stdin(
+    pub async fn call(
         &self,
         positional_args: Vec<JsonValue>,
         named_args: Vec<JsonValue>,
@@ -75,7 +75,7 @@ impl CapCaller {
             .collect();
 
         // Execute via plugin host method with stdin support
-        let (binary_output, text_output) = self.plugin_host.execute_cap_with_stdin(
+        let (binary_output, text_output) = self.plugin_host.execute_cap(
             &self.cap, 
             &string_positional_args,
             &string_named_args,
