@@ -18,6 +18,14 @@ pub trait PluginHost: Send + Sync {
         positional_args: &[String],
         named_args: &[(String, String)]
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(Option<Vec<u8>>, Option<String>)>> + Send + '_>>;
+    
+    fn execute_cap_with_stdin(
+        &self,
+        cap: &str,
+        positional_args: &[String],
+        named_args: &[(String, String)],
+        stdin_data: Option<Vec<u8>>
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(Option<Vec<u8>>, Option<String>)>> + Send + '_>>;
 }
 
 impl CapCaller {
@@ -37,6 +45,16 @@ impl CapCaller {
         &self,
         positional_args: Vec<JsonValue>,
         named_args: Vec<JsonValue>
+    ) -> Result<ResponseWrapper> {
+        self.call_with_stdin(positional_args, named_args, None).await
+    }
+    
+    /// Call the cap with structured arguments and optional stdin data
+    pub async fn call_with_stdin(
+        &self,
+        positional_args: Vec<JsonValue>,
+        named_args: Vec<JsonValue>,
+        stdin_data: Option<Vec<u8>>
     ) -> Result<ResponseWrapper> {
         // Convert JsonValue positional args to strings
         let string_positional_args: Vec<String> = positional_args
@@ -73,11 +91,20 @@ impl CapCaller {
             .collect();
 
         // Execute via plugin host method
-        let (binary_output, text_output) = self.plugin_host.execute_cap(
-            &self.cap, 
-            &string_positional_args,
-            &string_named_args
-        ).await?;
+        let (binary_output, text_output) = if stdin_data.is_some() {
+            self.plugin_host.execute_cap_with_stdin(
+                &self.cap, 
+                &string_positional_args,
+                &string_named_args,
+                stdin_data
+            ).await?
+        } else {
+            self.plugin_host.execute_cap(
+                &self.cap, 
+                &string_positional_args,
+                &string_named_args
+            ).await?
+        };
         
         // Determine response type based on what was returned
         let response = if let Some(binary_data) = binary_output {
