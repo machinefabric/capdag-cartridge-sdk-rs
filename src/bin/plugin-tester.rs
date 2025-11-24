@@ -4,7 +4,7 @@
 //! tests serialization integrity, and validates all edge cases.
 
 use clap::{Parser, Subcommand};
-use lbvr_plugin_sdk::{PluginValidator, ValidationReport};
+use fmio_plugin_sdk::{PluginValidator, ValidationReport};
 use std::path::PathBuf;
 use std::process::Command;
 use anyhow::{Context, Result};

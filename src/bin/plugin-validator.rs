@@ -3,7 +3,7 @@
 //! Command-line tool for validating plugin implementations against formal interface schemas.
 
 use clap::{Parser, Subcommand};
-use lbvr_plugin_sdk::{PluginValidator, ValidationReport};
+use fmio_plugin_sdk::{PluginValidator, ValidationReport};
 use std::path::PathBuf;
 use anyhow::{Context, Result};
 
@@ -368,7 +368,7 @@ fn output_json_report(report: &ValidationReport) -> Result<()> {
     Ok(())
 }
 
-fn generate_test_script(interface: &lbvr_plugin_sdk::PluginInterfaceSchema, interface_name: &str) -> String {
+fn generate_test_script(interface: &fmio_plugin_sdk::PluginInterfaceSchema, interface_name: &str) -> String {
     let mut script = String::new();
     
     script.push_str("#!/bin/bash\n");
@@ -393,8 +393,8 @@ fn generate_test_script(interface: &lbvr_plugin_sdk::PluginInterfaceSchema, inte
     // Test each cap
     for cap_ref in interface.caps.iter() {
         let cap_name = match cap_ref {
-            lbvr_plugin_sdk::CapReference::Inline(cap) => &cap.cap.name,
-            lbvr_plugin_sdk::CapReference::Reference { cap_ref } => {
+            fmio_plugin_sdk::CapReference::Inline(cap) => &cap.cap.name,
+            fmio_plugin_sdk::CapReference::Reference { cap_ref } => {
                 cap_ref.split('/').last().unwrap_or(cap_ref).trim_end_matches(".json")
             }
         };
@@ -408,7 +408,7 @@ fn generate_test_script(interface: &lbvr_plugin_sdk::PluginInterfaceSchema, inte
     script
 }
 
-fn generate_test_config(interface: &lbvr_plugin_sdk::PluginInterfaceSchema) -> String {
+fn generate_test_config(interface: &fmio_plugin_sdk::PluginInterfaceSchema) -> String {
     let config = serde_json::json!({
         "interface": interface.interface.name,
         "version": interface.interface.version,

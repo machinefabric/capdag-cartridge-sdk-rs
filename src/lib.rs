@@ -1,6 +1,6 @@
-//! LBVR Plugin SDK
+//! FMIO Plugin SDK
 //! 
-//! This library provides common data structures and traits for LBVR document processing plugins.
+//! This library provides common data structures and traits for FMIO document processing plugins.
 //! It ensures consistency across different file handlers (PDF, EPUB, etc.) and enables
 //! a unified plugin architecture with standardized cap-based calling.
 
