@@ -1,6 +1,6 @@
 //! Test tool to verify DocumentPages serialization works correctly
 
-use lbvr_plugin_sdk::{DocumentPages, DocumentPage, DocumentParagraph, ExtractionInfo};
+use fmio_plugin_sdk::{DocumentPages, DocumentPage, DocumentParagraph, ExtractionInfo};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🧪 Testing DocumentPages serialization...");

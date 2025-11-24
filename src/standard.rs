@@ -1,7 +1,7 @@
 //! Standard plugin cap definitions with arguments
 //!
 //! This module provides the standard cap definitions used across
-//! all LBVR plugins, including their formal argument specifications.
+//! all FMIO plugins, including their formal argument specifications.
 
 use capdef::{
     CapCard, Cap, CapArgument, CapArguments,

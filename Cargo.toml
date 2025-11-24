@@ -1,9 +1,9 @@
 [package]
-name = "lbvr-plugin-sdk"
+name = "fmio-plugin-sdk"
 version = "0.1.0"
 edition = "2021"
-authors = ["LBVR Team"]
-description = "Plugin SDK for LBVR document processing tools"
+authors = ["FMIO Team"]
+description = "Plugin SDK for FMIO document processing tools"
 license = "MIT"
 
 [dependencies]
