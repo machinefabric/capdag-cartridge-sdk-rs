@@ -146,7 +146,7 @@ mod tests {
     #[test]
     fn test_universal_cap() {
         let cap = DocumentCapBuilder::new_universal_cap(
-            "action=extract;target=pages;",
+            "action=extract;target=pages",
             "1.0.0",
             Some("Extract pages from any document")
         ).unwrap();

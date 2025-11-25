@@ -275,7 +275,7 @@ pub fn extract_outline_cap() -> Cap {
 
 /// Create the standard extract-pages cap with full argument definition
 pub fn extract_pages_cap() -> Cap {
-    let id = CapCard::from_string("action=extract;target=pages;")
+    let id = CapCard::from_string("action=extract;target=pages")
         .expect("Invalid cap ID");
     
     let command = "extract-pages".to_string();
@@ -378,7 +378,7 @@ pub fn get_standard_cap_by_id(id_str: &str) -> Option<Cap> {
         "action=extract;target=metadata;" => Some(extract_metadata_cap()),
         "action=generate;output=binary;target=thumbnail;" => Some(generate_thumbnail_cap()),
         "action=extract;target=outline;" => Some(extract_outline_cap()),
-        "action=extract;target=pages;" => Some(extract_pages_cap()),
+        "action=extract;target=pages" => Some(extract_pages_cap()),
         _ => None,
     }
 }
