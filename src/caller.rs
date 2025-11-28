@@ -113,16 +113,16 @@ impl CapCaller {
     
     /// Check if this cap produces binary output
     fn is_binary_cap(&self) -> bool {
-        // Use the formal cap identifier system to detect binary caps
+        // Use the formal cap URN system to detect binary caps
         let cap_urn = capns::CapUrn::from_string(&self.cap)
-            .expect("Invalid cap identifier");
+            .expect("Invalid cap URN");
         cap_urn.get_tag("output") == Some(&"binary".to_string())
     }
     
     /// Check if this cap should produce JSON output
     fn is_json_cap(&self) -> bool {
         let cap_urn = capns::CapUrn::from_string(&self.cap)
-            .expect("Invalid cap identifier");
+            .expect("Invalid cap URN");
         cap_urn.get_tag("output") != Some(&"binary".to_string())
     }
 }
