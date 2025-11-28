@@ -2,9 +2,9 @@
 //! 
 //! This module defines the unified plugin interfaces with standardized cap-based calling.
 
-// Re-export the unified manifest from capdef
-pub use capdef::CapManifest;
-pub use capdef::ComponentMetadata;
+// Re-export the unified manifest from capns
+pub use capns::CapManifest;
+pub use capns::ComponentMetadata;
 
 /// Trait for plugins to provide metadata about themselves
 pub trait PluginMetadata {
@@ -12,7 +12,7 @@ pub trait PluginMetadata {
     fn plugin_manifest(&self) -> CapManifest;
     
     /// Get plugin caps
-    fn caps(&self) -> Vec<capdef::Cap> {
+    fn caps(&self) -> Vec<capns::Cap> {
         self.plugin_manifest().caps
     }
 }
