@@ -15,7 +15,7 @@ pub mod standard;
 pub mod validation;
 
 // Re-export cap SDK types
-pub use capdef::*;
+pub use capns::*;
 
 pub use document::*;
 pub use document_cap::*;

@@ -7,7 +7,7 @@ description = "Plugin SDK for FMIO document processing tools"
 license = "MIT"
 
 [dependencies]
-capdef = { path = "../capdef" }
+capns = { path = "../capns" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 anyhow = "1.0"

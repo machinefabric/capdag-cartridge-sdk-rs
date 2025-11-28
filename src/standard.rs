@@ -3,7 +3,7 @@
 //! This module provides the standard cap definitions used across
 //! all FMIO plugins, including their formal argument specifications.
 
-use capdef::{
+use capns::{
     CapCard, Cap, CapArgument, CapArguments,
     CapOutput, ArgumentType, ArgumentValidation, OutputType
 };
