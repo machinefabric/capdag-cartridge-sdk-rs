@@ -11,7 +11,7 @@ use std::collections::HashMap;
 
 /// Create the standard extract-metadata cap with full argument definition
 pub fn extract_metadata_cap() -> Cap {
-    let id = CapCard::from_string("action=extract;target=metadata;")
+    let id = CapCard::from_string("cap:action=extract;target=metadata;")
         .expect("Invalid cap ID");
     
     let command = "extract-metadata".to_string();
@@ -74,7 +74,7 @@ pub fn extract_metadata_cap() -> Cap {
 
 /// Create the standard generate-thumbnail cap with full argument definition
 pub fn generate_thumbnail_cap() -> Cap {
-    let id = CapCard::from_string("action=generate;output=binary;target=thumbnail;")
+    let id = CapCard::from_string("cap:action=generate;output=binary;target=thumbnail;")
         .expect("Invalid cap ID");
     
     let command = "generate-thumbnail".to_string();
@@ -184,7 +184,7 @@ pub fn generate_thumbnail_cap() -> Cap {
 
 /// Create the standard extract-outline cap with full argument definition
 pub fn extract_outline_cap() -> Cap {
-    let id = CapCard::from_string("action=extract;target=outline;")
+    let id = CapCard::from_string("cap:action=extract;target=outline;")
         .expect("Invalid cap ID");
     
     let command = "extract-outline".to_string();
@@ -275,7 +275,7 @@ pub fn extract_outline_cap() -> Cap {
 
 /// Create the standard extract-pages cap with full argument definition
 pub fn extract_pages_cap() -> Cap {
-    let id = CapCard::from_string("action=extract;target=pages")
+    let id = CapCard::from_string("cap:action=extract;target=pages")
         .expect("Invalid cap ID");
     
     let command = "extract-pages".to_string();
@@ -375,10 +375,10 @@ pub fn get_standard_cap(name: &str) -> Option<Cap> {
 /// Get a standard cap by cap ID string
 pub fn get_standard_cap_by_id(id_str: &str) -> Option<Cap> {
     match id_str {
-        "action=extract;target=metadata;" => Some(extract_metadata_cap()),
-        "action=generate;output=binary;target=thumbnail;" => Some(generate_thumbnail_cap()),
-        "action=extract;target=outline;" => Some(extract_outline_cap()),
-        "action=extract;target=pages" => Some(extract_pages_cap()),
+        "cap:action=extract;target=metadata;" => Some(extract_metadata_cap()),
+        "cap:action=generate;output=binary;target=thumbnail;" => Some(generate_thumbnail_cap()),
+        "cap:action=extract;target=outline;" => Some(extract_outline_cap()),
+        "cap:action=extract;target=pages" => Some(extract_pages_cap()),
         _ => None,
     }
 }
