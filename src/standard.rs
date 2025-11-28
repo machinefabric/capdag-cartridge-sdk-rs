@@ -4,14 +4,14 @@
 //! all FMIO plugins, including their formal argument specifications.
 
 use capns::{
-    CapCard, Cap, CapArgument, CapArguments,
+    CapUrn, Cap, CapArgument, CapArguments,
     CapOutput, ArgumentType, ArgumentValidation, OutputType
 };
 use std::collections::HashMap;
 
 /// Create the standard extract-metadata cap with full argument definition
 pub fn extract_metadata_cap() -> Cap {
-    let id = CapCard::from_string("cap:action=extract;target=metadata;")
+    let id = CapUrn::from_string("cap:action=extract;target=metadata;")
         .expect("Invalid cap ID");
     
     let command = "extract-metadata".to_string();
@@ -74,7 +74,7 @@ pub fn extract_metadata_cap() -> Cap {
 
 /// Create the standard generate-thumbnail cap with full argument definition
 pub fn generate_thumbnail_cap() -> Cap {
-    let id = CapCard::from_string("cap:action=generate;output=binary;target=thumbnail;")
+    let id = CapUrn::from_string("cap:action=generate;output=binary;target=thumbnail;")
         .expect("Invalid cap ID");
     
     let command = "generate-thumbnail".to_string();
@@ -184,7 +184,7 @@ pub fn generate_thumbnail_cap() -> Cap {
 
 /// Create the standard extract-outline cap with full argument definition
 pub fn extract_outline_cap() -> Cap {
-    let id = CapCard::from_string("cap:action=extract;target=outline;")
+    let id = CapUrn::from_string("cap:action=extract;target=outline;")
         .expect("Invalid cap ID");
     
     let command = "extract-outline".to_string();
@@ -275,7 +275,7 @@ pub fn extract_outline_cap() -> Cap {
 
 /// Create the standard extract-pages cap with full argument definition
 pub fn extract_pages_cap() -> Cap {
-    let id = CapCard::from_string("cap:action=extract;target=pages")
+    let id = CapUrn::from_string("cap:action=extract;target=pages")
         .expect("Invalid cap ID");
     
     let command = "extract-pages".to_string();
