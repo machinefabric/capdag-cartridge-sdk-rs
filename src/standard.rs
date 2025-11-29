@@ -22,7 +22,7 @@ pub fn extract_metadata_cap() -> Cap {
     let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
-        description: "Path to the document file to process".to_string(),
+        arg_description: "Path to the document file to process".to_string(),
         cli_flag: "file_path".to_string(),
         position: Some(0),
         validation: ArgumentValidation {
@@ -30,7 +30,7 @@ pub fn extract_metadata_cap() -> Cap {
             min_length: Some(1),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_required(file_path_arg);
     
@@ -38,14 +38,14 @@ pub fn extract_metadata_cap() -> Cap {
     let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
-        description: "Write output to specified file instead of stdout".to_string(),
+        arg_description: "Write output to specified file instead of stdout".to_string(),
         cli_flag: "--output".to_string(),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_optional(output_arg);
     
@@ -54,7 +54,7 @@ pub fn extract_metadata_cap() -> Cap {
         schema_ref: Some("file-metadata.json".to_string()),
         content_type: Some("application/json".to_string()),
         validation: ArgumentValidation::default(),
-        description: "Structured metadata including file properties, document properties, and format-specific metadata".to_string(),
+        output_description: "Structured metadata including file properties, document properties, and format-specific metadata".to_string(),
     };
     
     let mut cap = Cap::with_full_definition(
@@ -85,7 +85,7 @@ pub fn generate_thumbnail_cap() -> Cap {
     let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
-        description: "Path to the document file to process".to_string(),
+        arg_description: "Path to the document file to process".to_string(),
         cli_flag: "file_path".to_string(),
         position: Some(0),
         validation: ArgumentValidation {
@@ -93,7 +93,7 @@ pub fn generate_thumbnail_cap() -> Cap {
             min_length: Some(1),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_required(file_path_arg);
     
@@ -101,7 +101,7 @@ pub fn generate_thumbnail_cap() -> Cap {
     let width_arg = CapArgument {
         name: "width".to_string(),
         arg_type: ArgumentType::Integer,
-        description: "Width of the thumbnail in pixels".to_string(),
+        arg_description: "Width of the thumbnail in pixels".to_string(),
         cli_flag: "--width".to_string(),
         position: None,
         validation: ArgumentValidation {
@@ -109,7 +109,7 @@ pub fn generate_thumbnail_cap() -> Cap {
             max: Some(2000.0),
             ..Default::default()
         },
-        default: Some(serde_json::Value::Number(serde_json::Number::from(200))),
+        default_value: Some(serde_json::Value::Number(serde_json::Number::from(200))),
     };
     arguments.add_optional(width_arg);
     
@@ -117,7 +117,7 @@ pub fn generate_thumbnail_cap() -> Cap {
     let height_arg = CapArgument {
         name: "height".to_string(),
         arg_type: ArgumentType::Integer,
-        description: "Height of the thumbnail in pixels".to_string(),
+        arg_description: "Height of the thumbnail in pixels".to_string(),
         cli_flag: "--height".to_string(),
         position: None,
         validation: ArgumentValidation {
@@ -125,7 +125,7 @@ pub fn generate_thumbnail_cap() -> Cap {
             max: Some(2000.0),
             ..Default::default()
         },
-        default: Some(serde_json::Value::Number(serde_json::Number::from(300))),
+        default_value: Some(serde_json::Value::Number(serde_json::Number::from(300))),
     };
     arguments.add_optional(height_arg);
     
@@ -133,14 +133,14 @@ pub fn generate_thumbnail_cap() -> Cap {
     let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
-        description: "Write thumbnail to specified file instead of stdout".to_string(),
+        arg_description: "Write thumbnail to specified file instead of stdout".to_string(),
         cli_flag: "--output".to_string(),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("\\.(png|jpg|jpeg)$".to_string()),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_optional(output_arg);
     
@@ -148,14 +148,14 @@ pub fn generate_thumbnail_cap() -> Cap {
     let page_arg = CapArgument {
         name: "page".to_string(),
         arg_type: ArgumentType::Integer,
-        description: "Page number to generate thumbnail from (1-based, default: 1)".to_string(),
+        arg_description: "Page number to generate thumbnail from (1-based, default: 1)".to_string(),
         cli_flag: "--page".to_string(),
         position: None,
         validation: ArgumentValidation {
             min: Some(1.0),
             ..Default::default()
         },
-        default: Some(serde_json::Value::Number(serde_json::Number::from(1))),
+        default_value: Some(serde_json::Value::Number(serde_json::Number::from(1))),
     };
     arguments.add_optional(page_arg);
     
@@ -164,7 +164,7 @@ pub fn generate_thumbnail_cap() -> Cap {
         schema_ref: None,
         content_type: Some("image/png".to_string()),
         validation: ArgumentValidation::default(),
-        description: "PNG image data representing a thumbnail of the document".to_string(),
+        output_description: "PNG image data representing a thumbnail of the document".to_string(),
     };
     
     let mut cap = Cap::with_full_definition(
@@ -195,7 +195,7 @@ pub fn extract_outline_cap() -> Cap {
     let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
-        description: "Path to the document file to process".to_string(),
+        arg_description: "Path to the document file to process".to_string(),
         cli_flag: "file_path".to_string(),
         position: Some(0),
         validation: ArgumentValidation {
@@ -203,7 +203,7 @@ pub fn extract_outline_cap() -> Cap {
             min_length: Some(1),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_required(file_path_arg);
     
@@ -211,7 +211,7 @@ pub fn extract_outline_cap() -> Cap {
     let max_depth_arg = CapArgument {
         name: "max_depth".to_string(),
         arg_type: ArgumentType::Integer,
-        description: "Maximum outline depth to extract (1-10)".to_string(),
+        arg_description: "Maximum outline depth to extract (1-10)".to_string(),
         cli_flag: "--max-depth".to_string(),
         position: None,
         validation: ArgumentValidation {
@@ -219,7 +219,7 @@ pub fn extract_outline_cap() -> Cap {
             max: Some(10.0),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_optional(max_depth_arg);
     
@@ -227,11 +227,11 @@ pub fn extract_outline_cap() -> Cap {
     let include_page_numbers_arg = CapArgument {
         name: "include_page_numbers".to_string(),
         arg_type: ArgumentType::Boolean,
-        description: "Include page numbers in the outline (default: true)".to_string(),
+        arg_description: "Include page numbers in the outline (default: true)".to_string(),
         cli_flag: "--include-page-numbers".to_string(),
         position: None,
         validation: ArgumentValidation::default(),
-        default: Some(serde_json::Value::Bool(true)),
+        default_value: Some(serde_json::Value::Bool(true)),
     };
     arguments.add_optional(include_page_numbers_arg);
     
@@ -239,14 +239,14 @@ pub fn extract_outline_cap() -> Cap {
     let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
-        description: "Write output to specified file instead of stdout".to_string(),
+        arg_description: "Write output to specified file instead of stdout".to_string(),
         cli_flag: "--output".to_string(),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_optional(output_arg);
     
@@ -255,7 +255,7 @@ pub fn extract_outline_cap() -> Cap {
         schema_ref: Some("document-outline.json".to_string()),
         content_type: Some("application/json".to_string()),
         validation: ArgumentValidation::default(),
-        description: "Hierarchical document outline with section titles and optional page numbers".to_string(),
+        output_description: "Hierarchical document outline with section titles and optional page numbers".to_string(),
     };
     
     let mut cap = Cap::with_full_definition(
@@ -286,7 +286,7 @@ pub fn extract_pages_cap() -> Cap {
     let file_path_arg = CapArgument {
         name: "file_path".to_string(),
         arg_type: ArgumentType::String,
-        description: "Path to the document file to process".to_string(),
+        arg_description: "Path to the document file to process".to_string(),
         cli_flag: "file_path".to_string(),
         position: Some(0),
         validation: ArgumentValidation {
@@ -294,7 +294,7 @@ pub fn extract_pages_cap() -> Cap {
             min_length: Some(1),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_required(file_path_arg);
     
@@ -302,14 +302,14 @@ pub fn extract_pages_cap() -> Cap {
     let output_arg = CapArgument {
         name: "output".to_string(),
         arg_type: ArgumentType::String,
-        description: "Write output to specified file instead of stdout".to_string(),
+        arg_description: "Write output to specified file instead of stdout".to_string(),
         cli_flag: "--output".to_string(),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("^[^\\0]+$".to_string()),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_optional(output_arg);
     
@@ -317,14 +317,14 @@ pub fn extract_pages_cap() -> Cap {
     let page_range_arg = CapArgument {
         name: "page_range".to_string(),
         arg_type: ArgumentType::String,
-        description: "Page range to extract (e.g., '1-5' or '10-')".to_string(),
+        arg_description: "Page range to extract (e.g., '1-5' or '10-')".to_string(),
         cli_flag: "--page-range".to_string(),
         position: None,
         validation: ArgumentValidation {
             pattern: Some("^\\d+(-\\d*)?$".to_string()),
             ..Default::default()
         },
-        default: None,
+        default_value: None,
     };
     arguments.add_optional(page_range_arg);
     
@@ -333,7 +333,7 @@ pub fn extract_pages_cap() -> Cap {
         schema_ref: Some("document-pages.json".to_string()),
         content_type: Some("application/json".to_string()),
         validation: ArgumentValidation::default(),
-        description: "Structured page content extracted from the document".to_string(),
+        output_description: "Structured page content extracted from the document".to_string(),
     };
     
     let mut cap = Cap::with_full_definition(
