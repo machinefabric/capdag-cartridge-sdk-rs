@@ -11,7 +11,6 @@ pub mod metadata;
 pub mod output;
 pub mod caller;
 pub mod response;
-pub mod standard;
 pub mod validation;
 
 // Re-export cap SDK types
@@ -24,7 +23,6 @@ pub use metadata::*;
 pub use output::*;
 pub use caller::*;
 pub use response::*;
-pub use standard::*;
 pub use validation::*;
 
 // Re-export common dependencies
