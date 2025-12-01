@@ -96,7 +96,6 @@ impl DocumentCapBuilder {
         if let Some(desc) = description {
             Ok(Cap::with_description_and_metadata(
                 id,
-                version.to_string(),
                 "document-cap".to_string(),
                 desc.to_string(),
                 metadata,
@@ -104,7 +103,6 @@ impl DocumentCapBuilder {
         } else {
             Ok(Cap::with_metadata(
                 id,
-                version.to_string(),
                 "document-cap".to_string(),
                 metadata,
             ))
