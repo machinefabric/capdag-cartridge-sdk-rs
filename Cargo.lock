@@ -186,6 +186,7 @@ dependencies = [
  "anyhow",
  "dirs",
  "include_dir",
+ "jsonschema",
  "regex",
  "reqwest 0.12.24",
  "serde",
