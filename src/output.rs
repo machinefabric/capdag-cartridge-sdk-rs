@@ -52,10 +52,6 @@ impl OutlineFormatter {
         output
     }
     
-    /// Format outline as JSON
-    pub fn format_json(outline: &DocumentOutline) -> serde_json::Result<String> {
-        serde_json::to_string_pretty(outline)
-    }
     
     /// Format Outline entries as text (recursive helper)
     fn format_entries_text(
@@ -164,11 +160,6 @@ impl MetadataFormatter {
         }
         
         output
-    }
-    
-    /// Format metadata as JSON
-    pub fn format_json(metadata: &FileMetadata) -> serde_json::Result<String> {
-        serde_json::to_string_pretty(metadata)
     }
 }
 
