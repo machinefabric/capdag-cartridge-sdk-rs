@@ -85,7 +85,7 @@ impl DocumentCapBuilder {
     /// Create a document processing cap with file type support
     pub fn new_document_cap(
         id_str: &str, 
-        version: &str, 
+        _version: &str, 
         file_types: Vec<&str>, 
         description: Option<&str>
     ) -> Result<Cap, capns::CapUrnError> {
