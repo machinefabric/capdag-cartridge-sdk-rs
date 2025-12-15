@@ -146,7 +146,7 @@ impl DocumentOutline {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DocumentPage {
     /// Page number (1-indexed)
-    pub page_number: usize,
+    pub order_index: usize,
     
     /// Text content of this page as a single string
     pub text_content: String,
@@ -163,9 +163,9 @@ pub struct DocumentPage {
 
 impl DocumentPage {
     /// Create a new document page
-    pub fn new(page_number: usize) -> Self {
+    pub fn new(order_index: usize) -> Self {
         Self {
-            page_number,
+            order_index,
             text_content: String::new(),
             source_ref: None,
             word_count: None,
@@ -174,7 +174,7 @@ impl DocumentPage {
     }
     
     /// Create a new document page with text content
-    pub fn new_with_text(page_number: usize, text_content: impl Into<String>) -> Self {
+    pub fn new_with_text(order_index: usize, text_content: impl Into<String>) -> Self {
         let content = text_content.into();
         let trimmed_content = content.trim().to_string();
         
@@ -187,7 +187,7 @@ impl DocumentPage {
         let character_count = trimmed_content.chars().count();
         
         Self {
-            page_number,
+            order_index,
             text_content: trimmed_content,
             source_ref: None,
             word_count: Some(word_count),
@@ -279,8 +279,8 @@ impl DocumentPages {
     }
     
     /// Get a specific page by number (1-indexed)
-    pub fn get_page(&self, page_number: usize) -> Option<&DocumentPage> {
-        self.pages.iter().find(|p| p.page_number == page_number)
+    pub fn get_page(&self, order_index: usize) -> Option<&DocumentPage> {
+        self.pages.iter().find(|p| p.order_index == order_index)
     }
     
     /// Get all text content concatenated
