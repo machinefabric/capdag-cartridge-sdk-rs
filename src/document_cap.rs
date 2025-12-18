@@ -87,26 +87,34 @@ impl DocumentCapBuilder {
         id_str: &str, 
         _version: &str, 
         file_types: Vec<&str>, 
-        description: Option<&str>
+        description: Option<&str>,
+        metadata_json: Option<serde_json::Value>
     ) -> Result<Cap, capns::CapUrnError> {
         let id = CapUrn::from_string(id_str)?;
         let mut metadata = HashMap::new();
         metadata.insert("file_types".to_string(), file_types.join(","));
         
         if let Some(desc) = description {
-            Ok(Cap::with_description_and_metadata(
+            Ok(Cap::with_full_definition(
                 id,
                 "Document Cap".to_string(),  // title
-                "document-cap".to_string(),
-                desc.to_string(),
+                Some(desc.to_string()),
                 metadata,
+                "document-cap".to_string(),
+                capns::CapArguments::new(),
+                None,
+                metadata_json,
             ))
         } else {
-            Ok(Cap::with_metadata(
+            Ok(Cap::with_full_definition(
                 id,
                 "Document Cap".to_string(),  // title
-                "document-cap".to_string(),
+                None,
                 metadata,
+                "document-cap".to_string(),
+                capns::CapArguments::new(),
+                None,
+                metadata_json,
             ))
         }
     }
@@ -115,9 +123,10 @@ impl DocumentCapBuilder {
     pub fn new_universal_cap(
         id_str: &str, 
         version: &str, 
-        description: Option<&str>
+        description: Option<&str>,
+        metadata_json: Option<serde_json::Value>
     ) -> Result<Cap, capns::CapUrnError> {
-        Self::new_document_cap(id_str, version, vec!["*"], description)
+        Self::new_document_cap(id_str, version, vec!["*"], description, metadata_json)
     }
 }
 
@@ -131,7 +140,8 @@ mod tests {
             "cap:action=extract;target=metadata;",
             "1.0.0",
             vec!["pdf", "txt", "md"],
-            Some("Extract document metadata")
+            Some("Extract document metadata"),
+            None
         ).unwrap();
         
         assert!(cap.supports_file_type("pdf"));
@@ -148,7 +158,8 @@ mod tests {
         let cap = DocumentCapBuilder::new_universal_cap(
             "cap:action=extract;target=pages",
             "1.0.0",
-            Some("Extract pages from any document")
+            Some("Extract pages from any document"),
+            None
         ).unwrap();
         
         assert!(cap.supports_all_file_types());
@@ -164,6 +175,7 @@ mod tests {
             "cap:action=extract;target=metadata;",
             "1.0.0",
             vec!["pdf"],
+            None,
             None
         ).unwrap();
         
@@ -171,6 +183,7 @@ mod tests {
             "cap:action=extract;target=text;",
             "1.0.0",
             vec!["txt", "md"],
+            None,
             None
         ).unwrap();
         
