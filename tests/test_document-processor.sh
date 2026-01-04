@@ -10,31 +10,31 @@ if [ -z "$PLUGIN_BINARY" ]; then
   exit 1
 fi
 
-echo "🧪 Testing plugin: $PLUGIN_BINARY"
-echo "📋 Interface: document-processor"
+echo " Testing plugin: $PLUGIN_BINARY"
+echo " Interface: document-processor"
 
 echo "Testing manifest command..."
 "$PLUGIN_BINARY" manifest > /tmp/manifest.json
-echo "✅ manifest command passed"
+echo "OK manifest command passed"
 
 echo "Testing cap: extract-metadata..."
 "$PLUGIN_BINARY" extract-metadata --help >/dev/null 2>&1 || true
-echo "✅ extract-metadata cap flag recognized"
+echo "OK extract-metadata cap flag recognized"
 
 echo "Testing cap: extract-outline..."
 "$PLUGIN_BINARY" extract-outline --help >/dev/null 2>&1 || true
-echo "✅ extract-outline cap flag recognized"
+echo "OK extract-outline cap flag recognized"
 
 echo "Testing cap: generate-thumbnail..."
 "$PLUGIN_BINARY" generate-thumbnail --help >/dev/null 2>&1 || true
-echo "✅ generate-thumbnail cap flag recognized"
+echo "OK generate-thumbnail cap flag recognized"
 
 echo "Testing cap: extract-pages..."
 "$PLUGIN_BINARY" extract-pages --help >/dev/null 2>&1 || true
-echo "✅ extract-pages cap flag recognized"
+echo "OK extract-pages cap flag recognized"
 
 echo "Testing cap: validate-file..."
 "$PLUGIN_BINARY" validate-file --help >/dev/null 2>&1 || true
-echo "✅ validate-file cap flag recognized"
+echo "OK validate-file cap flag recognized"
 
-echo "🎉 All tests passed!"
+echo " All tests passed!"

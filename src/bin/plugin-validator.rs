@@ -123,7 +123,7 @@ fn validate_plugin(
     output_format: String,
     verbose: bool
 ) -> Result<()> {
-    println!("🔍 Validating plugin against interface schema...");
+    println!(" Validating plugin against interface schema...");
     println!("Plugin: {}", plugin_path.display());
     println!("Interface: {}", interface_name);
     println!("Schema directory: {}", schema_dir.display());
@@ -157,7 +157,7 @@ fn validate_plugin(
 }
 
 fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result<()> {
-    println!("🔍 Validating cap schema...");
+    println!(" Validating cap schema...");
     println!("Cap: {}", cap_path.display());
     println!("Schema directory: {}", schema_dir.display());
     println!();
@@ -167,7 +167,7 @@ fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result
 
     match validator.load_cap_schema(&cap_path) {
         Ok(schema) => {
-            println!("✅ Cap schema is valid!");
+            println!("OK Cap schema is valid!");
             if verbose {
                 println!("Cap name: {}", schema.cap.name);
                 println!("Description: {}", schema.cap.description);
@@ -176,7 +176,7 @@ fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result
             }
         }
         Err(e) => {
-            println!("❌ Cap schema validation failed:");
+            println!("ERR Cap schema validation failed:");
             println!("{}", e);
             std::process::exit(1);
         }
@@ -186,7 +186,7 @@ fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result
 }
 
 fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result<()> {
-    println!("🔍 Validating interface schema...");
+    println!(" Validating interface schema...");
     println!("Interface: {}", interface_path.display());
     println!("Schema directory: {}", schema_dir.display());
     println!();
@@ -196,7 +196,7 @@ fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: boo
 
     match validator.load_interface_schema(&interface_path) {
         Ok(schema) => {
-            println!("✅ Interface schema is valid!");
+            println!("OK Interface schema is valid!");
             if verbose {
                 println!("Interface name: {}", schema.interface.name);
                 println!("Description: {}", schema.interface.description);
@@ -206,7 +206,7 @@ fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: boo
             }
         }
         Err(e) => {
-            println!("❌ Interface schema validation failed:");
+            println!("ERR Interface schema validation failed:");
             println!("{}", e);
             std::process::exit(1);
         }
@@ -216,7 +216,7 @@ fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: boo
 }
 
 fn list_interfaces(schema_dir: PathBuf) -> Result<()> {
-    println!("📋 Available interface schemas:");
+    println!(" Available interface schemas:");
     println!();
 
     let interfaces_dir = schema_dir.join("interfaces");
@@ -253,18 +253,18 @@ fn list_interfaces(schema_dir: PathBuf) -> Result<()> {
                                 .and_then(|v| v.as_str())
                                 .unwrap_or("unknown");
                             
-                            println!("📄 {} (v{})", interface_name, version);
+                            println!(" {} (v{})", interface_name, version);
                             println!("   {}", description);
                             println!();
                         }
                         Err(_) => {
-                            println!("📄 {} (invalid JSON)", interface_name);
+                            println!(" {} (invalid JSON)", interface_name);
                             println!();
                         }
                     }
                 }
                 Err(_) => {
-                    println!("📄 {} (unreadable)", interface_name);
+                    println!(" {} (unreadable)", interface_name);
                     println!();
                 }
             }
@@ -279,7 +279,7 @@ fn list_interfaces(schema_dir: PathBuf) -> Result<()> {
 }
 
 fn generate_tests(interface_name: String, schema_dir: PathBuf, output_dir: PathBuf) -> Result<()> {
-    println!("🧪 Generating test scenarios for interface: {}", interface_name);
+    println!(" Generating test scenarios for interface: {}", interface_name);
     println!("Schema directory: {}", schema_dir.display());
     println!("Output directory: {}", output_dir.display());
     println!();
@@ -301,7 +301,7 @@ fn generate_tests(interface_name: String, schema_dir: PathBuf, output_dir: PathB
     std::fs::write(&script_path, test_script)
         .with_context(|| format!("Failed to write test script: {}", script_path.display()))?;
 
-    println!("✅ Generated test script: {}", script_path.display());
+    println!("OK Generated test script: {}", script_path.display());
 
     // Generate test configuration
     let test_config = generate_test_config(interface);
@@ -309,20 +309,20 @@ fn generate_tests(interface_name: String, schema_dir: PathBuf, output_dir: PathB
     std::fs::write(&config_path, test_config)
         .with_context(|| format!("Failed to write test config: {}", config_path.display()))?;
 
-    println!("✅ Generated test config: {}", config_path.display());
+    println!("OK Generated test config: {}", config_path.display());
 
     Ok(())
 }
 
 fn output_text_report(report: &ValidationReport, verbose: bool) -> Result<()> {
-    println!("📊 Validation Report");
+    println!(" Validation Report");
     println!("==================");
     println!();
     println!("{}", report.summary());
     println!();
 
     if !report.errors.is_empty() {
-        println!("❌ Errors:");
+        println!("ERR Errors:");
         for error in &report.errors {
             println!("   • {}", error);
         }
@@ -330,7 +330,7 @@ fn output_text_report(report: &ValidationReport, verbose: bool) -> Result<()> {
     }
 
     if !report.warnings.is_empty() {
-        println!("⚠️  Warnings:");
+        println!("WARN  Warnings:");
         for warning in &report.warnings {
             println!("   • {}", warning);
         }
@@ -338,7 +338,7 @@ fn output_text_report(report: &ValidationReport, verbose: bool) -> Result<()> {
     }
 
     if verbose && !report.successes.is_empty() {
-        println!("✅ Successes:");
+        println!("OK Successes:");
         for success in &report.successes {
             println!("   • {}", success);
         }
@@ -346,9 +346,9 @@ fn output_text_report(report: &ValidationReport, verbose: bool) -> Result<()> {
     }
 
     if report.is_valid() {
-        println!("🎉 Plugin validation PASSED!");
+        println!(" Plugin validation PASSED!");
     } else {
-        println!("💥 Plugin validation FAILED!");
+        println!(" Plugin validation FAILED!");
     }
 
     Ok(())
@@ -380,15 +380,15 @@ fn generate_test_script(interface: &fgrnd_plugin_sdk::PluginInterfaceSchema, int
     script.push_str("  echo \"Usage: $0 <plugin_binary>\"\n");
     script.push_str("  exit 1\n");
     script.push_str("fi\n\n");
-    script.push_str("echo \"🧪 Testing plugin: $PLUGIN_BINARY\"\n");
-    script.push_str("echo \"📋 Interface: ");
+    script.push_str("echo \" Testing plugin: $PLUGIN_BINARY\"\n");
+    script.push_str("echo \" Interface: ");
     script.push_str(interface_name);
     script.push_str("\"\n\n");
 
     // Test manifest command
     script.push_str("echo \"Testing manifest command...\"\n");
     script.push_str("\"$PLUGIN_BINARY\" manifest > /tmp/manifest.json\n");
-    script.push_str("echo \"✅ manifest command passed\"\n\n");
+    script.push_str("echo \"OK manifest command passed\"\n\n");
 
     // Test each cap
     for cap_ref in interface.caps.iter() {
@@ -401,10 +401,10 @@ fn generate_test_script(interface: &fgrnd_plugin_sdk::PluginInterfaceSchema, int
 
         script.push_str(&format!("echo \"Testing cap: {}...\"\n", cap_name));
         script.push_str(&format!("\"$PLUGIN_BINARY\" --{} --help >/dev/null 2>&1 || true\n", cap_name));
-        script.push_str(&format!("echo \"✅ {} cap flag recognized\"\n\n", cap_name));
+        script.push_str(&format!("echo \"OK {} cap flag recognized\"\n\n", cap_name));
     }
 
-    script.push_str("echo \"🎉 All tests passed!\"\n");
+    script.push_str("echo \" All tests passed!\"\n");
     script
 }
 
