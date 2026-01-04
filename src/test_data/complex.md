@@ -51,9 +51,9 @@ The plugin should be able to:
 
 | Feature | Status | Priority |
 |---------|--------|----------|
-| Metadata Extraction | ✅ Complete | High |
-| Outline Generation | 🔄 In Progress | Medium |
-| Image Processing | ❌ Not Started | Low |
+| Metadata Extraction | OK Complete | High |
+| Outline Generation |  In Progress | Medium |
+| Image Processing | ERR Not Started | Low |
 
 ## Edge Cases and Special Content
 

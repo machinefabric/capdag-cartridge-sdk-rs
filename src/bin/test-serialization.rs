@@ -3,7 +3,7 @@
 use fgrnd_plugin_sdk::{DocumentPages, DocumentPage, ExtractionInfo};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("🧪 Testing DocumentPages serialization...");
+    println!(" Testing DocumentPages serialization...");
     
     // Create test data
     let mut doc_pages = DocumentPages::new("test.txt", "text");
@@ -21,18 +21,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     doc_pages.add_page(page2);
     
     // Test JSON serialization
-    println!("📝 Serializing to JSON...");
+    println!(" Serializing to JSON...");
     let json_output = serde_json::to_string_pretty(&doc_pages)?;
-    println!("✅ JSON serialization successful!");
+    println!("OK JSON serialization successful!");
     println!();
     println!("JSON output:");
     println!("{}", json_output);
     println!();
     
     // Test deserialization
-    println!("📖 Testing deserialization...");
+    println!(" Testing deserialization...");
     let parsed_doc: DocumentPages = serde_json::from_str(&json_output)?;
-    println!("✅ Deserialization successful!");
+    println!("OK Deserialization successful!");
     
     // Verify data integrity
     assert_eq!(parsed_doc.total_pages, 2);
@@ -41,20 +41,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(parsed_doc.pages[0].paragraphs.len(), 2);
     assert_eq!(parsed_doc.pages[1].paragraphs.len(), 1);
     
-    println!("✅ Data integrity verified!");
+    println!("OK Data integrity verified!");
     
     // Test Debug output (what's causing the problem)
     println!();
-    println!("🐛 Debug output (this is what's causing the issue):");
+    println!("Debug output (this is what's causing the issue):");
     println!("{:?}", doc_pages);
     println!();
     
-    println!("🎉 All tests passed!");
+    println!(" All tests passed!");
     println!();
-    println!("💡 The issue is likely a plugin using:");
-    println!("   println!(\"{{:?}}\", document_pages);  // ❌ Wrong - outputs Debug format");
+    println!("TIP The issue is likely a plugin using:");
+    println!("   println!(\"{{:?}}\", document_pages);  // ERR Wrong - outputs Debug format");
     println!("   Instead of:");
-    println!("   println!(\"{{}}\", serde_json::to_string(&document_pages)?);  // ✅ Correct - outputs JSON");
+    println!("   println!(\"{{}}\", serde_json::to_string(&document_pages)?);  // OK Correct - outputs JSON");
     
     Ok(())
 }
