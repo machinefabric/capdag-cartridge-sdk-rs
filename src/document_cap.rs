@@ -94,29 +94,19 @@ impl DocumentCapBuilder {
         let mut metadata = HashMap::new();
         metadata.insert("file_types".to_string(), file_types.join(","));
         
-        if let Some(desc) = description {
-            Ok(Cap::with_full_definition(
-                id,
-                "Document Cap".to_string(),  // title
-                Some(desc.to_string()),
-                metadata,
-                "document-cap".to_string(),
-                capns::CapArguments::new(),
-                None,
-                metadata_json,
-            ))
-        } else {
-            Ok(Cap::with_full_definition(
-                id,
-                "Document Cap".to_string(),  // title
-                None,
-                metadata,
-                "document-cap".to_string(),
-                capns::CapArguments::new(),
-                None,
-                metadata_json,
-            ))
-        }
+        let desc_option = description.map(|d| d.to_string());
+
+        Ok(Cap::with_full_definition(
+            id,
+            "Document Cap".to_string(),
+            desc_option,
+            metadata,
+            "document-cap".to_string(),
+            HashMap::new(),
+            capns::CapArguments::new(),
+            None,
+            metadata_json,
+        ))
     }
     
     /// Create a cap that supports all file types
@@ -137,7 +127,7 @@ mod tests {
     #[test]
     fn test_document_cap_file_types() {
         let cap = DocumentCapBuilder::new_document_cap(
-            "cap:action=extract;target=metadata;",
+            "cap:op=extract;target=metadata;",
             "1.0.0",
             vec!["pdf", "txt", "md"],
             Some("Extract document metadata"),
@@ -156,7 +146,7 @@ mod tests {
     #[test]
     fn test_universal_cap() {
         let cap = DocumentCapBuilder::new_universal_cap(
-            "cap:action=extract;target=pages",
+            "cap:op=extract;target=pages",
             "1.0.0",
             Some("Extract pages from any document"),
             None
@@ -172,7 +162,7 @@ mod tests {
         let mut caps = Vec::new();
         
         let cap1 = DocumentCapBuilder::new_document_cap(
-            "cap:action=extract;target=metadata;",
+            "cap:op=extract;target=metadata;",
             "1.0.0",
             vec!["pdf"],
             None,
@@ -180,7 +170,7 @@ mod tests {
         ).unwrap();
         
         let cap2 = DocumentCapBuilder::new_document_cap(
-            "cap:action=extract;target=text;",
+            "cap:op=extract;target=text;",
             "1.0.0",
             vec!["txt", "md"],
             None,
