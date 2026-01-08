@@ -1,6 +1,6 @@
 //! Test tool to verify DocumentPages serialization works correctly
 
-use fgrnd_plugin_sdk::{DocumentPages, DocumentPage, ExtractionInfo};
+use fgnd_plugin_sdk::{DocumentPages, DocumentPage, ExtractionInfo};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(" Testing DocumentPages serialization...");

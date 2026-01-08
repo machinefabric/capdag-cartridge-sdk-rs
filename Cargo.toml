@@ -1,9 +1,9 @@
 [package]
-name = "fgrnd-plugin-sdk"
+name = "fgnd-plugin-sdk"
 version = "0.1.0"
 edition = "2021"
-authors = ["FGRND Team"]
-description = "Plugin SDK for FGRND document processing tools"
+authors = ["FGND Team"]
+description = "Plugin SDK for FGND document processing tools"
 license = "MIT"
 
 [dependencies]
