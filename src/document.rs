@@ -144,7 +144,7 @@ impl DocumentOutline {
 
 /// A single page within a document
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DocumentPage {
+pub struct FileChip {
     /// Page number (1-indexed)
     pub order_index: usize,
     
@@ -161,8 +161,8 @@ pub struct DocumentPage {
     pub character_count: Option<usize>,
 }
 
-impl DocumentPage {
-    /// Create a new document page
+impl FileChip {
+    /// Create a new file chip
     pub fn new(order_index: usize) -> Self {
         Self {
             order_index,
@@ -173,7 +173,7 @@ impl DocumentPage {
         }
     }
     
-    /// Create a new document page with text content
+    /// Create a new file chip with text content
     pub fn new_with_text(order_index: usize, text_content: impl Into<String>) -> Self {
         let content = text_content.into();
         let trimmed_content = content.trim().to_string();
@@ -230,7 +230,7 @@ impl DocumentPage {
 
 /// Complete document with pages
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DocumentPages {
+pub struct GroundChips {
     /// Source file path
     pub source_file: String,
     
@@ -244,14 +244,14 @@ pub struct DocumentPages {
     pub total_pages: usize,
     
     /// All pages in the document
-    pub pages: Vec<DocumentPage>,
+    pub pages: Vec<FileChip>,
     
     /// Metadata about the extraction process
     pub extraction_info: ExtractionInfo,
 }
 
-impl DocumentPages {
-    /// Create a new document pages structure
+impl GroundChips {
+    /// Create a new file chips structure
     pub fn new(
         source_file: impl Into<String>,
         document_type: impl Into<String>,
@@ -273,13 +273,13 @@ impl DocumentPages {
     }
     
     /// Add a page to the document
-    pub fn add_page(&mut self, page: DocumentPage) {
+    pub fn add_chip(&mut self, page: FileChip) {
         self.pages.push(page);
         self.total_pages = self.pages.len();
     }
     
     /// Get a specific page by number (1-indexed)
-    pub fn get_page(&self, order_index: usize) -> Option<&DocumentPage> {
+    pub fn get_chip(&self, order_index: usize) -> Option<&FileChip> {
         self.pages.iter().find(|p| p.order_index == order_index)
     }
     

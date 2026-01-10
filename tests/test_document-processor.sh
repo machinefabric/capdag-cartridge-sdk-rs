@@ -29,9 +29,9 @@ echo "Testing cap: generate-thumbnail..."
 "$PLUGIN_BINARY" generate-thumbnail --help >/dev/null 2>&1 || true
 echo "OK generate-thumbnail cap flag recognized"
 
-echo "Testing cap: extract-pages..."
-"$PLUGIN_BINARY" extract-pages --help >/dev/null 2>&1 || true
-echo "OK extract-pages cap flag recognized"
+echo "Testing cap: grind..."
+"$PLUGIN_BINARY" grind --help >/dev/null 2>&1 || true
+echo "OK grind cap flag recognized"
 
 echo "Testing cap: validate-file..."
 "$PLUGIN_BINARY" validate-file --help >/dev/null 2>&1 || true
