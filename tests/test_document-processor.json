@@ -8,7 +8,7 @@
         "expected_caps": [
           "extract-metadata",
           "extract-outline",
-          "extract-pages",
+          "grind",
           "generate-thumbnail",
           "validate-file"
         ],
@@ -21,7 +21,7 @@
         "description": "Plain text file",
         "expected_caps": [
           "extract-metadata",
-          "extract-pages",
+          "grind",
           "validate-file"
         ],
         "name": "plain_text",

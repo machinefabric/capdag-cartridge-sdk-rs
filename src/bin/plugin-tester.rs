@@ -203,10 +203,10 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
     // Check for Debug format patterns
     let debug_patterns = [
         "FileMetadata {",
-        "DocumentPages {", 
+        "GroundChips {", 
         "DocumentOutline {",
         "OutlineEntry {",
-        "DocumentPage {",
+        "FileChip {",
         "ExtractionInfo {",
     ];
 
@@ -236,7 +236,7 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
                         println!("WARN  Metadata missing expected fields");
                     }
                 }
-                "extract-pages" => {
+                "grind" => {
                     if json_value.get("pages").and_then(|p| p.as_array()).is_some() {
                         println!("OK Pages structure validation passed");
                     } else {
@@ -274,7 +274,7 @@ fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf
     // Test with non-existent file
     let non_existent = "/tmp/absolutely_non_existent_file_12345.xyz";
     
-    let caps = ["extract-metadata", "extract-pages", "extract-outline"];
+    let caps = ["extract-metadata", "grind", "extract-outline"];
     
     for cap in &caps {
         let output = Command::new(&plugin)
@@ -322,7 +322,7 @@ fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf
 }
 
 fn test_all_caps_serialization(plugin: &PathBuf, _interface: &str) -> Result<()> {
-    let caps = ["extract-metadata", "extract-pages", "extract-outline"];
+    let caps = ["extract-metadata", "grind", "extract-outline"];
     
     for cap in &caps {
         println!("  Testing {} serialization...", cap);

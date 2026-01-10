@@ -148,7 +148,7 @@ mod tests {
         let cap = DocumentCapBuilder::new_universal_cap(
             "cap:op=extract;target=pages",
             "1.0.0",
-            Some("Extract pages from any document"),
+            Some("grind any document"),
             None
         ).unwrap();
         
