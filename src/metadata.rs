@@ -15,7 +15,7 @@ pub struct FileMetadata {
 	pub file_path: String,
 	pub file_size_bytes: u64,
 	pub content_length: usize,
-	pub mime_type: Option<String>,
+	pub media_urn: Option<String>,
 	pub encoding: Option<String>,
 
 	// Common document metadata
@@ -71,7 +71,7 @@ impl FileMetadata {
 			file_path: file_path.into(),
 			file_size_bytes,
 			content_length: 0,
-			mime_type: None,
+			media_urn: None,
 			encoding: None,
 
 			title: None,
@@ -114,9 +114,9 @@ impl FileMetadata {
 	}
 
 	/// Minimal metadata with just file path, size and optional mime type
-	pub fn minimal(file_path: impl Into<String>, file_size_bytes: u64, mime_type: Option<String>, document_type: String) -> Self {
+	pub fn minimal(file_path: impl Into<String>, file_size_bytes: u64, media_urn: Option<String>, document_type: String) -> Self {
 		let mut s = Self::new(file_path, document_type, file_size_bytes);
-		s.mime_type = mime_type;
+		s.media_urn = media_urn;
 		s
 	}
 
