@@ -1,12 +1,12 @@
-//! Test tool to verify GroundChips serialization works correctly
+//! Test tool to verify DisboundPages serialization works correctly
 
-use fgnd_plugin_sdk::{GroundChips, FileChip, ExtractionInfo};
+use fgnd_plugin_sdk::{DisboundPages, FileChip, ExtractionInfo};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!(" Testing GroundChips serialization...");
+    println!(" Testing DisboundPages serialization...");
     
     // Create test data
-    let mut doc_pages = GroundChips::new("test.txt", "text");
+    let mut doc_pages = DisboundPages::new("test.txt", "text");
     doc_pages.document_title = Some("Test Document".to_string());
     doc_pages.extraction_info = ExtractionInfo::new("test-tool", "1.0.0");
     
@@ -31,7 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     // Test deserialization
     println!(" Testing deserialization...");
-    let parsed_doc: GroundChips = serde_json::from_str(&json_output)?;
+    let parsed_doc: DisboundPages = serde_json::from_str(&json_output)?;
     println!("OK Deserialization successful!");
     
     // Verify data integrity
