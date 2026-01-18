@@ -230,7 +230,7 @@ impl FileChip {
 
 /// Complete document with pages
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct GroundChips {
+pub struct DisboundPages {
     /// Source file path
     pub source_file: String,
     
@@ -250,7 +250,7 @@ pub struct GroundChips {
     pub extraction_info: ExtractionInfo,
 }
 
-impl GroundChips {
+impl DisboundPages {
     /// Create a new file chips structure
     pub fn new(
         source_file: impl Into<String>,
