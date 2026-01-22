@@ -17,7 +17,8 @@ pub struct CapSchema {
     pub schema_version: String,
     pub cap: CapInfo,
     pub command: String,
-    pub arguments: ArgumentsSpec,
+    /// New unified args array (no required/optional split)
+    pub args: Vec<CapArg>,
     pub response: ResponseSpec,
     #[serde(default)]
     pub validation: ValidationRules,
@@ -34,24 +35,31 @@ pub struct CapInfo {
 }
 
 
+/// New argument source variants
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ArgumentsSpec {
-    pub required: Vec<ArgumentDef>,
-    pub optional: Vec<ArgumentDef>,
+#[serde(untagged)]
+pub enum ArgSource {
+    Stdin { stdin: String },
+    Position { position: usize },
+    CliFlag { cli_flag: String },
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ArgumentDef {
-    pub name: String,
-    #[serde(rename = "type")]
-    pub arg_type: ArgumentType,
-    pub description: String,
-    #[serde(rename = "cli_flag")]
-    pub cli_flag: Option<String>,
-    pub position: Option<usize>,
+pub struct CapArg {
+    /// Unique semantic media URN (e.g., media:string, media:object)
+    pub media_urn: String,
+    /// Whether this arg is required
+    pub required: bool,
+    /// How this arg can be provided (non-empty)
+    pub sources: Vec<ArgSource>,
+    /// Human description
+    #[serde(default)]
+    pub arg_description: String,
+    /// Validation rules
     #[serde(default)]
     pub validation: ArgumentValidation,
-    pub default: Option<Value>,
+    /// Default value if optional
+    pub default_value: Option<Value>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -402,33 +410,50 @@ impl PluginValidator {
             bail!("CLI flag must start with '--': {}", schema.command);
         }
 
-        // Validate argument definitions
-        for arg in &schema.arguments.required {
-            self.validate_argument_def(arg)?;
+        // Validate argument definitions (new args model)
+        if schema.args.is_empty() {
+            bail!("cap.args must not be empty");
         }
-        for arg in &schema.arguments.optional {
-            self.validate_argument_def(arg)?;
-        }
+        self.validate_args(&schema.args)?;
 
         Ok(())
     }
 
-    /// Validate an argument definition
-    fn validate_argument_def(&self, arg: &ArgumentDef) -> PluginResult<()> {
-        // Check that either position or cli_flag is specified, but not both
-        match (arg.position, &arg.cli_flag) {
-            (Some(_), Some(_)) => bail!("Argument cannot have both position and cli_flag: {}", arg.name),
-            (None, None) => bail!("Argument must have either position or cli_flag: {}", arg.name),
-            _ => {}
-        }
-
-        // Validate CLI flag format if present
-        if let Some(flag) = &arg.cli_flag {
-            if !flag.starts_with("--") {
-                bail!("CLI flag must start with '--': {}", flag);
+    /// Validate new args+sources rules
+    fn validate_args(&self, args: &Vec<CapArg>) -> PluginResult<()> {
+        use std::collections::{HashSet, HashMap};
+        // RULE1: No duplicate media_urns
+        let mut seen_urns: HashSet<&str> = HashSet::new();
+        for a in args { if !seen_urns.insert(a.media_urn.as_str()) { bail!("Duplicate media_urn: {}", a.media_urn); } }
+        // RULE2: sources non-empty, RULE4: no duplicate source types per arg
+        for a in args {
+            if a.sources.is_empty() { bail!("Arg {} must have at least one source", a.media_urn); }
+            let mut types: HashSet<&'static str> = HashSet::new();
+            for s in &a.sources {
+                let t = match s { ArgSource::Stdin{..}=>"stdin", ArgSource::Position{..}=>"position", ArgSource::CliFlag{..}=>"cli_flag" };
+                if !types.insert(t) { bail!("Arg {} has duplicate source type: {}", a.media_urn, t); }
             }
         }
-
+        // RULE5/6: unique, sequential positions
+        let mut positions: Vec<usize> = args.iter().filter_map(|a| a.sources.iter().find_map(|s| if let ArgSource::Position{position} = s { Some(*position)} else {None})).collect();
+        positions.sort_unstable();
+        for (i,pos) in positions.iter().enumerate() { if *pos != i { bail!("Positions must be 0-based sequential with no gaps; got {} at index {}", pos, i); } }
+        // RULE7: no arg may have both position and cli_flag (per-arg types set already enforces this implicitly if both present)
+        for a in args {
+            let has_pos = a.sources.iter().any(|s| matches!(s, ArgSource::Position{..}));
+            let has_flag = a.sources.iter().any(|s| matches!(s, ArgSource::CliFlag{..}));
+            if has_pos && has_flag { bail!("Arg {} cannot have both position and cli_flag", a.media_urn); }
+        }
+        // RULE9/10: cli_flag uniqueness and reserved flags
+        let mut flags: HashSet<&str> = HashSet::new();
+        let reserved = ["manifest","--help","--version","-v","-h"];
+        for a in args {
+            if let Some(flag) = a.sources.iter().find_map(|s| if let ArgSource::CliFlag{cli_flag} = s { Some(cli_flag.as_str()) } else { None }) {
+                if reserved.contains(&flag) { bail!("cli_flag {} is reserved", flag); }
+                if !flag.starts_with("-") { bail!("cli_flag must start with '-' or '--': {}", flag); }
+                if !flags.insert(flag) { bail!("Duplicate cli_flag: {}", flag); }
+            }
+        }
         Ok(())
     }
 
@@ -547,7 +572,7 @@ impl PluginValidator {
         }
 
         // Create a temporary test file if needed
-        let test_file = if cap.arguments.required.iter().any(|arg| arg.name == "file_path") {
+        let test_file = if cap.args.iter().any(|arg| arg.media_urn == "media:string") {
             let temp_file = std::env::temp_dir().join(format!("plugin_test_{}.txt", uuid::Uuid::new_v4()));
             std::fs::write(&temp_file, "Test content for plugin validation\n\nSecond paragraph.").ok();
             Some(temp_file)
@@ -618,7 +643,7 @@ impl PluginValidator {
         let cap_name = &cap.cap.name;
         
         // Test with non-existent file if cap takes file input
-        if cap.arguments.required.iter().any(|arg| arg.name == "file_path") {
+        if cap.args.iter().any(|arg| arg.sources.iter().any(|s| matches!(s, ArgSource::Position{position:0}))) {
             let non_existent_file = "/tmp/non_existent_file_for_plugin_test.xyz";
             let non_existent_str = non_existent_file.to_string();
             let command_name = cap.command.trim_start_matches("--");
