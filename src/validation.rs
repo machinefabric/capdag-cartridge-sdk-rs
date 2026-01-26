@@ -57,7 +57,7 @@ pub struct CapArg {
     pub arg_description: String,
     /// Validation rules
     #[serde(default)]
-    pub validation: ArgumentValidation,
+    pub validation: MediaValidation,
     /// Default value if optional
     pub default_value: Option<Value>,
 }
@@ -74,7 +74,7 @@ pub enum ArgumentType {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
-pub struct ArgumentValidation {
+pub struct MediaValidation {
     pub min: Option<f64>,
     pub max: Option<f64>,
     pub min_length: Option<usize>,
