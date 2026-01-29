@@ -144,7 +144,7 @@ impl DocumentOutline {
 
 /// A single page within a document
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FileChip {
+pub struct DisboundPage {
     /// Page number (1-indexed)
     pub order_index: usize,
     
@@ -161,7 +161,7 @@ pub struct FileChip {
     pub character_count: Option<usize>,
 }
 
-impl FileChip {
+impl DisboundPage {
     /// Create a new file chip
     pub fn new(order_index: usize) -> Self {
         Self {
@@ -244,7 +244,7 @@ pub struct DisboundPages {
     pub total_pages: usize,
     
     /// All pages in the document
-    pub pages: Vec<FileChip>,
+    pub pages: Vec<DisboundPage>,
     
     /// Metadata about the extraction process
     pub extraction_info: ExtractionInfo,
@@ -273,13 +273,13 @@ impl DisboundPages {
     }
     
     /// Add a page to the document
-    pub fn add_chip(&mut self, page: FileChip) {
+    pub fn add_chip(&mut self, page: DisboundPage) {
         self.pages.push(page);
         self.total_pages = self.pages.len();
     }
     
     /// Get a specific page by number (1-indexed)
-    pub fn get_chip(&self, order_index: usize) -> Option<&FileChip> {
+    pub fn get_chip(&self, order_index: usize) -> Option<&DisboundPage> {
         self.pages.iter().find(|p| p.order_index == order_index)
     }
     

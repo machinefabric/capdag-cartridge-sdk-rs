@@ -1,6 +1,6 @@
 //! Test tool to verify DisboundPages serialization works correctly
 
-use fgnd_plugin_sdk::{DisboundPages, FileChip, ExtractionInfo};
+use fgnd_plugin_sdk::{DisboundPages, DisboundPage, ExtractionInfo};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(" Testing DisboundPages serialization...");
@@ -10,11 +10,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     doc_pages.document_title = Some("Test Document".to_string());
     doc_pages.extraction_info = ExtractionInfo::new("test-tool", "1.0.0");
     
-    let mut page1 = FileChip::new(1);
+    let mut page1 = DisboundPage::new(1);
     page1.add_paragraph(DocumentParagraph::new(1, "This is paragraph 1."));
     page1.add_paragraph(DocumentParagraph::new(2, "This is paragraph 2."));
     
-    let mut page2 = FileChip::new(2);
+    let mut page2 = DisboundPage::new(2);
     page2.add_paragraph(DocumentParagraph::new(1, "This is paragraph 1 of page 2."));
     
     doc_pages.add_chip(page1);
@@ -52,9 +52,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(" All tests passed!");
     println!();
     println!("TIP The issue is likely a plugin using:");
-    println!("   println!(\"{{:?}}\", file_chips);  // ERR Wrong - outputs Debug format");
+    println!("   println!(\"{{:?}}\", disbound_pages);  // ERR Wrong - outputs Debug format");
     println!("   Instead of:");
-    println!("   println!(\"{{}}\", serde_json::to_string(&file_chips)?);  // OK Correct - outputs JSON");
+    println!("   println!(\"{{}}\", serde_json::to_string(&disbound_pages)?);  // OK Correct - outputs JSON");
     
     Ok(())
 }

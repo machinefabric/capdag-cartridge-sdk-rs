@@ -206,7 +206,7 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
         "DisboundPages {", 
         "DocumentOutline {",
         "OutlineEntry {",
-        "FileChip {",
+        "DisboundPage {",
         "ExtractionInfo {",
     ];
 
