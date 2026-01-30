@@ -1,60 +1,51 @@
-//! Test tool to verify DisboundPages serialization works correctly
+//! Test tool to verify DisboundPage array serialization works correctly
 
-use fgnd_plugin_sdk::{DisboundPages, DisboundPage, ExtractionInfo};
+use fgnd_plugin_sdk::DisboundPage;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!(" Testing DisboundPages serialization...");
-    
-    // Create test data
-    let mut doc_pages = DisboundPages::new("test.txt", "text");
-    doc_pages.document_title = Some("Test Document".to_string());
-    doc_pages.extraction_info = ExtractionInfo::new("test-tool", "1.0.0");
-    
-    let mut page1 = DisboundPage::new(1);
-    page1.add_paragraph(DocumentParagraph::new(1, "This is paragraph 1."));
-    page1.add_paragraph(DocumentParagraph::new(2, "This is paragraph 2."));
-    
-    let mut page2 = DisboundPage::new(2);
-    page2.add_paragraph(DocumentParagraph::new(1, "This is paragraph 1 of page 2."));
-    
-    doc_pages.add_chip(page1);
-    doc_pages.add_chip(page2);
-    
+    println!(" Testing Vec<DisboundPage> serialization...");
+
+    // Create test data - now just an array of pages
+    let pages: Vec<DisboundPage> = vec![
+        DisboundPage::new_with_text(1, "This is paragraph 1.\nThis is paragraph 2."),
+        DisboundPage::new_with_text(2, "This is paragraph 1 of page 2."),
+    ];
+
     // Test JSON serialization
     println!(" Serializing to JSON...");
-    let json_output = serde_json::to_string_pretty(&doc_pages)?;
+    let json_output = serde_json::to_string_pretty(&pages)?;
     println!("OK JSON serialization successful!");
     println!();
     println!("JSON output:");
     println!("{}", json_output);
     println!();
-    
+
     // Test deserialization
     println!(" Testing deserialization...");
-    let parsed_doc: DisboundPages = serde_json::from_str(&json_output)?;
+    let parsed_pages: Vec<DisboundPage> = serde_json::from_str(&json_output)?;
     println!("OK Deserialization successful!");
-    
+
     // Verify data integrity
-    assert_eq!(parsed_doc.total_pages, 2);
-    assert_eq!(parsed_doc.pages.len(), 2);
-    assert_eq!(parsed_doc.document_title, Some("Test Document".to_string()));
-    assert_eq!(parsed_doc.pages[0].paragraphs.len(), 2);
-    assert_eq!(parsed_doc.pages[1].paragraphs.len(), 1);
-    
+    assert_eq!(parsed_pages.len(), 2);
+    assert_eq!(parsed_pages[0].order_index, 1);
+    assert_eq!(parsed_pages[1].order_index, 2);
+    assert!(!parsed_pages[0].text_content.is_empty());
+    assert!(!parsed_pages[1].text_content.is_empty());
+
     println!("OK Data integrity verified!");
-    
+
     // Test Debug output (what's causing the problem)
     println!();
     println!("Debug output (this is what's causing the issue):");
-    println!("{:?}", doc_pages);
+    println!("{:?}", pages);
     println!();
-    
+
     println!(" All tests passed!");
     println!();
     println!("TIP The issue is likely a plugin using:");
-    println!("   println!(\"{{:?}}\", disbound_pages);  // ERR Wrong - outputs Debug format");
+    println!("   println!(\"{{:?}}\", pages);  // ERR Wrong - outputs Debug format");
     println!("   Instead of:");
-    println!("   println!(\"{{}}\", serde_json::to_string(&disbound_pages)?);  // OK Correct - outputs JSON");
-    
+    println!("   println!(\"{{}}\", serde_json::to_string(&pages)?);  // OK Correct - outputs JSON");
+
     Ok(())
 }

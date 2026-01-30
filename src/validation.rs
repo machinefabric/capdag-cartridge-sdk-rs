@@ -607,8 +607,9 @@ impl PluginValidator {
                             }
                             Err(e) => {
                                 // Check if it's Debug format
-                                if stdout.trim().starts_with("FileMetadata {") || 
-                                   stdout.trim().starts_with("DisboundPages {") || 
+                                if stdout.trim().starts_with("FileMetadata {") ||
+                                   stdout.trim().starts_with("DisboundPage {") ||
+                                   stdout.trim().starts_with("[DisboundPage {") ||
                                    stdout.trim().starts_with("DocumentOutline {") {
                                     report.add_error(format!("Cap {} outputs Debug format instead of JSON", cap_name));
                                 } else {
