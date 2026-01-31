@@ -102,7 +102,7 @@ impl DocumentCapBuilder {
             desc_option,
             metadata,
             "document-cap".to_string(),
-            HashMap::new(),
+            Vec::new(),
             vec![],
             None,
             metadata_json,
