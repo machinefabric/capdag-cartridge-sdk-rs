@@ -2,7 +2,7 @@
 name = "fgnd-plugin-sdk"
 version = "0.1.0"
 edition = "2021"
-authors = ["FileGrind"]
+authors = ["https://github.com/jowharshamshiri"]
 description = "Plugin SDK for FGND document processing tools"
 license = "MIT"
 
