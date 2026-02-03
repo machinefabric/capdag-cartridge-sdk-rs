@@ -1,12 +1,15 @@
 //! FGND Plugin SDK
-//! 
+//!
 //! This library provides common data structures and traits for FGND document processing plugins.
 //! It ensures consistency across different file handlers (PDF, EPUB, etc.) and enables
 //! a unified plugin architecture with standardized cap-based calling.
+//!
+//! Also provides canonical LLM protocol types matching capns media specs for LLM cartridges.
 
 pub mod document;
 pub mod document_cap;
 pub mod handler;
+pub mod llm;
 pub mod metadata;
 pub mod output;
 pub mod validation;
