@@ -1,6 +1,6 @@
 //! Test tool to verify DisboundPage array serialization works correctly
 
-use fgnd_plugin_sdk::DisboundPage;
+use macina_plugin_sdk::DisboundPage;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(" Testing Vec<DisboundPage> serialization...");

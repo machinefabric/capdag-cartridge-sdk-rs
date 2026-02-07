@@ -1,6 +1,6 @@
-//! FGND Plugin SDK
+//! MACINA Plugin SDK
 //!
-//! This library provides common data structures and traits for FGND document processing plugins.
+//! This library provides common data structures and traits for MACINA document processing plugins.
 //! It ensures consistency across different file handlers (PDF, EPUB, etc.) and enables
 //! a unified plugin architecture with standardized cap-based calling.
 //!

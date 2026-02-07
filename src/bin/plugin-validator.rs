@@ -3,7 +3,7 @@
 //! Command-line tool for validating plugin implementations against formal interface schemas.
 
 use clap::{Parser, Subcommand};
-use fgnd_plugin_sdk::{PluginValidator, ValidationReport};
+use macina_plugin_sdk::{PluginValidator, ValidationReport};
 use std::path::PathBuf;
 use anyhow::{Context, Result};
 
@@ -368,7 +368,7 @@ fn output_json_report(report: &ValidationReport) -> Result<()> {
     Ok(())
 }
 
-fn generate_test_script(interface: &fgnd_plugin_sdk::PluginInterfaceSchema, interface_name: &str) -> String {
+fn generate_test_script(interface: &macina_plugin_sdk::PluginInterfaceSchema, interface_name: &str) -> String {
     let mut script = String::new();
     
     script.push_str("#!/bin/bash\n");
@@ -393,8 +393,8 @@ fn generate_test_script(interface: &fgnd_plugin_sdk::PluginInterfaceSchema, inte
     // Test each cap
     for cap_ref in interface.caps.iter() {
         let cap_name = match cap_ref {
-            fgnd_plugin_sdk::CapReference::Inline(cap) => &cap.cap.name,
-            fgnd_plugin_sdk::CapReference::Reference { cap_ref } => {
+            macina_plugin_sdk::CapReference::Inline(cap) => &cap.cap.name,
+            macina_plugin_sdk::CapReference::Reference { cap_ref } => {
                 cap_ref.split('/').last().unwrap_or(cap_ref).trim_end_matches(".json")
             }
         };
@@ -408,7 +408,7 @@ fn generate_test_script(interface: &fgnd_plugin_sdk::PluginInterfaceSchema, inte
     script
 }
 
-fn generate_test_config(interface: &fgnd_plugin_sdk::PluginInterfaceSchema) -> String {
+fn generate_test_config(interface: &macina_plugin_sdk::PluginInterfaceSchema) -> String {
     let config = serde_json::json!({
         "interface": interface.interface.name,
         "version": interface.interface.version,

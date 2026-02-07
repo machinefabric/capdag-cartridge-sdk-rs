@@ -1,9 +1,9 @@
 [package]
-name = "fgnd-plugin-sdk"
+name = "macina-plugin-sdk"
 version = "0.1.0"
 edition = "2021"
 authors = ["https://github.com/jowharshamshiri"]
-description = "Plugin SDK for FGND document processing tools"
+description = "Plugin SDK for MACINA document processing tools"
 license = "MIT"
 
 [dependencies]
