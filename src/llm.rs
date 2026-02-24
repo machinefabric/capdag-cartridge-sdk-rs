@@ -553,6 +553,22 @@ impl LlmModelInfo {
 }
 
 // =============================================================================
+// Media URNs - canonical definitions (single source of truth)
+// =============================================================================
+
+/// Media URN for LLM generation request payload (JSON object)
+pub const MEDIA_LLM_GENERATION_REQUEST: &str = "media:llm-generation-request;json;form=map";
+
+/// Media URN for LLM streaming text output (NDJSON stream)
+pub const MEDIA_LLM_TEXT_STREAM: &str = "media:llm-text-stream;ndjson;streaming";
+
+/// Media URN for LLM vocabulary response (JSON object)
+pub const MEDIA_LLM_VOCAB_RESPONSE: &str = "media:llm-vocab-response;json;form=map";
+
+/// Media URN for LLM model info response (JSON object)
+pub const MEDIA_LLM_MODEL_INFO_RESPONSE: &str = "media:llm-model-info;json;form=map";
+
+// =============================================================================
 // Cap URNs - canonical definitions
 // =============================================================================
 

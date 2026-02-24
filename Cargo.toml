@@ -1,6 +1,6 @@
 [package]
 name = "macina-plugin-sdk"
-version = "0.74.16604"
+version = "0.75.16608"
 edition = "2021"
 authors = ["https://github.com/jowharshamshiri"]
 description = "Plugin SDK for MACINA document processing tools"

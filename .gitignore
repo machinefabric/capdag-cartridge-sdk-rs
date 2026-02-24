@@ -1,6 +1,6 @@
 /target
 
 *.log
-.ws/
+.wsb/
 diffs/
 Cargo.lock
