@@ -584,6 +584,15 @@ pub const CAP_LLM_VOCAB: &str = "cap:op=llm_vocab;llm;ml-model;gguf;in=\"media:l
 /// Cap URN for model info query
 pub const CAP_LLM_MODEL_INFO: &str = "cap:op=llm_model_info;llm;ml-model;gguf;in=\"media:llm-generation-request;json;form=map\";out=\"media:llm-model-info;json;form=map\"";
 
+/// Cap URN for text embeddings generation
+pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:op=generate_embeddings;ml-model;gguf;in=\"media:textable;form=scalar\";out=\"media:embedding-vector;textable;form=map\"";
+
+/// Cap URN for embedding dimensions query
+pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:op=embeddings_dimensions;ml-model;gguf;in=\"media:model-spec;textable;form=scalar\";out=\"media:integer;textable;numeric;form=scalar\"";
+
+/// Cap URN for vision/image description
+pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;op=describe_image;out=\"media:image-description;textable;form=scalar\";vision";
+
 #[cfg(test)]
 mod tests {
     use super::*;
