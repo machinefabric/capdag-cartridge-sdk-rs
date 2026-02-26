@@ -4,10 +4,10 @@
 //! These types are the single source of truth - both macina and cartridges use them.
 //!
 //! Media specs:
-//! - media:llm-generation-request;json;form=map
+//! - media:llm-generation-request;json;record
 //! - media:llm-text-stream;ndjson;streaming
-//! - media:llm-vocab-response;json;form=map
-//! - media:llm-model-info;json;form=map
+//! - media:llm-vocab-response;json;record
+//! - media:llm-model-info;json;record
 //!
 //! Caps:
 //! - cap:op=llm_inference - Text generation
@@ -43,12 +43,12 @@ impl Default for RequestType {
 }
 
 // =============================================================================
-// media:llm-generation-request;json;form=map
+// media:llm-generation-request;json;record
 // =============================================================================
 
 /// LLM Generation Request - input for all LLM caps
 ///
-/// Matches: media:llm-generation-request;json;form=map
+/// Matches: media:llm-generation-request;json;record
 ///
 /// Note: The `request_type` field exists in the media spec for cases where a single
 /// command handles multiple operations. Prefer using different caps for different
@@ -444,12 +444,12 @@ pub mod finish_reason {
 }
 
 // =============================================================================
-// media:llm-vocab-response;json;form=map
+// media:llm-vocab-response;json;record
 // =============================================================================
 
 /// LLM Vocabulary Response
 ///
-/// Matches: media:llm-vocab-response;json;form=map
+/// Matches: media:llm-vocab-response;json;record
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LlmVocabResponse {
     /// Array of vocabulary tokens
@@ -482,12 +482,12 @@ impl LlmVocabResponse {
 }
 
 // =============================================================================
-// media:llm-model-info;json;form=map
+// media:llm-model-info;json;record
 // =============================================================================
 
 /// LLM Model Info Response
 ///
-/// Matches: media:llm-model-info;json;form=map
+/// Matches: media:llm-model-info;json;record
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LlmModelInfo {
     /// Model specification identifier
@@ -557,41 +557,41 @@ impl LlmModelInfo {
 // =============================================================================
 
 /// Media URN for LLM generation request payload (JSON object)
-pub const MEDIA_LLM_GENERATION_REQUEST: &str = "media:llm-generation-request;json;form=map";
+pub const MEDIA_LLM_GENERATION_REQUEST: &str = "media:llm-generation-request;json;record";
 
 /// Media URN for LLM streaming text output (NDJSON stream)
 pub const MEDIA_LLM_TEXT_STREAM: &str = "media:llm-text-stream;ndjson;streaming";
 
 /// Media URN for LLM vocabulary response (JSON object)
-pub const MEDIA_LLM_VOCAB_RESPONSE: &str = "media:llm-vocab-response;json;form=map";
+pub const MEDIA_LLM_VOCAB_RESPONSE: &str = "media:llm-vocab-response;json;record";
 
 /// Media URN for LLM model info response (JSON object)
-pub const MEDIA_LLM_MODEL_INFO_RESPONSE: &str = "media:llm-model-info;json;form=map";
+pub const MEDIA_LLM_MODEL_INFO_RESPONSE: &str = "media:llm-model-info;json;record";
 
 // =============================================================================
 // Cap URNs - canonical definitions
 // =============================================================================
 
 /// Cap URN for LLM text generation
-pub const CAP_LLM_INFERENCE: &str = "cap:op=llm_inference;llm;ml-model;gguf;in=\"media:llm-generation-request;json;form=map\";out=\"media:llm-text-stream;ndjson;streaming\"";
+pub const CAP_LLM_INFERENCE: &str = "cap:op=llm_inference;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-text-stream;ndjson;streaming\"";
 
 /// Cap URN for constrained LLM generation with LLGuidance
-pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:op=llm_inference_constrained;constrained;llm;ml-model;gguf;in=\"media:llm-generation-request;json;form=map\";out=\"media:llm-text-stream;ndjson;streaming\"";
+pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:op=llm_inference_constrained;constrained;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-text-stream;ndjson;streaming\"";
 
 /// Cap URN for vocabulary extraction
-pub const CAP_LLM_VOCAB: &str = "cap:op=llm_vocab;llm;ml-model;gguf;in=\"media:llm-generation-request;json;form=map\";out=\"media:llm-vocab-response;json;form=map\"";
+pub const CAP_LLM_VOCAB: &str = "cap:op=llm_vocab;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-vocab-response;json;record\"";
 
 /// Cap URN for model info query
-pub const CAP_LLM_MODEL_INFO: &str = "cap:op=llm_model_info;llm;ml-model;gguf;in=\"media:llm-generation-request;json;form=map\";out=\"media:llm-model-info;json;form=map\"";
+pub const CAP_LLM_MODEL_INFO: &str = "cap:op=llm_model_info;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-model-info;json;record\"";
 
 /// Cap URN for text embeddings generation
-pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:op=generate_embeddings;ml-model;gguf;in=\"media:textable;form=scalar\";out=\"media:embedding-vector;textable;form=map\"";
+pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:op=generate_embeddings;ml-model;gguf;in=\"media:textable\";out=\"media:embedding-vector;record;textable\"";
 
 /// Cap URN for embedding dimensions query
-pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:op=embeddings_dimensions;ml-model;gguf;in=\"media:model-spec;textable;form=scalar\";out=\"media:integer;textable;numeric;form=scalar\"";
+pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:op=embeddings_dimensions;ml-model;gguf;in=\"media:model-spec;textable\";out=\"media:integer;textable;numeric\"";
 
 /// Cap URN for vision/image description
-pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;op=describe_image;out=\"media:image-description;textable;form=scalar\";vision";
+pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;op=describe_image;out=\"media:image-description;textable\";vision";
 
 #[cfg(test)]
 mod tests {
