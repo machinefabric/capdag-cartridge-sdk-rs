@@ -1,7 +1,7 @@
 //! LLM Protocol Types
 //!
 //! Canonical Rust types matching the capns media spec schemas for LLM operations.
-//! These types are the single source of truth - both macina and cartridges use them.
+//! These types are the single source of truth - both machfab and cartridges use them.
 //!
 //! Media specs:
 //! - media:llm-generation-request;json;record

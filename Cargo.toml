@@ -1,8 +1,8 @@
 [package]
-name = "macina-plugin-sdk"
-version = "0.77.16643"
+name = "machfab-plugin-sdk"
+version = "0.78.16685"
 edition = "2021"
-authors = ["https://github.com/jowharshamshiri"]
+authors = ["https://github.com/machinefabric"]
 description = "Plugin SDK for MACINA document processing tools"
 license = "MIT"
 
