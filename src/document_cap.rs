@@ -3,7 +3,7 @@
 //! This module provides extensions to the general cap system for document processing,
 //! adding file type support and document-specific functionality.
 
-use capns::{Cap, CapUrn};
+use capdag::{Cap, CapUrn};
 use std::collections::HashMap;
 
 /// Extension trait for document processing caps
@@ -89,7 +89,7 @@ impl DocumentCapBuilder {
         file_types: Vec<&str>, 
         description: Option<&str>,
         metadata_json: Option<serde_json::Value>
-    ) -> Result<Cap, capns::CapUrnError> {
+    ) -> Result<Cap, capdag::CapUrnError> {
         let id = CapUrn::from_string(id_str)?;
         let mut metadata = HashMap::new();
         metadata.insert("file_types".to_string(), file_types.join(","));
@@ -115,7 +115,7 @@ impl DocumentCapBuilder {
         version: &str, 
         description: Option<&str>,
         metadata_json: Option<serde_json::Value>
-    ) -> Result<Cap, capns::CapUrnError> {
+    ) -> Result<Cap, capdag::CapUrnError> {
         Self::new_document_cap(id_str, version, vec!["*"], description, metadata_json)
     }
 }

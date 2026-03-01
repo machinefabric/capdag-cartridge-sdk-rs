@@ -4,7 +4,7 @@
 //! It ensures consistency across different file handlers (PDF, EPUB, etc.) and enables
 //! a unified plugin architecture with standardized cap-based calling.
 //!
-//! Also provides canonical LLM protocol types matching capns media specs for LLM cartridges.
+//! Also provides canonical LLM protocol types matching capdag media specs for LLM cartridges.
 
 pub mod document;
 pub mod document_cap;
@@ -15,7 +15,7 @@ pub mod output;
 pub mod validation;
 
 // Re-export cap SDK types
-pub use capns::*;
+pub use capdag::*;
 
 pub use document::*;
 pub use document_cap::*;
