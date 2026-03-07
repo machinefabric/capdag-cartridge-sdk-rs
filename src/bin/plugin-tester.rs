@@ -122,10 +122,10 @@ fn test_plugin_comprehensive(
     serialization: bool,
     verbose: bool,
 ) -> Result<()> {
-    println!(" Running comprehensive plugin tests...");
-    println!("Plugin: {}", plugin.display());
-    println!("Interface: {}", interface);
-    println!();
+    tracing::info!(" Running comprehensive plugin tests...");
+    tracing::info!("Plugin: {}", plugin.display());
+    tracing::info!("Interface: {}", interface);
+    println!();  // TODO: convert to tracing
 
     let mut validator = PluginValidator::new(&schema_dir)
         .context("Failed to create plugin validator")?;
@@ -136,7 +136,7 @@ fn test_plugin_comprehensive(
         .with_context(|| format!("Failed to load interface schema: {}", interface_schema_path.display()))?;
 
     // Run standard validation
-    println!(" Running standard validation...");
+    tracing::info!(" Running standard validation...");
     let report = validator.validate_plugin_implementation(&plugin, &interface)
         .context("Standard validation failed")?;
 
@@ -148,33 +148,33 @@ fn test_plugin_comprehensive(
 
     // Run serialization tests if requested
     if serialization {
-        println!("\n Testing serialization integrity...");
+        tracing::info!("\n Testing serialization integrity...");
         test_all_caps_serialization(&plugin, &interface)?;
     }
 
     // Run file size tests if requested
     if file_sizes {
-        println!("\n Testing with various file sizes...");
+        tracing::info!("\n Testing with various file sizes...");
         test_file_sizes(&plugin)?;
     }
 
     // Run stress tests if requested
     if stress {
-        println!("\n Running stress tests...");
+        tracing::info!("\n Running stress tests...");
         run_stress_tests(&plugin)?;
     }
 
     if report.is_valid() {
-        println!("\n All comprehensive tests PASSED!");
+        tracing::info!("\n All comprehensive tests PASSED!");
         Ok(())
     } else {
-        println!("\n Some tests FAILED!");
+        tracing::error!("\n Some tests FAILED!");
         std::process::exit(1);
     }
 }
 
 fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathBuf>) -> Result<()> {
-    println!(" Testing serialization integrity for cap: {}", cap);
+    tracing::info!(" Testing serialization integrity for cap: {}", cap);
     
     let test_file = if let Some(ref file_path) = file {
         file_path.clone()
@@ -194,7 +194,7 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        println!("ERR Plugin execution failed: {}", stderr);
+        tracing::error!("ERR Plugin execution failed: {}", stderr);
         return Ok(());
     }
 
@@ -211,9 +211,9 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
 
     for pattern in &debug_patterns {
         if stdout.contains(pattern) {
-            println!("ERR SERIALIZATION FAILURE: Output contains Debug format pattern: {}", pattern);
-            println!("First 200 chars of output:");
-            println!("{}", &stdout[..stdout.len().min(200)]);
+            tracing::info!("ERR SERIALIZATION FAILURE: Output contains Debug format pattern: {}", pattern);
+            tracing::info!("First 200 chars of output:");
+            tracing::info!("{}", &stdout[..stdout.len().min(200)]);
             return Ok(());
         }
     }
@@ -221,41 +221,41 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
     // Verify it's valid JSON
     match serde_json::from_str::<Value>(&stdout) {
         Ok(json_value) => {
-            println!("OK Output is valid JSON");
+            tracing::info!("OK Output is valid JSON");
             if stdout.len() > 1000 {
-                println!(" Output size: {} bytes", stdout.len());
+                tracing::info!(" Output size: {} bytes", stdout.len());
             }
             
             // Verify structure based on cap
             match cap.as_str() {
                 "extract-metadata" => {
                     if json_value.get("file_path").is_some() && json_value.get("file_size_bytes").is_some() {
-                        println!("OK Metadata structure validation passed");
+                        tracing::info!("OK Metadata structure validation passed");
                     } else {
-                        println!("WARN  Metadata missing expected fields");
+                        tracing::warn!("WARN  Metadata missing expected fields");
                     }
                 }
                 "grind" => {
                     if json_value.get("pages").and_then(|p| p.as_array()).is_some() {
-                        println!("OK Pages structure validation passed");
+                        tracing::info!("OK Pages structure validation passed");
                     } else {
-                        println!("WARN  Pages missing expected structure");
+                        tracing::warn!("WARN  Pages missing expected structure");
                     }
                 }
                 "extract-outline" => {
                     if json_value.get("entries").is_some() {
-                        println!("OK Outline structure validation passed");
+                        tracing::info!("OK Outline structure validation passed");
                     } else {
-                        println!("WARN  Outline missing expected structure");
+                        tracing::warn!("WARN  Outline missing expected structure");
                     }
                 }
                 _ => {}
             }
         }
         Err(e) => {
-            println!("ERR SERIALIZATION FAILURE: Output is not valid JSON: {}", e);
-            println!("First 200 chars of output:");
-            println!("{}", &stdout[..stdout.len().min(200)]);
+            tracing::info!("ERR SERIALIZATION FAILURE: Output is not valid JSON: {}", e);
+            tracing::info!("First 200 chars of output:");
+            tracing::info!("{}", &stdout[..stdout.len().min(200)]);
         }
     }
 
@@ -268,7 +268,7 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
 }
 
 fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf) -> Result<()> {
-    println!("CRIT Testing error handling...");
+    tracing::error!("CRIT Testing error handling...");
     
     // Test with non-existent file
     let non_existent = "/tmp/absolutely_non_existent_file_12345.xyz";
@@ -282,13 +282,13 @@ fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf
             .context("Failed to execute plugin")?;
 
         if output.status.success() {
-            println!("ERR {} should fail with non-existent file", cap);
+            tracing::info!("ERR {} should fail with non-existent file", cap);
         } else {
             let exit_code = output.status.code().unwrap_or(-1);
             if exit_code > 0 {
-                println!("OK {} properly fails with exit code {}", cap, exit_code);
+                tracing::info!("OK {} properly fails with exit code {}", cap, exit_code);
             } else {
-                println!("WARN  {} failed but with exit code {}", cap, exit_code);
+                tracing::error!("WARN  {} failed but with exit code {}", cap, exit_code);
             }
         }
     }
@@ -307,12 +307,12 @@ fn test_error_handling(plugin: PathBuf, _interface: String, _schema_dir: PathBuf
         if output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stdout);
             if stdout.trim().is_empty() {
-                println!("WARN  {} succeeded but produced no output for invalid file", cap);
+                tracing::warn!("WARN  {} succeeded but produced no output for invalid file", cap);
             } else {
-                println!("OK {} handled invalid file gracefully", cap);
+                tracing::info!("OK {} handled invalid file gracefully", cap);
             }
         } else {
-            println!("OK {} properly rejected invalid file", cap);
+            tracing::info!("OK {} properly rejected invalid file", cap);
         }
     }
 
@@ -324,9 +324,9 @@ fn test_all_caps_serialization(plugin: &PathBuf, _interface: &str) -> Result<()>
     let caps = ["extract-metadata", "grind", "extract-outline"];
     
     for cap in &caps {
-        println!("  Testing {} serialization...", cap);
+        tracing::info!("  Testing {} serialization...", cap);
         if let Err(e) = test_serialization_integrity(plugin.clone(), cap.to_string(), None) {
-            println!("  ERR Failed: {}", e);
+            tracing::error!("  ERR Failed: {}", e);
         }
     }
     
@@ -342,7 +342,7 @@ fn test_file_sizes(plugin: &PathBuf) -> Result<()> {
     ];
 
     for (name, size) in &sizes {
-        println!("  Testing with {} file ({} bytes)...", name, size);
+        tracing::info!("  Testing with {} file ({} bytes)...", name, size);
         
         let content = "A".repeat(*size);
         let test_file = std::env::temp_dir().join(format!("test_{}.txt", name));
@@ -357,12 +357,12 @@ fn test_file_sizes(plugin: &PathBuf) -> Result<()> {
         if output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stdout);
             if serde_json::from_str::<Value>(&stdout).is_ok() {
-                println!("    OK {} file handled correctly", name);
+                tracing::info!("    OK {} file handled correctly", name);
             } else {
-                println!("    ERR {} file produced invalid JSON", name);
+                tracing::info!("    ERR {} file produced invalid JSON", name);
             }
         } else {
-            println!("    WARN  {} file processing failed", name);
+            tracing::error!("    WARN  {} file processing failed", name);
         }
         
         std::fs::remove_file(&test_file).ok();
@@ -372,7 +372,7 @@ fn test_file_sizes(plugin: &PathBuf) -> Result<()> {
 }
 
 fn run_stress_tests(plugin: &PathBuf) -> Result<()> {
-    println!("  Running concurrent execution test...");
+    tracing::info!("  Running concurrent execution test...");
     
     let test_file = std::env::temp_dir().join("stress_test.txt");
     std::fs::write(&test_file, "Stress test content\n\nFor concurrent execution.")?;
@@ -395,15 +395,15 @@ fn run_stress_tests(plugin: &PathBuf) -> Result<()> {
             if output.status.success() {
                 successes += 1;
             } else {
-                println!("    WARN  Concurrent test {} failed", i);
+                tracing::error!("    WARN  Concurrent test {} failed", i);
             }
         }
     }
     
     if successes == 5 {
-        println!("    OK All concurrent executions succeeded");
+        tracing::info!("    OK All concurrent executions succeeded");
     } else {
-        println!("    WARN  {}/5 concurrent executions succeeded", successes);
+        tracing::warn!("    WARN  {}/5 concurrent executions succeeded", successes);
     }
     
     std::fs::remove_file(&test_file).ok();
@@ -411,7 +411,7 @@ fn run_stress_tests(plugin: &PathBuf) -> Result<()> {
 }
 
 fn generate_test_files(output_dir: PathBuf, types: Vec<String>) -> Result<()> {
-    println!(" Generating test files in: {}", output_dir.display());
+    tracing::info!(" Generating test files in: {}", output_dir.display());
     
     std::fs::create_dir_all(&output_dir)?;
     
@@ -424,7 +424,7 @@ fn generate_test_files(output_dir: PathBuf, types: Vec<String>) -> Result<()> {
                 let complex = output_dir.join("complex.txt");
                 std::fs::write(&complex, include_str!("../test_data/complex.txt"))?;
                 
-                println!("  OK Generated txt test files");
+                tracing::info!("  OK Generated txt test files");
             }
             "md" => {
                 let simple = output_dir.join("simple.md");
@@ -433,10 +433,10 @@ fn generate_test_files(output_dir: PathBuf, types: Vec<String>) -> Result<()> {
                 let complex = output_dir.join("complex.md");
                 std::fs::write(&complex, include_str!("../test_data/complex.md"))?;
                 
-                println!("  OK Generated md test files");
+                tracing::info!("  OK Generated md test files");
             }
             _ => {
-                println!("  WARN  Unknown file type: {}", file_type);
+                tracing::warn!("  WARN  Unknown file type: {}", file_type);
             }
         }
     }
@@ -445,50 +445,50 @@ fn generate_test_files(output_dir: PathBuf, types: Vec<String>) -> Result<()> {
 }
 
 fn print_detailed_report(report: &ValidationReport) {
-    println!(" Detailed Validation Report");
-    println!("=============================");
-    println!("Plugin: {}", report.plugin_path.display());
-    println!("Interface: {}", report.interface_name);
-    println!("Valid: {}", if report.is_valid() { "OK YES" } else { "ERR NO" });
-    println!();
+    tracing::info!(" Detailed Validation Report");
+    tracing::info!("=============================");
+    tracing::info!("Plugin: {}", report.plugin_path.display());
+    tracing::info!("Interface: {}", report.interface_name);
+    tracing::info!("Valid: {}", if report.is_valid() { "OK YES" } else { "ERR NO" });
+    println!();  // TODO: convert to tracing
 
     if !report.errors.is_empty() {
-        println!("ERR Errors ({})", report.errors.len());
+        tracing::error!("ERR Errors ({})", report.errors.len());
         for (i, error) in report.errors.iter().enumerate() {
-            println!("  {}. {}", i + 1, error);
+            tracing::info!("  {}. {}", i + 1, error);
         }
-        println!();
+        println!();  // TODO: convert to tracing
     }
 
     if !report.warnings.is_empty() {
-        println!("WARN  Warnings ({})", report.warnings.len());
+        tracing::warn!("WARN  Warnings ({})", report.warnings.len());
         for (i, warning) in report.warnings.iter().enumerate() {
-            println!("  {}. {}", i + 1, warning);
+            tracing::info!("  {}. {}", i + 1, warning);
         }
-        println!();
+        println!();  // TODO: convert to tracing
     }
 
     if !report.successes.is_empty() {
-        println!("OK Successes ({})", report.successes.len());
+        tracing::info!("OK Successes ({})", report.successes.len());
         for (i, success) in report.successes.iter().enumerate() {
-            println!("  {}. {}", i + 1, success);
+            tracing::info!("  {}. {}", i + 1, success);
         }
-        println!();
+        println!();  // TODO: convert to tracing
     }
 }
 
 fn print_summary_report(report: &ValidationReport) {
-    println!(" Validation Summary");
-    println!("====================");
-    println!("Status: {}", if report.is_valid() { "OK PASSED" } else { "ERR FAILED" });
-    println!("Successes: {}", report.successes.len());
-    println!("Warnings: {}", report.warnings.len());
-    println!("Errors: {}", report.errors.len());
+    tracing::info!(" Validation Summary");
+    tracing::info!("====================");
+    tracing::info!("Status: {}", if report.is_valid() { "OK PASSED" } else { "ERR FAILED" });
+    tracing::info!("Successes: {}", report.successes.len());
+    tracing::warn!("Warnings: {}", report.warnings.len());
+    tracing::error!("Errors: {}", report.errors.len());
     
     if !report.errors.is_empty() {
-        println!("\nERR Errors:");
+        tracing::error!("\nERR Errors:");
         for error in &report.errors {
-            println!("  • {}", error);
+            tracing::info!("  • {}", error);
         }
     }
 }

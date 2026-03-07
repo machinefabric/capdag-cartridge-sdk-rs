@@ -3,7 +3,7 @@
 use machfab_plugin_sdk::DisboundPage;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!(" Testing Vec<DisboundPage> serialization...");
+    tracing::info!(" Testing Vec<DisboundPage> serialization...");
 
     // Create test data - now just an array of pages
     let pages: Vec<DisboundPage> = vec![
@@ -12,18 +12,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     // Test JSON serialization
-    println!(" Serializing to JSON...");
+    tracing::info!(" Serializing to JSON...");
     let json_output = serde_json::to_string_pretty(&pages)?;
-    println!("OK JSON serialization successful!");
-    println!();
-    println!("JSON output:");
-    println!("{}", json_output);
-    println!();
+    tracing::info!("OK JSON serialization successful!");
+    println!();  // TODO: convert to tracing
+    tracing::info!("JSON output:");
+    tracing::info!("{}", json_output);
+    println!();  // TODO: convert to tracing
 
     // Test deserialization
-    println!(" Testing deserialization...");
+    tracing::info!(" Testing deserialization...");
     let parsed_pages: Vec<DisboundPage> = serde_json::from_str(&json_output)?;
-    println!("OK Deserialization successful!");
+    tracing::info!("OK Deserialization successful!");
 
     // Verify data integrity
     assert_eq!(parsed_pages.len(), 2);
@@ -32,20 +32,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert!(!parsed_pages[0].text_content.is_empty());
     assert!(!parsed_pages[1].text_content.is_empty());
 
-    println!("OK Data integrity verified!");
+    tracing::info!("OK Data integrity verified!");
 
     // Test Debug output (what's causing the problem)
-    println!();
-    println!("Debug output (this is what's causing the issue):");
-    println!("{:?}", pages);
-    println!();
+    println!();  // TODO: convert to tracing
+    tracing::info!("Debug output (this is what's causing the issue):");
+    tracing::info!("{:?}", pages);
+    println!();  // TODO: convert to tracing
 
-    println!(" All tests passed!");
-    println!();
-    println!("TIP The issue is likely a plugin using:");
-    println!("   println!(\"{{:?}}\", pages);  // ERR Wrong - outputs Debug format");
-    println!("   Instead of:");
-    println!("   println!(\"{{}}\", serde_json::to_string(&pages)?);  // OK Correct - outputs JSON");
+    tracing::info!(" All tests passed!");
+    println!();  // TODO: convert to tracing
+    tracing::info!("TIP The issue is likely a plugin using:");
+    tracing::info!("   println!(\"{{:?}}\", pages);  // ERR Wrong - outputs Debug format");
+    tracing::info!("   Instead of:");
+    tracing::info!("   println!(\"{{}}\", serde_json::to_string(&pages)?);  // OK Correct - outputs JSON");
 
     Ok(())
 }

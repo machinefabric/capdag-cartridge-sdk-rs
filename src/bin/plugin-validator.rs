@@ -123,11 +123,11 @@ fn validate_plugin(
     output_format: String,
     verbose: bool
 ) -> Result<()> {
-    println!(" Validating plugin against interface schema...");
-    println!("Plugin: {}", plugin_path.display());
-    println!("Interface: {}", interface_name);
-    println!("Schema directory: {}", schema_dir.display());
-    println!();
+    tracing::info!(" Validating plugin against interface schema...");
+    tracing::info!("Plugin: {}", plugin_path.display());
+    tracing::info!("Interface: {}", interface_name);
+    tracing::info!("Schema directory: {}", schema_dir.display());
+    println!();  // TODO: convert to tracing
 
     let mut validator = PluginValidator::new(&schema_dir)
         .context("Failed to create plugin validator")?;
@@ -157,27 +157,27 @@ fn validate_plugin(
 }
 
 fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result<()> {
-    println!(" Validating cap schema...");
-    println!("Cap: {}", cap_path.display());
-    println!("Schema directory: {}", schema_dir.display());
-    println!();
+    tracing::info!(" Validating cap schema...");
+    tracing::info!("Cap: {}", cap_path.display());
+    tracing::info!("Schema directory: {}", schema_dir.display());
+    println!();  // TODO: convert to tracing
 
     let mut validator = PluginValidator::new(&schema_dir)
         .context("Failed to create plugin validator")?;
 
     match validator.load_cap_schema(&cap_path) {
         Ok(schema) => {
-            println!("OK Cap schema is valid!");
+            tracing::info!("OK Cap schema is valid!");
             if verbose {
-                println!("Cap name: {}", schema.cap.name);
-                println!("Description: {}", schema.cap.description);
-                println!("File types: {:?}", schema.cap.file_types);
-                println!("Version: {}", schema.cap.version);
+                tracing::info!("Cap name: {}", schema.cap.name);
+                tracing::info!("Description: {}", schema.cap.description);
+                tracing::info!("File types: {:?}", schema.cap.file_types);
+                tracing::info!("Version: {}", schema.cap.version);
             }
         }
         Err(e) => {
-            println!("ERR Cap schema validation failed:");
-            println!("{}", e);
+            tracing::error!("ERR Cap schema validation failed:");
+            tracing::info!("{}", e);
             std::process::exit(1);
         }
     }
@@ -186,28 +186,28 @@ fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result
 }
 
 fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result<()> {
-    println!(" Validating interface schema...");
-    println!("Interface: {}", interface_path.display());
-    println!("Schema directory: {}", schema_dir.display());
-    println!();
+    tracing::info!(" Validating interface schema...");
+    tracing::info!("Interface: {}", interface_path.display());
+    tracing::info!("Schema directory: {}", schema_dir.display());
+    println!();  // TODO: convert to tracing
 
     let mut validator = PluginValidator::new(&schema_dir)
         .context("Failed to create plugin validator")?;
 
     match validator.load_interface_schema(&interface_path) {
         Ok(schema) => {
-            println!("OK Interface schema is valid!");
+            tracing::info!("OK Interface schema is valid!");
             if verbose {
-                println!("Interface name: {}", schema.interface.name);
-                println!("Description: {}", schema.interface.description);
-                println!("Version: {}", schema.interface.version);
-                println!("Caps: {}", schema.caps.len());
-                println!("Authors: {:?}", schema.interface.authors);
+                tracing::info!("Interface name: {}", schema.interface.name);
+                tracing::info!("Description: {}", schema.interface.description);
+                tracing::info!("Version: {}", schema.interface.version);
+                tracing::info!("Caps: {}", schema.caps.len());
+                tracing::info!("Authors: {:?}", schema.interface.authors);
             }
         }
         Err(e) => {
-            println!("ERR Interface schema validation failed:");
-            println!("{}", e);
+            tracing::error!("ERR Interface schema validation failed:");
+            tracing::info!("{}", e);
             std::process::exit(1);
         }
     }
@@ -216,12 +216,12 @@ fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: boo
 }
 
 fn list_interfaces(schema_dir: PathBuf) -> Result<()> {
-    println!(" Available interface schemas:");
-    println!();
+    tracing::info!(" Available interface schemas:");
+    println!();  // TODO: convert to tracing
 
     let interfaces_dir = schema_dir.join("interfaces");
     if !interfaces_dir.exists() {
-        println!("No interfaces directory found at: {}", interfaces_dir.display());
+        tracing::info!("No interfaces directory found at: {}", interfaces_dir.display());
         return Ok(());
     }
 
@@ -253,36 +253,36 @@ fn list_interfaces(schema_dir: PathBuf) -> Result<()> {
                                 .and_then(|v| v.as_str())
                                 .unwrap_or("unknown");
                             
-                            println!(" {} (v{})", interface_name, version);
-                            println!("   {}", description);
-                            println!();
+                            tracing::info!(" {} (v{})", interface_name, version);
+                            tracing::info!("   {}", description);
+                            println!();  // TODO: convert to tracing
                         }
                         Err(_) => {
-                            println!(" {} (invalid JSON)", interface_name);
-                            println!();
+                            tracing::info!(" {} (invalid JSON)", interface_name);
+                            println!();  // TODO: convert to tracing
                         }
                     }
                 }
                 Err(_) => {
-                    println!(" {} (unreadable)", interface_name);
-                    println!();
+                    tracing::info!(" {} (unreadable)", interface_name);
+                    println!();  // TODO: convert to tracing
                 }
             }
         }
     }
 
     if !found_any {
-        println!("No interface schema files found in: {}", interfaces_dir.display());
+        tracing::info!("No interface schema files found in: {}", interfaces_dir.display());
     }
 
     Ok(())
 }
 
 fn generate_tests(interface_name: String, schema_dir: PathBuf, output_dir: PathBuf) -> Result<()> {
-    println!(" Generating test scenarios for interface: {}", interface_name);
-    println!("Schema directory: {}", schema_dir.display());
-    println!("Output directory: {}", output_dir.display());
-    println!();
+    tracing::info!(" Generating test scenarios for interface: {}", interface_name);
+    tracing::info!("Schema directory: {}", schema_dir.display());
+    tracing::info!("Output directory: {}", output_dir.display());
+    println!();  // TODO: convert to tracing
 
     let mut validator = PluginValidator::new(&schema_dir)
         .context("Failed to create plugin validator")?;
@@ -301,7 +301,7 @@ fn generate_tests(interface_name: String, schema_dir: PathBuf, output_dir: PathB
     std::fs::write(&script_path, test_script)
         .with_context(|| format!("Failed to write test script: {}", script_path.display()))?;
 
-    println!("OK Generated test script: {}", script_path.display());
+    tracing::info!("OK Generated test script: {}", script_path.display());
 
     // Generate test configuration
     let test_config = generate_test_config(interface);
@@ -309,46 +309,46 @@ fn generate_tests(interface_name: String, schema_dir: PathBuf, output_dir: PathB
     std::fs::write(&config_path, test_config)
         .with_context(|| format!("Failed to write test config: {}", config_path.display()))?;
 
-    println!("OK Generated test config: {}", config_path.display());
+    tracing::info!("OK Generated test config: {}", config_path.display());
 
     Ok(())
 }
 
 fn output_text_report(report: &ValidationReport, verbose: bool) -> Result<()> {
-    println!(" Validation Report");
-    println!("==================");
-    println!();
-    println!("{}", report.summary());
-    println!();
+    tracing::info!(" Validation Report");
+    tracing::info!("==================");
+    println!();  // TODO: convert to tracing
+    tracing::info!("{}", report.summary());
+    println!();  // TODO: convert to tracing
 
     if !report.errors.is_empty() {
-        println!("ERR Errors:");
+        tracing::error!("ERR Errors:");
         for error in &report.errors {
-            println!("   • {}", error);
+            tracing::info!("   • {}", error);
         }
-        println!();
+        println!();  // TODO: convert to tracing
     }
 
     if !report.warnings.is_empty() {
-        println!("WARN  Warnings:");
+        tracing::warn!("WARN  Warnings:");
         for warning in &report.warnings {
-            println!("   • {}", warning);
+            tracing::info!("   • {}", warning);
         }
-        println!();
+        println!();  // TODO: convert to tracing
     }
 
     if verbose && !report.successes.is_empty() {
-        println!("OK Successes:");
+        tracing::info!("OK Successes:");
         for success in &report.successes {
-            println!("   • {}", success);
+            tracing::info!("   • {}", success);
         }
-        println!();
+        println!();  // TODO: convert to tracing
     }
 
     if report.is_valid() {
-        println!(" Plugin validation PASSED!");
+        tracing::info!(" Plugin validation PASSED!");
     } else {
-        println!(" Plugin validation FAILED!");
+        tracing::error!(" Plugin validation FAILED!");
     }
 
     Ok(())
@@ -364,7 +364,7 @@ fn output_json_report(report: &ValidationReport) -> Result<()> {
         "warnings": report.warnings
     });
 
-    println!("{}", serde_json::to_string_pretty(&json_report)?);
+    tracing::info!("{}", serde_json::to_string_pretty(&json_report)?);
     Ok(())
 }
 
