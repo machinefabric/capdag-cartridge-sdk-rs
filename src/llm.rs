@@ -588,7 +588,7 @@ pub const CAP_LLM_MODEL_INFO: &str = "cap:op=llm_model_info;llm;ml-model;gguf;in
 pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:op=generate_embeddings;ml-model;gguf;in=\"media:textable\";out=\"media:embedding-vector;record;textable\"";
 
 /// Cap URN for embedding dimensions query
-pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:op=embeddings_dimensions;ml-model;gguf;in=\"media:model-spec;textable\";out=\"media:integer;textable;numeric\"";
+pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:gguf;in=\"media:embeddings;gguf;model-spec;textable\";ml-model;op=embeddings_dimensions;out=\"media:integer;model-dim;numeric;textable\"";
 
 /// Cap URN for vision/image description
 pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;op=describe_image;out=\"media:image-description;textable\";vision";
