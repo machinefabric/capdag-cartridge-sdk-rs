@@ -5,7 +5,7 @@
 //!
 //! Media specs:
 //! - media:llm-generation-request;json;record
-//! - media:llm-text-stream;ndjson;streaming
+//! - media:llm-text-stream;ndjson
 //! - media:llm-vocab-response;json;record
 //! - media:llm-model-info;json;record
 //!
@@ -319,12 +319,12 @@ pub struct ToolDefinition {
 }
 
 // =============================================================================
-// media:llm-text-stream;ndjson;streaming
+// media:llm-text-stream;ndjson
 // =============================================================================
 
 /// LLM Text Stream Message - NDJSON streaming output
 ///
-/// Matches: media:llm-text-stream;ndjson;streaming
+/// Matches: media:llm-text-stream;ndjson
 /// Each line is one of these message types, serialized as JSON.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -560,7 +560,7 @@ impl LlmModelInfo {
 pub const MEDIA_LLM_GENERATION_REQUEST: &str = "media:llm-generation-request;json;record";
 
 /// Media URN for LLM streaming text output (NDJSON stream)
-pub const MEDIA_LLM_TEXT_STREAM: &str = "media:llm-text-stream;ndjson;streaming";
+pub const MEDIA_LLM_TEXT_STREAM: &str = "media:llm-text-stream;ndjson";
 
 /// Media URN for LLM vocabulary response (JSON object)
 pub const MEDIA_LLM_VOCAB_RESPONSE: &str = "media:llm-vocab-response;json;record";
@@ -572,11 +572,17 @@ pub const MEDIA_LLM_MODEL_INFO_RESPONSE: &str = "media:llm-model-info;json;recor
 // Cap URNs - canonical definitions
 // =============================================================================
 
-/// Cap URN for LLM text generation
-pub const CAP_LLM_INFERENCE: &str = "cap:op=llm_inference;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-text-stream;ndjson;streaming\"";
+/// Cap URN for GGUF LLM text generation
+pub const CAP_LLM_INFERENCE_GGUF: &str = "cap:gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;op=llm_inference;out=\"media:llm-text-stream;ndjson\"";
 
-/// Cap URN for constrained LLM generation with LLGuidance
-pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:op=llm_inference_constrained;constrained;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-text-stream;ndjson;streaming\"";
+/// Cap URN for MLX LLM text generation
+pub const CAP_LLM_INFERENCE_MLX: &str = "cap:in=\"media:llm-generation-request;json;record\";llm;ml-model;mlx;op=llm_inference;out=\"media:llm-text-stream;ndjson\"";
+
+/// Cap URN for Candle LLM text generation
+pub const CAP_LLM_INFERENCE_CANDLE: &str = "cap:candle;in=\"media:llm-generation-request;json;record\";llm;ml-model;op=llm_inference;out=\"media:llm-text-stream;ndjson\"";
+
+/// Cap URN for constrained LLM generation with LLGuidance (GGUF)
+pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:constrained;gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;op=llm_inference_constrained;out=\"media:llm-text-stream;ndjson\"";
 
 /// Cap URN for vocabulary extraction
 pub const CAP_LLM_VOCAB: &str = "cap:op=llm_vocab;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-vocab-response;json;record\"";
