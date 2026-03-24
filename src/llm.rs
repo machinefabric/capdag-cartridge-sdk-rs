@@ -132,6 +132,10 @@ pub struct LlmGenerationRequest {
     /// RoPE frequency scale
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rope_freq_scale: Option<f32>,
+
+    /// Repetition penalty (1.0 = disabled, >1.0 = penalize repeated tokens)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repeat_penalty: Option<f32>,
 }
 
 impl LlmGenerationRequest {
@@ -158,6 +162,7 @@ impl LlmGenerationRequest {
             batch_size: None,
             rope_freq_base: None,
             rope_freq_scale: None,
+            repeat_penalty: None,
         }
     }
 
@@ -184,6 +189,7 @@ impl LlmGenerationRequest {
             batch_size: Some(2048),
             rope_freq_base: Some(10000.0),
             rope_freq_scale: Some(1.0),
+            repeat_penalty: Some(1.1),
         }
     }
 
@@ -210,6 +216,7 @@ impl LlmGenerationRequest {
             batch_size: None,
             rope_freq_base: None,
             rope_freq_scale: None,
+            repeat_penalty: None,
         }
     }
 
@@ -236,6 +243,7 @@ impl LlmGenerationRequest {
             batch_size: None,
             rope_freq_base: None,
             rope_freq_scale: None,
+            repeat_penalty: None,
         }
     }
 
