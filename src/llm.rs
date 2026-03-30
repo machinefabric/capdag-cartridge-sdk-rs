@@ -607,6 +607,37 @@ pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:gguf;in=\"media:embeddings;gguf
 /// Cap URN for vision/image description
 pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;op=describe_image;out=\"media:image-description;textable\";vision";
 
+// =============================================================================
+// Model spec → backend classification
+// =============================================================================
+
+/// Backend identifier for GGUF models
+pub const BACKEND_GGUF: &str = "gguf";
+/// Backend identifier for MLX models
+pub const BACKEND_MLX: &str = "mlx";
+/// Backend identifier for Candle (safetensors) models
+pub const BACKEND_CANDLE: &str = "candle";
+
+/// Classify a model spec string into its inference backend.
+///
+/// Model specs from MLX repos (mlx-community/* or ;mlx tag) route to MLX.
+/// Model specs with GGUF indicators route to GGUF.
+/// Everything else (safetensors) routes to Candle.
+///
+/// This is the single source of truth for model spec → backend mapping.
+/// Used by both the model service (to populate Model.backend) and
+/// the cartridge client (to select the correct cap URN for dispatch).
+pub fn backend_for_model_spec(model_spec: &str) -> &'static str {
+    let lower = model_spec.to_lowercase();
+    if lower.contains("mlx-community") || lower.contains(";mlx") {
+        BACKEND_MLX
+    } else if lower.contains(".gguf") || lower.contains("gguf") {
+        BACKEND_GGUF
+    } else {
+        BACKEND_CANDLE
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
