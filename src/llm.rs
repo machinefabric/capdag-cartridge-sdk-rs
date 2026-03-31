@@ -747,4 +747,25 @@ mod tests {
         let json = serde_json::to_string(&constraint).unwrap();
         assert!(json.contains("\"type\":\"regex\""));
     }
+
+    #[test]
+    fn test_backend_for_model_spec_gguf() {
+        assert_eq!(backend_for_model_spec("hf:bartowski/Llama-3.2-3B-Instruct-GGUF"), BACKEND_GGUF);
+        assert_eq!(backend_for_model_spec("hf:TheBloke/Mistral-7B-v0.1-GGUF?include=*Q4_K_M*.gguf"), BACKEND_GGUF);
+        assert_eq!(backend_for_model_spec("local:/path/to/model.gguf"), BACKEND_GGUF);
+    }
+
+    #[test]
+    fn test_backend_for_model_spec_mlx() {
+        assert_eq!(backend_for_model_spec("hf:mlx-community/Mistral-7B-Instruct-v0.3-4bit"), BACKEND_MLX);
+        assert_eq!(backend_for_model_spec("hf:mlx-community/Meta-Llama-3.1-8B-Instruct-4bit"), BACKEND_MLX);
+        assert_eq!(backend_for_model_spec("hf:some-model;mlx"), BACKEND_MLX);
+    }
+
+    #[test]
+    fn test_backend_for_model_spec_candle() {
+        assert_eq!(backend_for_model_spec("hf:meta-llama/Llama-3.1-8B-Instruct"), BACKEND_CANDLE);
+        assert_eq!(backend_for_model_spec("hf:microsoft/phi-2"), BACKEND_CANDLE);
+        assert_eq!(backend_for_model_spec("hf:google/gemma-2b"), BACKEND_CANDLE);
+    }
 }
