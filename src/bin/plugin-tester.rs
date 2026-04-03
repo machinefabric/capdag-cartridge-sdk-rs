@@ -203,9 +203,6 @@ fn test_serialization_integrity(plugin: PathBuf, cap: String, file: Option<PathB
     // Check for Debug format patterns
     let debug_patterns = [
         "FileMetadata {",
-        "DocumentOutline {",
-        "OutlineEntry {",
-        "DisboundPage {",
         "ExtractionInfo {",
     ];
 

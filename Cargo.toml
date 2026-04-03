@@ -27,9 +27,5 @@ name = "plugin-validator"
 path = "src/bin/plugin-validator.rs"
 
 [[bin]]
-name = "test-serialization"
-path = "src/bin/test-serialization.rs"
-
-[[bin]]
 name = "plugin-tester"
 path = "src/bin/plugin-tester.rs"

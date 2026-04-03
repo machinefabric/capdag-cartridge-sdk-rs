@@ -3,9 +3,9 @@
 //! This module provides common output formatting functions and structures
 //! to ensure consistent output across all plugins.
 
+use crate::FileMetadata;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use crate::{DocumentOutline, FileMetadata, OutlineEntry};
 
 /// Output format options
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -16,79 +16,6 @@ pub enum OutputFormat {
     Json,
     /// Structured data for programmatic use
     Structured,
-}
-
-/// Formatter for document outlines
-pub struct OutlineFormatter;
-
-impl OutlineFormatter {
-    /// Format outline as human-readable text
-    pub fn format_text(outline: &DocumentOutline) -> String {
-        let mut output = String::new();
-        
-        output.push_str(&format!("=== Document Outline for {} ===\n\n", outline.source_file));
-        
-        if let Some(title) = &outline.document_title {
-            output.push_str(&format!("Document Title: {}\n", title));
-        }
-        
-        output.push_str(&format!("Document Type: {}\n", outline.document_type));
-        output.push_str(&format!("Total Pages/Sections: {}\n\n", outline.total_pages));
-        
-        if outline.has_outline && !outline.entries.is_empty() {
-            output.push_str("Table of Contents:\n");
-            Self::format_entries_text(&outline.entries, &mut output, 0, &mut 0);
-        } else {
-            output.push_str("No table of contents found in this document.\n");
-        }
-        
-        if !outline.extraction_info.warnings.is_empty() {
-            output.push_str("\nWarnings:\n");
-            for warning in &outline.extraction_info.warnings {
-                output.push_str(&format!("  - {}\n", warning));
-            }
-        }
-        
-        output
-    }
-    
-    
-    /// Format Outline entries as text (recursive helper)
-    fn format_entries_text(
-        entries: &[OutlineEntry], 
-        output: &mut String, 
-        base_level: usize, 
-        counter: &mut usize
-    ) {
-        for entry in entries {
-            let indent = "  ".repeat(entry.level + base_level);
-            *counter += 1;
-            
-            let page_info = match entry.page {
-                Some(page) => format!(" (page {})", page),
-                None => String::new(),
-            };
-            
-            let source_info = match &entry.source_ref {
-                Some(source) => format!(" [{}]", source),
-                None => String::new(),
-            };
-            
-            output.push_str(&format!(
-                "{}{}.{} {}{}{}\n",
-                indent,
-                entry.level + 1,
-                *counter,
-                entry.title,
-                page_info,
-                source_info
-            ));
-            
-            if !entry.children.is_empty() {
-                Self::format_entries_text(&entry.children, output, base_level, counter);
-            }
-        }
-    }
 }
 
 /// Formatter for document metadata
@@ -169,9 +96,6 @@ pub struct ExtractedData {
     /// Document metadata
     pub metadata: Option<FileMetadata>,
     
-    /// Document outline
-    pub outline: Option<DocumentOutline>,
-    
     /// Extracted text content
     pub text_content: Option<String>,
     
@@ -225,7 +149,6 @@ impl ExtractedData {
     pub fn new(source_file: impl Into<String>, handler_name: impl Into<String>) -> Self {
         Self {
             metadata: None,
-            outline: None,
             text_content: None,
             thumbnail: None,
             extraction_summary: ExtractionSummary {
@@ -243,13 +166,6 @@ impl ExtractedData {
     pub fn with_metadata(mut self, metadata: FileMetadata) -> Self {
         self.metadata = Some(metadata);
         self.extraction_summary.extracted_components.push("metadata".to_string());
-        self
-    }
-    
-    /// Add outline
-    pub fn with_outline(mut self, outline: DocumentOutline) -> Self {
-        self.outline = Some(outline);
-        self.extraction_summary.extracted_components.push("outline".to_string());
         self
     }
     
