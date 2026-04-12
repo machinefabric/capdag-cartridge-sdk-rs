@@ -1,6 +1,6 @@
 # Complex Markdown Document for Testing
 
-This is a comprehensive test document designed to validate plugin implementations across various scenarios and edge cases.
+This is a comprehensive test document designed to validate cartridge implementations across various scenarios and edge cases.
 
 ## Introduction
 
@@ -25,7 +25,7 @@ This document contains several important characteristics:
 
 ```python
 def test_function():
-    """Test function for plugin validation."""
+    """Test function for cartridge validation."""
     return {"status": "success", "data": [1, 2, 3]}
 ```
 
@@ -39,7 +39,7 @@ def test_function():
 
 ## Data Processing Requirements
 
-The plugin should be able to:
+The cartridge should be able to:
 
 - Extract metadata correctly including file size, creation date, and content type
 - Parse the document structure and identify major sections
@@ -59,7 +59,7 @@ The plugin should be able to:
 
 This section tests various edge cases:
 
-> This is a blockquote that should be handled properly by the plugin.
+> This is a blockquote that should be handled properly by the cartridge.
 > It spans multiple lines and contains **bold text** and *italic text*.
 
 ### Lists
@@ -123,7 +123,7 @@ Content for subsection 3.
 
 ### Stress Testing
 
-This paragraph is designed to be very long to test the plugin's ability to handle large blocks of text without performance degradation or memory issues. It contains repeated content to increase its size significantly. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+This paragraph is designed to be very long to test the cartridge's ability to handle large blocks of text without performance degradation or memory issues. It contains repeated content to increase its size significantly. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 ## Links and References
 
@@ -135,14 +135,14 @@ This paragraph is designed to be very long to test the plugin's ability to handl
 
 ## Conclusion
 
-This document provides a comprehensive test case for validating plugin implementations. It should thoroughly exercise all aspects of:
+This document provides a comprehensive test case for validating cartridge implementations. It should thoroughly exercise all aspects of:
 
 1. Markdown parsing
 2. Metadata extraction  
 3. Document structure analysis
 4. Text content processing
 
-The plugin should be able to process this document completely and return valid, well-structured JSON output that accurately represents the document's content and metadata.
+The cartridge should be able to process this document completely and return valid, well-structured JSON output that accurately represents the document's content and metadata.
 
 ---
 
@@ -153,4 +153,4 @@ The plugin should be able to process this document completely and return valid, 
 - Size: Approximately 4KB
 - Encoding: UTF-8
 - Language: English (with international samples)
-- Purpose: Plugin validation and testing
+- Purpose: Cartridge validation and testing

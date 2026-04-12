@@ -1,19 +1,19 @@
-//! Unified cap-based plugin interface
-//! 
-//! This module defines the unified plugin interfaces with standardized cap-based calling.
+//! Unified cap-based cartridge interface
+//!
+//! This module defines the unified cartridge interfaces with standardized cap-based calling.
 
 // Re-export the unified manifest from capdag
 pub use capdag::CapManifest;
 pub use capdag::ComponentMetadata;
 
-/// Trait for plugins to provide metadata about themselves
-pub trait PluginMetadata {
-    /// Get plugin manifest
-    fn plugin_manifest(&self) -> CapManifest;
-    
-    /// Get plugin caps
+/// Trait for cartridges to provide metadata about themselves
+pub trait CartridgeMetadata {
+    /// Get cartridge manifest
+    fn cartridge_manifest(&self) -> CapManifest;
+
+    /// Get cartridge caps
     fn caps(&self) -> Vec<capdag::Cap> {
-        self.plugin_manifest().caps
+        self.cartridge_manifest().caps
     }
 }
 
@@ -23,16 +23,16 @@ pub struct FileInfo {
     /// File path
     #[serde(serialize_with = "serialize_path", deserialize_with = "deserialize_path")]
     pub path: std::path::PathBuf,
-    
+
     /// File size in bytes
     pub size: u64,
-    
+
     /// Document type detected
     pub document_type: String,
-    
+
     /// Whether the file appears to be valid
     pub is_valid: bool,
-    
+
     /// Quick metadata (title, author if easily accessible)
     pub quick_metadata: Option<QuickMetadata>,
 }
@@ -42,10 +42,10 @@ pub struct FileInfo {
 pub struct QuickMetadata {
     /// Document title
     pub title: Option<String>,
-    
+
     /// Primary author
     pub author: Option<String>,
-    
+
     /// Page/section count
     pub page_count: Option<usize>,
 }
@@ -58,7 +58,7 @@ where
     serializer.serialize_str(&path.to_string_lossy())
 }
 
-/// Deserialize string to PathBuf for JSON compatibility  
+/// Deserialize string to PathBuf for JSON compatibility
 fn deserialize_path<'de, D>(deserializer: D) -> Result<std::path::PathBuf, D::Error>
 where
     D: serde::Deserializer<'de>,

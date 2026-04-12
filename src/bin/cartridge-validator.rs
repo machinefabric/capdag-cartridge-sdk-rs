@@ -1,15 +1,15 @@
-//! Plugin Schema Validator CLI Tool
-//! 
-//! Command-line tool for validating plugin implementations against formal interface schemas.
+//! Cartridge Schema Validator CLI Tool
+//!
+//! Command-line tool for validating cartridge implementations against formal interface schemas.
 
 use clap::{Parser, Subcommand};
-use machfab_plugin_sdk::{PluginValidator, ValidationReport};
+use machfab_cartridge_sdk::{CartridgeValidator, ValidationReport};
 use std::path::PathBuf;
 use anyhow::{Context, Result};
 
 #[derive(Parser)]
-#[command(name = "plugin-validator")]
-#[command(about = "Validate plugin implementations against formal interface schemas")]
+#[command(name = "cartridge-validator")]
+#[command(about = "Validate cartridge implementations against formal interface schemas")]
 #[command(version)]
 struct Cli {
     #[command(subcommand)]
@@ -18,76 +18,76 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Validate a plugin binary against an interface schema
-    ValidatePlugin {
-        /// Path to the plugin binary to validate
-        #[arg(short, long)]
-        plugin: PathBuf,
-        
+    /// Validate a cartridge binary against an interface schema
+    ValidateCartridge {
+        /// Path to the cartridge binary to validate
+        #[arg(short = 'c', long)]
+        cartridge: PathBuf,
+
         /// Name of the interface schema to validate against
         #[arg(short, long)]
         interface: String,
-        
+
         /// Directory containing schema files
-        #[arg(short, long, default_value = "./plugin-schemas")]
+        #[arg(short, long, default_value = "./cartridge-schemas")]
         schema_dir: PathBuf,
-        
+
         /// Output format (text, json)
         #[arg(short, long, default_value = "text")]
         output: String,
-        
+
         /// Verbose output
         #[arg(short, long)]
         verbose: bool,
     },
-    
+
     /// Validate a cap schema file
     ValidateCap {
         /// Path to the cap schema file
-        #[arg(short, long)]
+        #[arg(short = 'a', long)]
         cap: PathBuf,
-        
-        /// Directory containing schema files  
-        #[arg(short, long, default_value = "./plugin-schemas")]
+
+        /// Directory containing schema files
+        #[arg(short, long, default_value = "./cartridge-schemas")]
         schema_dir: PathBuf,
-        
+
         /// Verbose output
         #[arg(short, long)]
         verbose: bool,
     },
-    
+
     /// Validate an interface schema file
     ValidateInterface {
         /// Path to the interface schema file
         #[arg(short, long)]
         interface: PathBuf,
-        
+
         /// Directory containing schema files
-        #[arg(short, long, default_value = "./plugin-schemas")]
+        #[arg(short, long, default_value = "./cartridge-schemas")]
         schema_dir: PathBuf,
-        
+
         /// Verbose output
         #[arg(short, long)]
         verbose: bool,
     },
-    
+
     /// List available interface schemas
     ListInterfaces {
         /// Directory containing schema files
-        #[arg(short, long, default_value = "./plugin-schemas")]
+        #[arg(short, long, default_value = "./cartridge-schemas")]
         schema_dir: PathBuf,
     },
-    
+
     /// Generate test scenarios for an interface
     GenerateTests {
         /// Interface to generate tests for
         #[arg(short, long)]
         interface: String,
-        
+
         /// Directory containing schema files
-        #[arg(short, long, default_value = "./plugin-schemas")]
+        #[arg(short, long, default_value = "./cartridge-schemas")]
         schema_dir: PathBuf,
-        
+
         /// Output directory for test files
         #[arg(short, long, default_value = "./tests")]
         output_dir: PathBuf,
@@ -98,8 +98,8 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::ValidatePlugin { plugin, interface, schema_dir, output, verbose } => {
-            validate_plugin(plugin, interface, schema_dir, output, verbose)
+        Commands::ValidateCartridge { cartridge, interface, schema_dir, output, verbose } => {
+            validate_cartridge(cartridge, interface, schema_dir, output, verbose)
         }
         Commands::ValidateCap { cap, schema_dir, verbose } => {
             validate_cap(cap, schema_dir, verbose)
@@ -116,30 +116,30 @@ fn main() -> Result<()> {
     }
 }
 
-fn validate_plugin(
-    plugin_path: PathBuf, 
-    interface_name: String, 
-    schema_dir: PathBuf, 
+fn validate_cartridge(
+    cartridge_path: PathBuf,
+    interface_name: String,
+    schema_dir: PathBuf,
     output_format: String,
     verbose: bool
 ) -> Result<()> {
-    tracing::info!(" Validating plugin against interface schema...");
-    tracing::info!("Plugin: {}", plugin_path.display());
+    tracing::info!(" Validating cartridge against interface schema...");
+    tracing::info!("Cartridge: {}", cartridge_path.display());
     tracing::info!("Interface: {}", interface_name);
     tracing::info!("Schema directory: {}", schema_dir.display());
     println!();  // TODO: convert to tracing
 
-    let mut validator = PluginValidator::new(&schema_dir)
-        .context("Failed to create plugin validator")?;
+    let mut validator = CartridgeValidator::new(&schema_dir)
+        .context("Failed to create cartridge validator")?;
 
     // Load the interface schema
     let interface_schema_path = schema_dir.join("interfaces").join(format!("{}.json", interface_name));
     validator.load_interface_schema(&interface_schema_path)
         .with_context(|| format!("Failed to load interface schema: {}", interface_schema_path.display()))?;
 
-    // Validate the plugin
-    let report = validator.validate_plugin_implementation(&plugin_path, &interface_name)
-        .context("Plugin validation failed")?;
+    // Validate the cartridge
+    let report = validator.validate_cartridge_implementation(&cartridge_path, &interface_name)
+        .context("Cartridge validation failed")?;
 
     // Output results
     match output_format.as_str() {
@@ -162,8 +162,8 @@ fn validate_cap(cap_path: PathBuf, schema_dir: PathBuf, verbose: bool) -> Result
     tracing::info!("Schema directory: {}", schema_dir.display());
     println!();  // TODO: convert to tracing
 
-    let mut validator = PluginValidator::new(&schema_dir)
-        .context("Failed to create plugin validator")?;
+    let mut validator = CartridgeValidator::new(&schema_dir)
+        .context("Failed to create cartridge validator")?;
 
     match validator.load_cap_schema(&cap_path) {
         Ok(schema) => {
@@ -191,8 +191,8 @@ fn validate_interface(interface_path: PathBuf, schema_dir: PathBuf, verbose: boo
     tracing::info!("Schema directory: {}", schema_dir.display());
     println!();  // TODO: convert to tracing
 
-    let mut validator = PluginValidator::new(&schema_dir)
-        .context("Failed to create plugin validator")?;
+    let mut validator = CartridgeValidator::new(&schema_dir)
+        .context("Failed to create cartridge validator")?;
 
     match validator.load_interface_schema(&interface_path) {
         Ok(schema) => {
@@ -232,13 +232,13 @@ fn list_interfaces(schema_dir: PathBuf) -> Result<()> {
     for entry in entries {
         let entry = entry?;
         let path = entry.path();
-        
+
         if path.extension().map_or(false, |ext| ext == "json") {
             found_any = true;
             let interface_name = path.file_stem()
                 .and_then(|name| name.to_str())
                 .unwrap_or("unknown");
-            
+
             // Try to load and display basic info
             match std::fs::read_to_string(&path) {
                 Ok(content) => {
@@ -252,7 +252,7 @@ fn list_interfaces(schema_dir: PathBuf) -> Result<()> {
                                 .and_then(|i| i.get("version"))
                                 .and_then(|v| v.as_str())
                                 .unwrap_or("unknown");
-                            
+
                             tracing::info!(" {} (v{})", interface_name, version);
                             tracing::info!("   {}", description);
                             println!();  // TODO: convert to tracing
@@ -284,8 +284,8 @@ fn generate_tests(interface_name: String, schema_dir: PathBuf, output_dir: PathB
     tracing::info!("Output directory: {}", output_dir.display());
     println!();  // TODO: convert to tracing
 
-    let mut validator = PluginValidator::new(&schema_dir)
-        .context("Failed to create plugin validator")?;
+    let mut validator = CartridgeValidator::new(&schema_dir)
+        .context("Failed to create cartridge validator")?;
 
     let interface_schema_path = schema_dir.join("interfaces").join(format!("{}.json", interface_name));
     let interface = validator.load_interface_schema(&interface_schema_path)
@@ -346,9 +346,9 @@ fn output_text_report(report: &ValidationReport, verbose: bool) -> Result<()> {
     }
 
     if report.is_valid() {
-        tracing::info!(" Plugin validation PASSED!");
+        tracing::info!(" Cartridge validation PASSED!");
     } else {
-        tracing::error!(" Plugin validation FAILED!");
+        tracing::error!(" Cartridge validation FAILED!");
     }
 
     Ok(())
@@ -356,7 +356,7 @@ fn output_text_report(report: &ValidationReport, verbose: bool) -> Result<()> {
 
 fn output_json_report(report: &ValidationReport) -> Result<()> {
     let json_report = serde_json::json!({
-        "plugin_path": report.plugin_path,
+        "cartridge_path": report.cartridge_path,
         "interface_name": report.interface_name,
         "is_valid": report.is_valid(),
         "successes": report.successes,
@@ -368,39 +368,39 @@ fn output_json_report(report: &ValidationReport) -> Result<()> {
     Ok(())
 }
 
-fn generate_test_script(interface: &machfab_plugin_sdk::PluginInterfaceSchema, interface_name: &str) -> String {
+fn generate_test_script(interface: &machfab_cartridge_sdk::CartridgeInterfaceSchema, interface_name: &str) -> String {
     let mut script = String::new();
-    
+
     script.push_str("#!/bin/bash\n");
     script.push_str(&format!("# Test script for {} interface\n", interface_name));
-    script.push_str("# Generated by plugin-validator\n\n");
+    script.push_str("# Generated by cartridge-validator\n\n");
     script.push_str("set -e\n\n");
-    script.push_str("PLUGIN_BINARY=\"$1\"\n");
-    script.push_str("if [ -z \"$PLUGIN_BINARY\" ]; then\n");
-    script.push_str("  echo \"Usage: $0 <plugin_binary>\"\n");
+    script.push_str("CARTRIDGE_BINARY=\"$1\"\n");
+    script.push_str("if [ -z \"$CARTRIDGE_BINARY\" ]; then\n");
+    script.push_str("  echo \"Usage: $0 <cartridge_binary>\"\n");
     script.push_str("  exit 1\n");
     script.push_str("fi\n\n");
-    script.push_str("echo \" Testing plugin: $PLUGIN_BINARY\"\n");
+    script.push_str("echo \" Testing cartridge: $CARTRIDGE_BINARY\"\n");
     script.push_str("echo \" Interface: ");
     script.push_str(interface_name);
     script.push_str("\"\n\n");
 
     // Test manifest command
     script.push_str("echo \"Testing manifest command...\"\n");
-    script.push_str("\"$PLUGIN_BINARY\" manifest > /tmp/manifest.json\n");
+    script.push_str("\"$CARTRIDGE_BINARY\" manifest > /tmp/manifest.json\n");
     script.push_str("echo \"OK manifest command passed\"\n\n");
 
     // Test each cap
     for cap_ref in interface.caps.iter() {
         let cap_name = match cap_ref {
-            machfab_plugin_sdk::CapReference::Inline(cap) => &cap.cap.name,
-            machfab_plugin_sdk::CapReference::Reference { cap_ref } => {
+            machfab_cartridge_sdk::CapReference::Inline(cap) => &cap.cap.name,
+            machfab_cartridge_sdk::CapReference::Reference { cap_ref } => {
                 cap_ref.split('/').last().unwrap_or(cap_ref).trim_end_matches(".json")
             }
         };
 
         script.push_str(&format!("echo \"Testing cap: {}...\"\n", cap_name));
-        script.push_str(&format!("\"$PLUGIN_BINARY\" --{} --help >/dev/null 2>&1 || true\n", cap_name));
+        script.push_str(&format!("\"$CARTRIDGE_BINARY\" --{} --help >/dev/null 2>&1 || true\n", cap_name));
         script.push_str(&format!("echo \"OK {} cap flag recognized\"\n\n", cap_name));
     }
 
@@ -408,7 +408,7 @@ fn generate_test_script(interface: &machfab_plugin_sdk::PluginInterfaceSchema, i
     script
 }
 
-fn generate_test_config(interface: &machfab_plugin_sdk::PluginInterfaceSchema) -> String {
+fn generate_test_config(interface: &machfab_cartridge_sdk::CartridgeInterfaceSchema) -> String {
     let config = serde_json::json!({
         "interface": interface.interface.name,
         "version": interface.interface.version,

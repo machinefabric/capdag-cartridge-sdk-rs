@@ -1,9 +1,9 @@
 [package]
-name = "machfab-plugin-sdk"
+name = "machfab-cartridge-sdk"
 version = "0.86.17136"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
-description = "Plugin SDK for MACINA document processing tools"
+description = "Cartridge SDK for MACINA document processing tools"
 license = "MIT"
 
 [dependencies]
@@ -23,9 +23,9 @@ uuid = { version = "1.0", features = ["v4", "serde"] }
 default = []
 
 [[bin]]
-name = "plugin-validator"
-path = "src/bin/plugin-validator.rs"
+name = "cartridge-validator"
+path = "src/bin/cartridge-validator.rs"
 
 [[bin]]
-name = "plugin-tester"
-path = "src/bin/plugin-tester.rs"
+name = "cartridge-tester"
+path = "src/bin/cartridge-tester.rs"

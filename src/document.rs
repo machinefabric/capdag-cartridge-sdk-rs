@@ -1,1 +1,1 @@
-//! Legacy document-specific plugin data structures were removed.
+//! Legacy document-specific cartridge data structures were removed.

@@ -1,9 +1,9 @@
-//! Plugin interface schema validation framework
-//! 
-//! This module provides type-safe validation of plugin implementations against formal schemas.
-//! It validates cap definitions, plugin interfaces, and runtime plugin behavior.
+//! Cartridge interface schema validation framework
+//!
+//! This module provides type-safe validation of cartridge implementations against formal schemas.
+//! It validates cap definitions, cartridge interfaces, and runtime cartridge behavior.
 
-use crate::PluginResult;
+use crate::CartridgeResult;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -130,9 +130,9 @@ pub struct ErrorCode {
     pub description: String,
 }
 
-/// Represents a complete plugin interface with multiple caps
+/// Represents a complete cartridge interface with multiple caps
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct PluginInterfaceSchema {
+pub struct CartridgeInterfaceSchema {
     pub schema_version: String,
     pub interface: InterfaceInfo,
     pub caps: Vec<CapReference>,
@@ -170,26 +170,26 @@ pub enum CapReference {
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct GlobalRequirements {
     #[serde(default)]
-    pub plugin_manifest_command: PluginManifestRequirement,
+    pub cartridge_manifest_command: CartridgeManifestRequirement,
     #[serde(default)]
     pub error_handling: GlobalErrorHandling,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct PluginManifestRequirement {
+pub struct CartridgeManifestRequirement {
     #[serde(default = "default_true")]
     pub required: bool,
-    #[serde(default = "default_plugin_manifest_schema")]
+    #[serde(default = "default_cartridge_manifest_schema")]
     pub schema_ref: String,
 }
 
-fn default_plugin_manifest_schema() -> String { "manifest.json".to_string() }
+fn default_cartridge_manifest_schema() -> String { "manifest.json".to_string() }
 
-impl Default for PluginManifestRequirement {
+impl Default for CartridgeManifestRequirement {
     fn default() -> Self {
         Self {
             required: true,
-            schema_ref: default_plugin_manifest_schema(),
+            schema_ref: default_cartridge_manifest_schema(),
         }
     }
 }
@@ -291,18 +291,18 @@ pub struct ExpectedResult {
     pub output_validation: Option<HashMap<String, Value>>,
 }
 
-/// Plugin schema validator for type-safe validation of plugin implementations
-pub struct PluginValidator {
+/// Cartridge schema validator for type-safe validation of cartridge implementations
+pub struct CartridgeValidator {
     schema_dir: PathBuf,
     cap_schemas: HashMap<String, CapSchema>,
-    interface_schemas: HashMap<String, PluginInterfaceSchema>,
+    interface_schemas: HashMap<String, CartridgeInterfaceSchema>,
 }
 
-impl PluginValidator {
-    /// Create a new plugin validator with the given schema directory
-    pub fn new<P: AsRef<Path>>(schema_dir: P) -> PluginResult<Self> {
+impl CartridgeValidator {
+    /// Create a new cartridge validator with the given schema directory
+    pub fn new<P: AsRef<Path>>(schema_dir: P) -> CartridgeResult<Self> {
         let schema_dir = schema_dir.as_ref().to_path_buf();
-        
+
         if !schema_dir.exists() {
             bail!("Schema directory not found: {}", schema_dir.display());
         }
@@ -315,66 +315,66 @@ impl PluginValidator {
     }
 
     /// Load and validate a cap schema from file
-    pub fn load_cap_schema<P: AsRef<Path>>(&mut self, path: P) -> PluginResult<&CapSchema> {
+    pub fn load_cap_schema<P: AsRef<Path>>(&mut self, path: P) -> CartridgeResult<&CapSchema> {
         let path = path.as_ref();
         let content = std::fs::read_to_string(path)
             .with_context(|| format!("Failed to read cap schema: {}", path.display()))?;
-        
+
         let schema: CapSchema = serde_json::from_str(&content)
             .with_context(|| format!("Failed to parse cap schema: {}", path.display()))?;
 
         self.validate_cap_schema(&schema)?;
-        
+
         let name = schema.cap.name.clone();
         self.cap_schemas.insert(name.clone(), schema);
-        
+
         Ok(&self.cap_schemas[&name])
     }
 
-    /// Load and validate a plugin interface schema from file
-    pub fn load_interface_schema<P: AsRef<Path>>(&mut self, path: P) -> PluginResult<&PluginInterfaceSchema> {
+    /// Load and validate a cartridge interface schema from file
+    pub fn load_interface_schema<P: AsRef<Path>>(&mut self, path: P) -> CartridgeResult<&CartridgeInterfaceSchema> {
         let path = path.as_ref();
         let content = std::fs::read_to_string(path)
             .with_context(|| format!("Failed to read interface schema: {}", path.display()))?;
-        
-        let schema: PluginInterfaceSchema = serde_json::from_str(&content)
+
+        let schema: CartridgeInterfaceSchema = serde_json::from_str(&content)
             .with_context(|| format!("Failed to parse interface schema: {}", path.display()))?;
 
         self.validate_interface_schema(&schema)?;
-        
+
         let name = schema.interface.name.clone();
         self.interface_schemas.insert(name.clone(), schema);
-        
+
         Ok(&self.interface_schemas[&name])
     }
 
-    /// Validate a plugin binary against an interface schema
-    pub fn validate_plugin_implementation<P: AsRef<Path>>(
-        &self, 
-        plugin_binary: P,
+    /// Validate a cartridge binary against an interface schema
+    pub fn validate_cartridge_implementation<P: AsRef<Path>>(
+        &self,
+        cartridge_binary: P,
         interface_name: &str
-    ) -> PluginResult<ValidationReport> {
-        let plugin_binary = plugin_binary.as_ref();
-        
-        if !plugin_binary.exists() {
-            bail!("Plugin binary not found: {}", plugin_binary.display());
+    ) -> CartridgeResult<ValidationReport> {
+        let cartridge_binary = cartridge_binary.as_ref();
+
+        if !cartridge_binary.exists() {
+            bail!("Cartridge binary not found: {}", cartridge_binary.display());
         }
 
         let interface = self.interface_schemas.get(interface_name)
             .ok_or_else(|| anyhow::anyhow!("Interface schema not loaded: {}", interface_name))?;
 
-        let mut report = ValidationReport::new(plugin_binary, interface_name);
+        let mut report = ValidationReport::new(cartridge_binary, interface_name);
 
         // Test manifest command
-        self.validate_plugin_manifest_command(plugin_binary, interface, &mut report)?;
+        self.validate_cartridge_manifest_command(cartridge_binary, interface, &mut report)?;
 
         // Test each cap with comprehensive validation
         for cap_ref in &interface.caps {
             match cap_ref {
                 CapReference::Inline(cap_schema) => {
-                    self.validate_cap_implementation(plugin_binary, cap_schema, &mut report)?;
-                    self.validate_cap_output_format(plugin_binary, cap_schema, &mut report)?;
-                    self.validate_cap_error_handling(plugin_binary, cap_schema, &mut report)?;
+                    self.validate_cap_implementation(cartridge_binary, cap_schema, &mut report)?;
+                    self.validate_cap_output_format(cartridge_binary, cap_schema, &mut report)?;
+                    self.validate_cap_error_handling(cartridge_binary, cap_schema, &mut report)?;
                 }
                 CapReference::Reference { cap_ref } => {
                     // Load referenced cap and validate
@@ -382,9 +382,9 @@ impl PluginValidator {
                     if cap_path.exists() {
                         let content = std::fs::read_to_string(&cap_path)?;
                         let cap_schema: CapSchema = serde_json::from_str(&content)?;
-                        self.validate_cap_implementation(plugin_binary, &cap_schema, &mut report)?;
-                        self.validate_cap_output_format(plugin_binary, &cap_schema, &mut report)?;
-                        self.validate_cap_error_handling(plugin_binary, &cap_schema, &mut report)?;
+                        self.validate_cap_implementation(cartridge_binary, &cap_schema, &mut report)?;
+                        self.validate_cap_output_format(cartridge_binary, &cap_schema, &mut report)?;
+                        self.validate_cap_error_handling(cartridge_binary, &cap_schema, &mut report)?;
                     } else {
                         report.add_error(format!("Referenced cap schema not found: {}", cap_ref));
                     }
@@ -393,13 +393,13 @@ impl PluginValidator {
         }
 
         // Test with real files if available
-        self.validate_with_test_files(plugin_binary, interface, &mut report)?;
+        self.validate_with_test_files(cartridge_binary, interface, &mut report)?;
 
         Ok(report)
     }
 
     /// Validate that a cap schema is well-formed
-    fn validate_cap_schema(&self, schema: &CapSchema) -> PluginResult<()> {
+    fn validate_cap_schema(&self, schema: &CapSchema) -> CartridgeResult<()> {
         // Validate cap name format
         if !schema.cap.name.chars().all(|c| c.is_ascii_lowercase() || c == '-') {
             bail!("Invalid cap name format: {}", schema.cap.name);
@@ -420,7 +420,7 @@ impl PluginValidator {
     }
 
     /// Validate new args+sources rules
-    fn validate_args(&self, args: &Vec<CapArg>) -> PluginResult<()> {
+    fn validate_args(&self, args: &Vec<CapArg>) -> CartridgeResult<()> {
         use std::collections::{HashSet, HashMap};
         // RULE1: No duplicate media_urns
         let mut seen_urns: HashSet<&str> = HashSet::new();
@@ -458,7 +458,7 @@ impl PluginValidator {
     }
 
     /// Validate that an interface schema is well-formed
-    fn validate_interface_schema(&self, schema: &PluginInterfaceSchema) -> PluginResult<()> {
+    fn validate_interface_schema(&self, schema: &CartridgeInterfaceSchema) -> CartridgeResult<()> {
         // Validate interface name format
         if !schema.interface.name.chars().all(|c| c.is_ascii_lowercase() || c == '-') {
             bail!("Invalid interface name format: {}", schema.interface.name);
@@ -475,7 +475,7 @@ impl PluginValidator {
                         cap_ref.split('/').last().unwrap_or(cap_ref).trim_end_matches(".json")
                     }
                 };
-                
+
                 if !seen_caps.insert(cap_name) {
                     bail!("Duplicate cap in interface: {}", cap_name);
                 }
@@ -486,17 +486,17 @@ impl PluginValidator {
     }
 
     /// Validate manifest command implementation
-    fn validate_plugin_manifest_command(
+    fn validate_cartridge_manifest_command(
         &self,
-        plugin_binary: &Path,
-        interface: &PluginInterfaceSchema,
+        cartridge_binary: &Path,
+        interface: &CartridgeInterfaceSchema,
         report: &mut ValidationReport,
-    ) -> PluginResult<()> {
-        if !interface.global_requirements.plugin_manifest_command.required {
+    ) -> CartridgeResult<()> {
+        if !interface.global_requirements.cartridge_manifest_command.required {
             return Ok(());
         }
 
-        let output = Command::new(plugin_binary)
+        let output = Command::new(cartridge_binary)
             .args(&["manifest"])
             .output()
             .context("Failed to execute manifest command")?;
@@ -507,7 +507,7 @@ impl PluginValidator {
         }
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        let plugin_manifest: Value = serde_json::from_str(&stdout)
+        let cartridge_manifest: Value = serde_json::from_str(&stdout)
             .map_err(|e| {
                 report.add_error(format!("manifest output is not valid JSON: {}", e));
                 e
@@ -516,7 +516,7 @@ impl PluginValidator {
         // Validate required fields
         let required_fields = ["name", "version", "caps"];
         for field in &required_fields {
-            if !plugin_manifest.get(field).is_some() {
+            if !cartridge_manifest.get(field).is_some() {
                 report.add_error(format!("manifest missing required field: {}", field));
             }
         }
@@ -528,15 +528,15 @@ impl PluginValidator {
     /// Validate a specific cap implementation
     fn validate_cap_implementation(
         &self,
-        plugin_binary: &Path,
+        cartridge_binary: &Path,
         cap: &CapSchema,
         report: &mut ValidationReport,
-    ) -> PluginResult<()> {
+    ) -> CartridgeResult<()> {
         let cap_name = &cap.cap.name;
-        
+
         // Test that the cap command is recognized
         let command_name = cap.command.trim_start_matches("--");
-        let output = Command::new(plugin_binary)
+        let output = Command::new(cartridge_binary)
             .args(&[command_name, "--help"])
             .output();
 
@@ -560,12 +560,12 @@ impl PluginValidator {
     /// Validate that cap outputs correct format (JSON for structured data)
     fn validate_cap_output_format(
         &self,
-        plugin_binary: &Path,
+        cartridge_binary: &Path,
         cap: &CapSchema,
         report: &mut ValidationReport,
-    ) -> PluginResult<()> {
+    ) -> CartridgeResult<()> {
         let cap_name = &cap.cap.name;
-        
+
         // Only test structured data caps that we can validate output format
         if !matches!(cap.response.response_type, ResponseType::Json) {
             return Ok(());
@@ -573,8 +573,8 @@ impl PluginValidator {
 
         // Create a temporary test file if needed
         let test_file = if cap.args.iter().any(|arg| arg.media_urn == "media:string") {
-            let temp_file = std::env::temp_dir().join(format!("plugin_test_{}.txt", uuid::Uuid::new_v4()));
-            std::fs::write(&temp_file, "Test content for plugin validation\n\nSecond paragraph.").ok();
+            let temp_file = std::env::temp_dir().join(format!("cartridge_test_{}.txt", uuid::Uuid::new_v4()));
+            std::fs::write(&temp_file, "Test content for cartridge validation\n\nSecond paragraph.").ok();
             Some(temp_file)
         } else {
             None
@@ -585,8 +585,8 @@ impl PluginValidator {
             let test_file_str = test_file_path.to_string_lossy().to_string();
             let command_name = cap.command.trim_start_matches("--");
             let args = vec![command_name, &test_file_str];
-            
-            let output = Command::new(plugin_binary)
+
+            let output = Command::new(cartridge_binary)
                 .args(&args)
                 .output();
 
@@ -594,7 +594,7 @@ impl PluginValidator {
                 Ok(result) => {
                     if result.status.success() {
                         let stdout = String::from_utf8_lossy(&result.stdout);
-                        
+
                         // Verify it's valid JSON
                         match serde_json::from_str::<serde_json::Value>(&stdout) {
                             Ok(_) => {
@@ -634,21 +634,21 @@ impl PluginValidator {
     /// Validate cap error handling
     fn validate_cap_error_handling(
         &self,
-        plugin_binary: &Path,
+        cartridge_binary: &Path,
         cap: &CapSchema,
         report: &mut ValidationReport,
-    ) -> PluginResult<()> {
+    ) -> CartridgeResult<()> {
         let cap_name = &cap.cap.name;
-        
+
         // Test with non-existent file if cap takes file input
         if cap.args.iter().any(|arg| arg.sources.iter().any(|s| matches!(s, ArgSource::Position{position:0}))) {
-            let non_existent_file = "/tmp/non_existent_file_for_plugin_test.xyz";
+            let non_existent_file = "/tmp/non_existent_file_for_cartridge_test.xyz";
             let non_existent_str = non_existent_file.to_string();
             let command_name = cap.command.trim_start_matches("--");
-            
+
             let args = vec![command_name, &non_existent_str];
-            
-            let output = Command::new(plugin_binary)
+
+            let output = Command::new(cartridge_binary)
                 .args(&args)
                 .output();
 
@@ -656,7 +656,7 @@ impl PluginValidator {
                 Ok(result) => {
                     if !result.status.success() {
                         let exit_code = result.status.code().unwrap_or(-1);
-                        
+
                         // Check if it uses standard exit codes
                         if let Some(expected_code) = cap.error_handling.error_codes.get("FILE_NOT_FOUND") {
                             if exit_code == expected_code.code {
@@ -684,17 +684,17 @@ impl PluginValidator {
         Ok(())
     }
 
-    /// Validate plugin with test files from interface definition
+    /// Validate cartridge with test files from interface definition
     fn validate_with_test_files(
         &self,
-        plugin_binary: &Path,
-        interface: &PluginInterfaceSchema,
+        cartridge_binary: &Path,
+        interface: &CartridgeInterfaceSchema,
         report: &mut ValidationReport,
-    ) -> PluginResult<()> {
+    ) -> CartridgeResult<()> {
         // Run test scenarios if defined
         for scenario in &interface.testing.test_scenarios {
             let cap_name = &scenario.cap;
-            
+
             // Find the cap schema
             let cap_schema = self.find_cap_in_interface(interface, cap_name);
             if cap_schema.is_none() {
@@ -702,12 +702,12 @@ impl PluginValidator {
                 continue;
             }
             let cap_schema = cap_schema.unwrap();
-            
+
             // Build command arguments from scenario
             let mut args_strings = Vec::new();
             let command_name = cap_schema.command.trim_start_matches("--");
             args_strings.push(command_name.to_string());
-            
+
             // Add arguments from scenario
             if let Some(file_path) = scenario.arguments.get("file_path").and_then(|v| v.as_str()) {
                 args_strings.push(file_path.to_string());
@@ -724,11 +724,11 @@ impl PluginValidator {
                 args_strings.push("--output".to_string());
                 args_strings.push(output.to_string());
             }
-            
+
             let args: Vec<&str> = args_strings.iter().map(|s| s.as_str()).collect();
-            
+
             // Execute test scenario
-            let output = Command::new(plugin_binary)
+            let output = Command::new(cartridge_binary)
                 .args(&args)
                 .output();
 
@@ -736,7 +736,7 @@ impl PluginValidator {
                 Ok(result) => {
                     let success = result.status.success();
                     let exit_code = result.status.code().unwrap_or(-1);
-                    
+
                     if success == scenario.expected_result.success {
                         if let Some(expected_exit_code) = scenario.expected_result.exit_code {
                             if exit_code == expected_exit_code {
@@ -761,7 +761,7 @@ impl PluginValidator {
     }
 
     /// Find a cap schema in an interface
-    fn find_cap_in_interface<'a>(&self, interface: &'a PluginInterfaceSchema, cap_name: &str) -> Option<&'a CapSchema> {
+    fn find_cap_in_interface<'a>(&self, interface: &'a CartridgeInterfaceSchema, cap_name: &str) -> Option<&'a CapSchema> {
         for cap_ref in &interface.caps {
             match cap_ref {
                 CapReference::Inline(cap_schema) => {
@@ -779,10 +779,10 @@ impl PluginValidator {
     }
 }
 
-/// Report of plugin validation results
+/// Report of cartridge validation results
 #[derive(Debug, Clone)]
 pub struct ValidationReport {
-    pub plugin_path: PathBuf,
+    pub cartridge_path: PathBuf,
     pub interface_name: String,
     pub successes: Vec<String>,
     pub errors: Vec<String>,
@@ -790,9 +790,9 @@ pub struct ValidationReport {
 }
 
 impl ValidationReport {
-    fn new<P: AsRef<Path>>(plugin_path: P, interface_name: &str) -> Self {
+    fn new<P: AsRef<Path>>(cartridge_path: P, interface_name: &str) -> Self {
         Self {
-            plugin_path: plugin_path.as_ref().to_path_buf(),
+            cartridge_path: cartridge_path.as_ref().to_path_buf(),
             interface_name: interface_name.to_string(),
             successes: Vec::new(),
             errors: Vec::new(),
@@ -817,8 +817,8 @@ impl ValidationReport {
     /// Get a summary of validation results
     pub fn summary(&self) -> String {
         format!(
-            "Plugin: {}\nInterface: {}\nSuccesses: {}\nErrors: {}\nWarnings: {}",
-            self.plugin_path.display(),
+            "Cartridge: {}\nInterface: {}\nSuccesses: {}\nErrors: {}\nWarnings: {}",
+            self.cartridge_path.display(),
             self.interface_name,
             self.successes.len(),
             self.errors.len(),

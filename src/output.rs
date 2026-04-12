@@ -1,7 +1,7 @@
-//! Standardized output formats for plugin results
-//! 
+//! Standardized output formats for cartridge results
+//!
 //! This module provides common output formatting functions and structures
-//! to ensure consistent output across all plugins.
+//! to ensure consistent output across all cartridges.
 
 use crate::FileMetadata;
 use serde::{Deserialize, Serialize};
