@@ -1,6 +1,6 @@
 [package]
 name = "machfab-cartridge-sdk"
-version = "0.86.17136"
+version = "0.89.463"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
 description = "Cartridge SDK for MACINA document processing tools"
