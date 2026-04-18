@@ -11,9 +11,14 @@ pub trait CartridgeMetadata {
     /// Get cartridge manifest
     fn cartridge_manifest(&self) -> CapManifest;
 
-    /// Get cartridge caps
+    /// Get all cartridge caps from all cap groups
     fn caps(&self) -> Vec<capdag::Cap> {
-        self.cartridge_manifest().caps
+        let manifest = self.cartridge_manifest();
+        let mut all = Vec::new();
+        for group in manifest.cap_groups {
+            all.extend(group.caps);
+        }
+        all
     }
 }
 
