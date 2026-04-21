@@ -3,29 +3,13 @@ name = "machfab-cartridge-sdk"
 version = "{{ project.version }}"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
-description = "Cartridge SDK for MACINA document processing tools"
+description = "Cartridge SDK for MachFab document processing tools"
 license = "MIT"
 
 [dependencies]
 capdag = { path = "../capdag" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-anyhow = "1.0"
-tracing = "0.1"
-async-trait = "0.1"
-chrono = { version = "0.4", features = ["serde"] }
-tokio = { version = "1.0", features = ["process", "time"] }
-jsonschema = "0.17"
-clap = { version = "4.0", features = ["derive"] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
 
 [features]
 default = []
-
-[[bin]]
-name = "cartridge-validator"
-path = "src/bin/cartridge-validator.rs"
-
-[[bin]]
-name = "cartridge-tester"
-path = "src/bin/cartridge-tester.rs"
