@@ -108,6 +108,13 @@ pub struct LlmGenerationRequest {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repeat_penalty: Option<f32>,
+
+    /// HuggingFace bearer token. Forwarded to modelcartridge for the model
+    /// download triggered by this request. Required when targeting a
+    /// gated repository — without it the download fails hard with a clear
+    /// authentication error.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hf_token: Option<String>,
 }
 
 impl LlmGenerationRequest {
@@ -135,6 +142,7 @@ impl LlmGenerationRequest {
             rope_freq_base: Some(10000.0),
             rope_freq_scale: Some(1.0),
             repeat_penalty: Some(1.1),
+            hf_token: None,
         }
     }
 
