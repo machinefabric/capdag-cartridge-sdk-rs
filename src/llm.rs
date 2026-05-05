@@ -361,15 +361,15 @@ pub const MEDIA_LLM_MODEL_INFO_RESPONSE: &str = "media:llm-model-info;json;recor
 // Cap URNs — canonical definitions
 // =============================================================================
 
-pub const CAP_LLM_INFERENCE_GGUF: &str = "cap:gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;op=llm_inference;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_INFERENCE_MLX: &str = "cap:in=\"media:llm-generation-request;json;record\";llm;ml-model;mlx;op=llm_inference;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_INFERENCE_CANDLE: &str = "cap:candle;in=\"media:llm-generation-request;json;record\";llm;ml-model;op=llm_inference;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:constrained;gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;op=llm_inference_constrained;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_VOCAB: &str = "cap:op=llm_vocab;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-vocab-response;json;record\"";
-pub const CAP_LLM_MODEL_INFO: &str = "cap:op=llm_model_info;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-model-info;json;record\"";
-pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:op=generate_embeddings;ml-model;gguf;in=\"media:textable\";out=\"media:embedding-vector;record;textable\"";
-pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:gguf;in=\"media:embeddings;gguf;model-spec;textable\";ml-model;op=embeddings_dimensions;out=\"media:integer;model-dim;numeric;textable\"";
-pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;op=describe_image;out=\"media:image-description;textable\";vision";
+pub const CAP_LLM_INFERENCE_GGUF: &str = "cap:gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;llm-inference;out=\"media:llm-text-stream;ndjson\"";
+pub const CAP_LLM_INFERENCE_MLX: &str = "cap:in=\"media:llm-generation-request;json;record\";llm;ml-model;mlx;llm-inference;out=\"media:llm-text-stream;ndjson\"";
+pub const CAP_LLM_INFERENCE_CANDLE: &str = "cap:candle;in=\"media:llm-generation-request;json;record\";llm;ml-model;llm-inference;out=\"media:llm-text-stream;ndjson\"";
+pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:constrained;gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;llm-inference-constrained;out=\"media:llm-text-stream;ndjson\"";
+pub const CAP_LLM_VOCAB: &str = "cap:llm-vocab;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-vocab-response;json;record\"";
+pub const CAP_LLM_MODEL_INFO: &str = "cap:llm-model-info;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-model-info;json;record\"";
+pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:generate-embeddings;ml-model;gguf;in=\"media:textable\";out=\"media:embedding-vector;record;textable\"";
+pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:gguf;in=\"media:embeddings;gguf;model-spec;textable\";ml-model;embeddings-dimensions;out=\"media:integer;model-dim;numeric;textable\"";
+pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;describe-image;out=\"media:image-description;textable\";vision";
 
 // =============================================================================
 // Model spec → backend classification
