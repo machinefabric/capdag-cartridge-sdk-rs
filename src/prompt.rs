@@ -165,7 +165,7 @@ mod tests {
     /// degenerate output where the model treats `<|im_start|>` as
     /// arbitrary characters instead of a special token.
     #[test]
-    fn jinja_template_yields_chat_templated() {
+    fn test999_jinja_template_yields_chat_templated() {
         let s = classify_prompt(
             &dims_with("chat-template-jinja"),
             "summarise this".to_string(),
@@ -185,7 +185,7 @@ mod tests {
     /// templating — the cartridge will resolve the short name via
     /// its backend's template registry.
     #[test]
-    fn short_name_template_yields_chat_templated() {
+    fn test999_short_name_template_yields_chat_templated() {
         let s = classify_prompt(
             &dims_with("chat-template-short"),
             "user input".to_string(),
@@ -209,7 +209,7 @@ mod tests {
     /// `<|im_start|>` etc. would tokenize as plain text and corrupt
     /// the completion.
     #[test]
-    fn absent_template_yields_raw() {
+    fn test999_absent_template_yields_raw() {
         let s = classify_prompt(
             &dims_with(""),
             "the rest of the story is".to_string(),
@@ -228,7 +228,7 @@ mod tests {
     /// empty body — wasted tokens and a confused turn structure.
     /// `Some("")` and `Some("   ")` both collapse to `None`.
     #[test]
-    fn whitespace_only_system_prompt_dropped_for_chat_templated() {
+    fn test999_whitespace_only_system_prompt_dropped_for_chat_templated() {
         for s_in in ["", "   ", "\n\t\n"] {
             let s = classify_prompt(
                 &dims_with("chat-template-jinja"),
@@ -254,7 +254,7 @@ mod tests {
     /// rather than silently routed through `ChatTemplated` (which
     /// might call into a backend code path that can't handle them).
     #[test]
-    fn unknown_chat_template_value_yields_raw() {
+    fn test999_unknown_chat_template_value_yields_raw() {
         let s = classify_prompt(
             &dims_with("chat-template-some-future-tag"),
             "user".to_string(),
@@ -271,7 +271,7 @@ mod tests {
     /// (e.g. inserts task-specific instructions) is a deliberate
     /// commit, not an accidental one.
     #[test]
-    fn default_system_prompt_is_task_agnostic() {
+    fn test999_default_system_prompt_is_task_agnostic() {
         // Substring checks — the precise wording can drift, but the
         // contract that it's task-agnostic must not. If a future
         // edit adds e.g. "You are a code assistant", this test
