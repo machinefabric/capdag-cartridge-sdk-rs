@@ -1,10 +1,10 @@
 //! LLM Protocol Types
 //!
-//! Canonical Rust types matching the capdag media spec schemas for LLM operations.
+//! Canonical Rust types matching the capdag media def schemas for LLM operations.
 //! These types are the single source of truth — both machfab and the LLM cartridges
 //! serialize/deserialize against them.
 //!
-//! Media specs:
+//! Media defs:
 //! - media:llm-generation-request;json;record
 //! - media:llm-text-stream;ndjson
 //! - media:llm-vocab-response;json;record
@@ -200,7 +200,7 @@ pub struct ToolDefinition {
 /// LLM Text Stream Message — NDJSON streaming output.
 ///
 /// Matches: media:llm-text-stream;ndjson. Each line is one of these message types,
-/// serialized as JSON. All variants are wire-protocol mandated by the media spec.
+/// serialized as JSON. All variants are wire-protocol mandated by the media def.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum LlmStreamMessage {
