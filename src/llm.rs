@@ -369,7 +369,7 @@ pub const CAP_LLM_VOCAB: &str = "cap:llm-vocab;llm;ml-model;gguf;in=\"media:llm-
 pub const CAP_LLM_MODEL_INFO: &str = "cap:llm-model-info;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-model-info;json;record\"";
 pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:generate-embeddings;ml-model;gguf;in=\"media:textable\";out=\"media:embedding-vector;record;textable\"";
 pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:gguf;in=\"media:embeddings;gguf;model-spec;textable\";ml-model;embeddings-dimensions;out=\"media:integer;model-dim;numeric;textable\"";
-pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:image;png\";ml-model;describe-image;out=\"media:image-description;plain-text;textable;txt\";vision";
+pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:ext=png;image\";ml-model;describe-image;out=\"media:ext=txt;image-description;plain-text;textable\";vision";
 
 // =============================================================================
 // Model spec → backend classification
