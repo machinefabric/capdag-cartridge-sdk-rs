@@ -403,7 +403,7 @@ mod tests {
 
     // Round-trip: a generation request serializes and deserializes to equivalent content.
     #[test]
-    fn test_generation_request_round_trip() {
+    fn test0001_generation_request_round_trip() {
         let req = LlmGenerationRequest::with_defaults("Hello", "model/test");
         let json = req.to_json();
         let parsed: LlmGenerationRequest =
@@ -416,7 +416,7 @@ mod tests {
 
     // Round-trip: each stream message variant serializes and deserializes to itself.
     #[test]
-    fn test_stream_message_token_round_trip() {
+    fn test0002_stream_message_token_round_trip() {
         let msg = LlmStreamMessage::token("Hello");
         let line = msg.to_line();
         assert!(line.contains("\"type\":\"token\""));
@@ -428,8 +428,9 @@ mod tests {
         }
     }
 
+    // TEST0003: Stream message complete round trip
     #[test]
-    fn test_stream_message_complete_round_trip() {
+    fn test0003_stream_message_complete_round_trip() {
         let msg = LlmStreamMessage::complete("Generated text", 10, 5, finish_reason::STOP, 100);
         let line = msg.to_line();
         let parsed = LlmStreamMessage::from_line(&line).expect("complete must parse");
@@ -447,8 +448,9 @@ mod tests {
         }
     }
 
+    // TEST0004: Stream message error round trip
     #[test]
-    fn test_stream_message_error_round_trip() {
+    fn test0004_stream_message_error_round_trip() {
         let msg = LlmStreamMessage::error("MODEL_NOT_FOUND", "Model not available");
         let line = msg.to_line();
         let parsed = LlmStreamMessage::from_line(&line).expect("error must parse");
@@ -462,8 +464,9 @@ mod tests {
         }
     }
 
+    // TEST0005: Vocab response round trip
     #[test]
-    fn test_vocab_response_round_trip() {
+    fn test0005_vocab_response_round_trip() {
         let resp = LlmVocabResponse::new(vec!["a".into(), "b".into(), "c".into()]);
         let json = resp.to_json();
         let parsed: LlmVocabResponse =
@@ -473,8 +476,9 @@ mod tests {
         assert_eq!(parsed.vocab_size, Some(3));
     }
 
+    // TEST0006: Model info round trip
     #[test]
-    fn test_model_info_round_trip() {
+    fn test0006_model_info_round_trip() {
         let info = LlmModelInfo {
             model_spec: "test-model".into(),
             vocab_size: 32000,
@@ -495,8 +499,9 @@ mod tests {
         assert_eq!(parsed.context_length, Some(4096));
     }
 
+    // TEST0007: Constraint spec tags
     #[test]
-    fn test_constraint_spec_tags() {
+    fn test0007_constraint_spec_tags() {
         let json_schema = ConstraintSpec::JsonSchema {
             schema: serde_json::json!({"type": "object"}),
             description: None,
@@ -512,8 +517,9 @@ mod tests {
         assert!(json.contains("\"type\":\"regex\""));
     }
 
+    // TEST0008: Backend for model spec gguf
     #[test]
-    fn test_backend_for_model_spec_gguf() {
+    fn test0008_backend_for_model_spec_gguf() {
         assert_eq!(
             backend_for_model_spec("hf:bartowski/Llama-3.2-3B-Instruct-GGUF"),
             BACKEND_GGUF
@@ -525,8 +531,9 @@ mod tests {
         assert_eq!(backend_for_model_spec("local:/path/to/model.gguf"), BACKEND_GGUF);
     }
 
+    // TEST0009: Backend for model spec mlx
     #[test]
-    fn test_backend_for_model_spec_mlx() {
+    fn test0009_backend_for_model_spec_mlx() {
         assert_eq!(
             backend_for_model_spec("hf:mlx-community/Mistral-7B-Instruct-v0.3-4bit"),
             BACKEND_MLX
@@ -538,8 +545,9 @@ mod tests {
         assert_eq!(backend_for_model_spec("hf:some-model;mlx"), BACKEND_MLX);
     }
 
+    // TEST0010: Backend for model spec candle
     #[test]
-    fn test_backend_for_model_spec_candle() {
+    fn test0010_backend_for_model_spec_candle() {
         assert_eq!(
             backend_for_model_spec("hf:meta-llama/Llama-3.1-8B-Instruct"),
             BACKEND_CANDLE
