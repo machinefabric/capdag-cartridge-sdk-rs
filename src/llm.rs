@@ -352,24 +352,24 @@ impl LlmModelInfo {
 // Media URNs — canonical definitions (single source of truth)
 // =============================================================================
 
-pub const MEDIA_LLM_GENERATION_REQUEST: &str = "media:llm-generation-request;json;record";
-pub const MEDIA_LLM_TEXT_STREAM: &str = "media:llm-text-stream;ndjson";
-pub const MEDIA_LLM_VOCAB_RESPONSE: &str = "media:llm-vocab-response;json;record";
-pub const MEDIA_LLM_MODEL_INFO_RESPONSE: &str = "media:llm-model-info;json;record";
+pub const MEDIA_LLM_GENERATION_REQUEST: &str = "media:fmt=json;llm-generation-request;record";
+pub const MEDIA_LLM_TEXT_STREAM: &str = "media:fmt=ndjson;llm-text-stream";
+pub const MEDIA_LLM_VOCAB_RESPONSE: &str = "media:fmt=json;llm-vocab-response;record";
+pub const MEDIA_LLM_MODEL_INFO_RESPONSE: &str = "media:fmt=json;llm-model-info;record";
 
 // =============================================================================
 // Cap URNs — canonical definitions
 // =============================================================================
 
-pub const CAP_LLM_INFERENCE_GGUF: &str = "cap:gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;llm-inference;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_INFERENCE_MLX: &str = "cap:in=\"media:llm-generation-request;json;record\";llm;ml-model;mlx;llm-inference;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_INFERENCE_CANDLE: &str = "cap:candle;in=\"media:llm-generation-request;json;record\";llm;ml-model;llm-inference;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:constrained;gguf;in=\"media:llm-generation-request;json;record\";llm;ml-model;llm-inference-constrained;out=\"media:llm-text-stream;ndjson\"";
-pub const CAP_LLM_VOCAB: &str = "cap:llm-vocab;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-vocab-response;json;record\"";
-pub const CAP_LLM_MODEL_INFO: &str = "cap:llm-model-info;llm;ml-model;gguf;in=\"media:llm-generation-request;json;record\";out=\"media:llm-model-info;json;record\"";
-pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:generate-embeddings;ml-model;gguf;in=\"media:textable\";out=\"media:embedding-vector;record;textable\"";
-pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:gguf;in=\"media:embeddings;gguf;model-spec;textable\";ml-model;embeddings-dimensions;out=\"media:integer;model-dim;numeric;textable\"";
-pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:ext=png;image\";ml-model;describe-image;out=\"media:ext=txt;image-description;plain-text;textable\";vision";
+pub const CAP_LLM_INFERENCE_GGUF: &str = "cap:gguf;in=\"media:fmt=json;llm-generation-request;record\";llm;ml-model;llm-inference;out=\"media:fmt=ndjson;llm-text-stream\"";
+pub const CAP_LLM_INFERENCE_MLX: &str = "cap:in=\"media:fmt=json;llm-generation-request;record\";llm;ml-model;mlx;llm-inference;out=\"media:fmt=ndjson;llm-text-stream\"";
+pub const CAP_LLM_INFERENCE_CANDLE: &str = "cap:candle;in=\"media:fmt=json;llm-generation-request;record\";llm;ml-model;llm-inference;out=\"media:fmt=ndjson;llm-text-stream\"";
+pub const CAP_LLM_INFERENCE_CONSTRAINED: &str = "cap:constrained;gguf;in=\"media:fmt=json;llm-generation-request;record\";llm;ml-model;llm-inference-constrained;out=\"media:fmt=ndjson;llm-text-stream\"";
+pub const CAP_LLM_VOCAB: &str = "cap:llm-vocab;llm;ml-model;gguf;in=\"media:fmt=json;llm-generation-request;record\";out=\"media:fmt=json;llm-vocab-response;record\"";
+pub const CAP_LLM_MODEL_INFO: &str = "cap:llm-model-info;llm;ml-model;gguf;in=\"media:fmt=json;llm-generation-request;record\";out=\"media:fmt=json;llm-model-info;record\"";
+pub const CAP_GENERATE_EMBEDDINGS: &str = "cap:generate-embeddings;ml-model;gguf;in=\"media:enc=utf-8\";out=\"media:embedding-vector;enc=utf-8;record\"";
+pub const CAP_EMBEDDINGS_DIMENSIONS: &str = "cap:gguf;in=\"media:embeddings;enc=utf-8;gguf;model-spec;tokenizer-embedded-gguf\";ml-model;embeddings-dimensions;out=\"media:integer;model-dim;numeric\"";
+pub const CAP_DESCRIBE_IMAGE: &str = "cap:gguf;in=\"media:ext=png;image\";ml-model;describe-image;out=\"media:enc=utf-8;ext=txt;image-description;plain-text\";vision";
 
 // =============================================================================
 // Model spec → backend classification
