@@ -5,10 +5,10 @@
 //! serialize/deserialize against them.
 //!
 //! Media defs:
-//! - media:llm-generation-request;json;record
-//! - media:llm-text-stream;ndjson
-//! - media:llm-vocab-response;json;record
-//! - media:llm-model-info;json;record
+//! - media:fmt=json;llm-generation-request;record
+//! - media:fmt=ndjson;llm-text-stream
+//! - media:fmt=json;llm-vocab-response;record
+//! - media:fmt=json;llm-model-info;record
 //!
 //! Caps:
 //! - cap:op=llm_inference               — text generation
@@ -41,12 +41,12 @@ impl Default for RequestType {
 }
 
 // =============================================================================
-// media:llm-generation-request;json;record
+// media:fmt=json;llm-generation-request;record
 // =============================================================================
 
 /// LLM Generation Request — input for all LLM caps.
 ///
-/// Matches: media:llm-generation-request;json;record
+/// Matches: media:fmt=json;llm-generation-request;record
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LlmGenerationRequest {
     pub prompt: String,
@@ -194,12 +194,12 @@ pub struct ToolDefinition {
 }
 
 // =============================================================================
-// media:llm-text-stream;ndjson
+// media:fmt=ndjson;llm-text-stream
 // =============================================================================
 
 /// LLM Text Stream Message — NDJSON streaming output.
 ///
-/// Matches: media:llm-text-stream;ndjson. Each line is one of these message types,
+/// Matches: media:fmt=ndjson;llm-text-stream. Each line is one of these message types,
 /// serialized as JSON. All variants are wire-protocol mandated by the media def.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -280,12 +280,12 @@ pub mod finish_reason {
 }
 
 // =============================================================================
-// media:llm-vocab-response;json;record
+// media:fmt=json;llm-vocab-response;record
 // =============================================================================
 
 /// LLM Vocabulary Response.
 ///
-/// Matches: media:llm-vocab-response;json;record
+/// Matches: media:fmt=json;llm-vocab-response;record
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LlmVocabResponse {
     pub vocab: Vec<String>,
@@ -309,12 +309,12 @@ impl LlmVocabResponse {
 }
 
 // =============================================================================
-// media:llm-model-info;json;record
+// media:fmt=json;llm-model-info;record
 // =============================================================================
 
 /// LLM Model Info Response.
 ///
-/// Matches: media:llm-model-info;json;record
+/// Matches: media:fmt=json;llm-model-info;record
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LlmModelInfo {
     pub model_spec: String,
