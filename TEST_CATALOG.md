@@ -1,8 +1,8 @@
 # Rust Test Catalog
 
-**Total Tests:** 16
+**Total Tests:** 23
 
-**Numbered Tests:** 16
+**Numbered Tests:** 23
 
 **Unnumbered Tests:** 0
 
@@ -32,11 +32,18 @@ This catalog lists all tests in the Rust codebase.
 | test0014 | `test0014_whitespace_only_system_prompt_dropped_for_chat_templated` | / Whitespace-only system prompt is dropped. Some templates / emit a `<\|im_start\|>system\n\n<\|im_end\|>` envelope around the / empty body — wasted tokens and a confused turn structure. / `Some("")` and `Some("   ")` both collapse to `None`. | src/prompt.rs:231 |
 | test0015 | `test0015_unknown_chat_template_value_yields_raw` | / An unknown `chat_template` value falls into `Raw` — we don't / invent a chat-template behaviour for a tag we don't know. / Future template tags must be classified explicitly here / rather than silently routed through `ChatTemplated` (which / might call into a backend code path that can't handle them). | src/prompt.rs:257 |
 | test0016 | `test0016_default_system_prompt_is_task_agnostic` | / `DEFAULT_SYSTEM_PROMPT` is generic enough to work for any / input. Pin this constant so a future change that tightens it / (e.g. inserts task-specific instructions) is a deliberate / commit, not an accidental one. | src/prompt.rs:274 |
+| test8200 | `test8200_transient_status_then_success_retries_and_succeeds` | TEST8200: a transient 503 followed by a 200 retries exactly once and the caller receives the 200 — the core "ride out a blip" contract. | src/net_retry.rs:334 |
+| test8201 | `test8201_permanent_status_is_not_retried` | TEST8201: a permanent 404 is returned to the caller on the FIRST attempt with NO retry. Retrying a 404 would mask a genuine "does not exist" and waste time; this pins that 404 is terminal. | src/net_retry.rs:348 |
+| test8202 | `test8202_exhausted_retries_surface_the_last_transient_response` | TEST8202: when every attempt is a transient status, the retry budget is spent and the LAST response (the real 503) is returned verbatim — the failure is exposed, not swallowed into a fabricated success/empty. | src/net_retry.rs:366 |
+| test8203 | `test8203_transport_failure_is_retried_then_surfaced` | TEST8203: a transport-level failure (connect refused — no server) is transient, so it is retried up to the budget, and the final transport error is returned (not a panic, not a swallowed Ok). | src/net_retry.rs:388 |
+| test8204 | `test8204_single_attempt_policy_does_not_retry` | TEST8204: max_attempts == 1 disables retrying — a transient 503 is returned immediately after a single attempt. Pins that the policy knob actually gates the loop. | src/net_retry.rs:406 |
+| test8205 | `test8205_backoff_is_exponential_and_capped` | TEST8205: backoff grows exponentially and is capped at max_delay. Pure arithmetic on the policy — no clock — so it is deterministic. | src/net_retry.rs:423 |
+| test8206 | `test8206_jitter_is_bounded` | TEST8206: jitter stays within [0, delay] and 0 maps to 0. Guards the de-correlation invariant — a jittered wait must never exceed the base. | src/net_retry.rs:442 |
 ---
 
 *Generated from Rust source tree*
-*Total tests: 16*
-*Total numbered tests: 16*
+*Total tests: 23*
+*Total numbered tests: 23*
 *Total unnumbered tests: 0*
 *Total numbered tests missing descriptions: 0*
 *Total numbering mismatches: 0*

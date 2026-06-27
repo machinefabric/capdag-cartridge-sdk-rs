@@ -10,6 +10,16 @@ license = "MIT"
 capdag = { path = "../capdag" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+# Network-retry primitive (net_retry): operates directly on reqwest types so
+# every cartridge shares one definition of "transient vs permanent" and one
+# backoff policy. tokio supplies the async sleep between attempts; fastrand
+# supplies the backoff jitter (tiny, no transitive C deps).
+reqwest = { version = "0.11", default-features = false }
+tokio = { version = "1", features = ["time"] }
+fastrand = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt", "time"] }
 
 [features]
 default = []
