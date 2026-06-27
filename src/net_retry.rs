@@ -100,15 +100,30 @@ impl RetryPolicy {
         }
     }
 
-    /// Pre-jitter backoff for a given zero-based retry index (0 = first retry).
+    /// Pre-jitter backoff for a given zero-based retry index (0 = first retry):
+    /// `base * 2^retry_index`, saturating, capped at `max_delay`.
+    ///
+    /// The doubling is done in nanoseconds with saturating arithmetic so a large
+    /// `retry_index` simply saturates to `max_delay` instead of wrapping. (An
+    /// earlier version cast `2^retry_index` to `u32` for `Duration::checked_mul`,
+    /// which truncated to 0 once the shift exceeded 32 bits — yielding a 0ns
+    /// backoff for high retry indices. Computing in `u128` nanos avoids that.)
     fn backoff_for(&self, retry_index: u32) -> Duration {
-        // base * 2^retry_index, saturating, capped at max_delay.
-        let factor = 1u64.checked_shl(retry_index).unwrap_or(u64::MAX);
-        let scaled = self
+        let cap_nanos = self.max_delay.as_nanos();
+        // Once the shift would exceed the cap's bit-width there is no point
+        // computing the exact value — it is already past the cap.
+        if retry_index >= 127 {
+            return self.max_delay;
+        }
+        let scaled_nanos = self
             .base_delay
-            .checked_mul(factor as u32)
-            .unwrap_or(self.max_delay);
-        scaled.min(self.max_delay)
+            .as_nanos()
+            .checked_shl(retry_index)
+            .unwrap_or(u128::MAX)
+            .min(cap_nanos);
+        // scaled_nanos <= cap_nanos <= max_delay.as_nanos(), which fits in the
+        // Duration range, so this conversion cannot itself overflow.
+        Duration::from_nanos(scaled_nanos.min(u64::MAX as u128) as u64).min(self.max_delay)
     }
 }
 
