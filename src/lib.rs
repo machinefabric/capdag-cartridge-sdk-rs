@@ -10,6 +10,7 @@
 
 pub mod llm;
 pub mod net_retry;
+pub mod pages;
 pub mod prompt;
 
 pub use capdag::*;
