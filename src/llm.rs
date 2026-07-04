@@ -137,7 +137,10 @@ impl LlmGenerationRequest {
             constraint: None,
             chat_template: None,
             stop_sequences: None,
-            max_context_length: Some(4096),
+            // 0 = auto-size the context to prompt + max_tokens, capped
+            // at the model's trained context (the new regime — see
+            // docs/cartridge-flexibility-audit.md).
+            max_context_length: Some(0),
             batch_size: Some(2048),
             rope_freq_base: Some(10000.0),
             rope_freq_scale: Some(1.0),
