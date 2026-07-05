@@ -10,6 +10,13 @@ license = "MIT"
 capdag = { path = "../capdag" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+# Structured-query registry (structured_queries): Tera renders the prompt +
+# dynamic-schema templates; anyhow is the shared error type across the SDK
+# (machfab converts via its From<anyhow::Error>); tracing carries the
+# registry's load diagnostics.
+anyhow = "1.0"
+tera = "1"
+tracing = "0.1"
 # Network-retry primitive (net_retry): operates directly on reqwest types so
 # every cartridge shares one definition of "transient vs permanent" and one
 # backoff policy. tokio supplies the async sleep between attempts; fastrand

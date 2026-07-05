@@ -12,7 +12,12 @@ pub mod llm;
 pub mod net_retry;
 pub mod pages;
 pub mod prompt;
+pub mod structured_queries;
 
 pub use capdag::*;
+pub use structured_queries::{
+    StructuredQuery, StructuredQueryBuilder, StructuredQueryRegistry, MakeDecisionResult,
+    MakeMultipleDecisionsResult, DecisionItem,
+};
 
 pub use serde_json::Value as JsonValue;
