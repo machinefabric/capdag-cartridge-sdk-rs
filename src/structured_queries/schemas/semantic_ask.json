@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "answer": { "type": "string" },
+    "answer": { "type": "string", "maxLength": 4000 },
     "quotes": {
       "type": "array",
       "maxItems": 5,

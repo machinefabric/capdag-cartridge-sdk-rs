@@ -490,6 +490,28 @@ mod tests {
         assert_eq!(query.prompt_template, "Analyze: {content}");
     }
 
+    /// Every prose-output query bounds its free-text string field with a `maxLength`,
+    /// so grammar-constrained generation always closes the JSON object instead of being
+    /// truncated mid-string when the token budget is reached. This is the schema-side
+    /// half of the summarize/ask truncation fix — without the bound the model can run a
+    /// field to the token cap, leaving an unterminated JSON that fails to parse.
+    #[test]
+    fn test0231_prose_schemas_bound_their_text_fields() {
+        let registry = StructuredQueryRegistry::new();
+        for (query_name, field) in [("semantic_summarize", "summary"), ("semantic_ask", "answer")] {
+            let query = registry
+                .query(query_name)
+                .unwrap_or_else(|e| panic!("query {query_name}: {e}"));
+            let max_len = query.output_schema["properties"][field]["maxLength"].as_u64();
+            assert!(
+                matches!(max_len, Some(n) if n > 0),
+                "{query_name}.{field} must declare a positive maxLength so constrained \
+                 generation completes the JSON; got {:?}",
+                query.output_schema["properties"][field].get("maxLength"),
+            );
+        }
+    }
+
     /// Test Tera template rendering with variable substitution
     /// Validates that prompt templates render correctly with provided substitutions
     #[test]
