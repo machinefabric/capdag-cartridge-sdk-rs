@@ -540,7 +540,7 @@ mod tests {
     /// Test StructuredQueryRegistry loading and query retrieval operations
     /// Validates that registry loads queries from embedded files and provides access
     #[test]
-    fn test0231_registry_operations() {
+    fn test0228_registry_operations() {
         let registry = StructuredQueryRegistry::new();
 
         // Should have loaded queries from files or fallback
