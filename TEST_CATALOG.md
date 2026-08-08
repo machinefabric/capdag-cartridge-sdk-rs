@@ -10,8 +10,7 @@
 
 **Numbering Mismatches:** 0
 
-**⚠ Duplicate test numbers detected: 1 number(s) used more than once.**
-Unique numbered tests are listed first. Duplicate-number entries are grouped after them and marked with ⚠. Unnumbered tests are listed in their own group.
+All numbered test numbers are unique.
 
 This catalog lists all tests in the Rust codebase.
 
@@ -36,8 +35,10 @@ This catalog lists all tests in the Rust codebase.
 | test0060 | `test0060_index_range_grammar` | TEST0060: full grammar — singles, ranges, open ranges, comma lists, written order preserved, duplicates dropped on first occurrence. | src/pages.rs:123 |
 | test0061 | `test0061_index_range_clamps_past_end` | TEST0061: over-long ranges clamp to the document instead of erroring (the old pdf parser hard-errored on `1-100` of a 10-page doc). | src/pages.rs:143 |
 | test0062 | `test0062_index_range_hard_errors` | TEST0062: genuinely impossible selections stay hard errors with actionable messages. | src/pages.rs:156 |
+| test0228 | `test0228_registry_operations` | / Test StructuredQueryRegistry loading and query retrieval operations / Validates that registry loads queries from embedded files and provides access | src/structured_queries/mod.rs:543 |
 | test0229 | `test0229_structured_query_creation` | / Test basic StructuredQuery creation with name, description, prompt template, and schema / Validates that all fields are properly initialized and accessible | src/structured_queries/mod.rs:474 |
 | test0230 | `test0230_prompt_generation` | / Test Tera template rendering with variable substitution / Validates that prompt templates render correctly with provided substitutions | src/structured_queries/mod.rs:518 |
+| test0231 | `test0231_prose_schemas_bound_their_text_fields` | / Every prose-output query bounds its free-text string field with a `maxLength`, / so grammar-constrained generation always closes the JSON object instead of being / truncated mid-string when the token budget is reached. This is the schema-side / half of the summarize/ask truncation fix — without the bound the model can run a / field to the token cap, leaving an unterminated JSON that fails to parse. | src/structured_queries/mod.rs:499 |
 | test0232 | `test0232_query_builder` | / Test StructuredQueryBuilder pattern for fluent query creation / Validates that builder pattern works correctly with method chaining and metadata | src/structured_queries/mod.rs:562 |
 | test0233 | `test0233_output_validation` | / Test JSON schema validation against query outputs / Validates that LLM outputs are properly validated against expected schemas | src/structured_queries/mod.rs:579 |
 | test0234 | `test0234_make_decision_query_type` | / Test specific make_decision query loading and validation / Validates that binary choice queries work correctly with template rendering | src/structured_queries/mod.rs:611 |
@@ -51,23 +52,6 @@ This catalog lists all tests in the Rust codebase.
 | test8204 | `test8204_single_attempt_policy_does_not_retry` | TEST8204: max_attempts == 1 disables retrying — a transient 503 is returned immediately after a single attempt. Pins that the policy knob actually gates the loop. | src/net_retry.rs:421 |
 | test8205 | `test8205_backoff_is_exponential_and_capped` | TEST8205: backoff grows exponentially and is capped at max_delay. Pure arithmetic on the policy — no clock — so it is deterministic. | src/net_retry.rs:438 |
 | test8206 | `test8206_jitter_is_bounded` | TEST8206: jitter stays within [0, delay] and 0 maps to 0. Guards the de-correlation invariant — a jittered wait must never exceed the base. | src/net_retry.rs:457 |
-| | | | |
-| test0231 ⚠ | `test0231_prose_schemas_bound_their_text_fields` | / Every prose-output query bounds its free-text string field with a `maxLength`, / so grammar-constrained generation always closes the JSON object instead of being / truncated mid-string when the token budget is reached. This is the schema-side / half of the summarize/ask truncation fix — without the bound the model can run a / field to the token cap, leaving an unterminated JSON that fails to parse. | src/structured_queries/mod.rs:499 |
-| test0231 ⚠ | `test0231_registry_operations` | / Test StructuredQueryRegistry loading and query retrieval operations / Validates that registry loads queries from embedded files and provides access | src/structured_queries/mod.rs:543 |
-
----
-
-## ⚠ Duplicate Test Numbers
-
-The following test numbers are assigned to more than one function. Keep the first occurrence at the existing number and renumber the rest using the suggested free numbers below.
-
-### test0231 (2 occurrences)
-
-- `test0231_prose_schemas_bound_their_text_fields` — src/structured_queries/mod.rs:499
-- `test0231_registry_operations` — src/structured_queries/mod.rs:543
-
-**Suggested free number(s):** test228
-
 ---
 
 *Generated from Rust source tree*
