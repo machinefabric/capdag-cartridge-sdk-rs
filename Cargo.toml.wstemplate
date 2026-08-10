@@ -7,7 +7,7 @@ description = "Cartridge SDK for MachFab document processing tools"
 license = "MIT"
 
 [dependencies]
-capdag = { path = "../capdag" }
+capdag = { path = "../capdag/capdag-rs" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 # Structured-query registry (structured_queries): Tera renders the prompt +
