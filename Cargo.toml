@@ -1,13 +1,13 @@
 [package]
 name = "machfab-cartridge-sdk"
-version = "1.132.654"
+version = "1.133.656"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
 description = "Cartridge SDK for MachFab document processing tools"
 license = "MIT"
 
 [dependencies]
-capdag = { git = "https://github.com/machinefabric/capdag-rs", tag = "v1.681.40" }
+capdag = { git = "https://github.com/machinefabric/capdag-rs", tag = "v1.683.2" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 # Structured-query registry (structured_queries): Tera renders the prompt +
