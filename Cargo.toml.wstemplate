@@ -7,7 +7,11 @@ description = "Cartridge SDK for MachFab document processing tools"
 license = "MIT"
 
 [dependencies]
+{%- if env.MFR_LOCAL_LIBS %}
+capdag = { path = "{{ projects.capdag_rs.path_from_here }}" }
+{%- else %}
 capdag = { git = "https://github.com/machinefabric/capdag-rs", tag = "v{{ projects.capdag_rs.latest_remote_version }}" }
+{%- endif %}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 # Structured-query registry (structured_queries): Tera renders the prompt +
