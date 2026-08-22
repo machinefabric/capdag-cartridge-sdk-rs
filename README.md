@@ -25,7 +25,7 @@ let request = LlmGenerationRequest::with_defaults(
 | `net_retry` | Shared transient-network classification and bounded retry policy. |
 | `structured_queries` | Structured-query definitions, rendering, registration, and decision-result types. |
 
-The Rust API documentation beside each exported item is authoritative for fields, defaults, failure behavior, and examples. Language-neutral routing and runtime behavior belongs to the [CapDAG specification](../capdag/docs/01-overview.md).
+The Rust API documentation beside each exported item is authoritative for fields, defaults, failure behavior, and examples. Language-neutral routing and runtime behavior belongs to the [CapDAG specification](../../capdag/docs/01-overview.md).
 
 ## Verify changes
 
