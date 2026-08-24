@@ -1,7 +1,7 @@
 //! LLM Protocol Types
 //!
 //! Canonical Rust types matching the capdag media def schemas for LLM operations.
-//! These types are the single source of truth — both machfab and the LLM cartridges
+//! These types are the single source of truth — both floom-engine and the LLM cartridges
 //! serialize/deserialize against them.
 //!
 //! Media defs:
