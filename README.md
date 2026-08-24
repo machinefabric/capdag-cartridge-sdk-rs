@@ -1,4 +1,4 @@
-# MachineFabric cartridge SDK for Rust
+# CapDAG Cartridge SDK for Rust
 
 This public Rust library provides shared types and policies used by MachineFabric cartridges. It re-exports CapDAG and adds product-level data contracts that must stay identical across cartridge implementations.
 
