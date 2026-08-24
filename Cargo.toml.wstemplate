@@ -1,5 +1,5 @@
 [package]
-name = "machfab-cartridge-sdk"
+name = "capdag-cartridge-sdk"
 version = "{{ project.version }}"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
