@@ -33,7 +33,7 @@
 //! ## Usage
 //!
 //! ```no_run
-//! # use machfab_cartridge_sdk::net_retry::{retry_request, RetryPolicy};
+//! # use capdag_cartridge_sdk::net_retry::{retry_request, RetryPolicy};
 //! # async fn example(client: &reqwest::Client, url: &str) -> Result<(), Box<dyn std::error::Error>> {
 //! let response = retry_request(&RetryPolicy::default(), "resolve file size", || {
 //!     // A FRESH request every attempt — a RequestBuilder is consumed by send().

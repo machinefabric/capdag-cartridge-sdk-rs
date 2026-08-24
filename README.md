@@ -7,7 +7,7 @@ This public Rust library provides shared types and policies used by MachineFabri
 The workspace pins this crate and CapDAG together. In an external cartridge, use the released crate version required by that cartridge's target MachineFabric release.
 
 ```rust
-use machfab_cartridge_sdk::llm::LlmGenerationRequest;
+use capdag_cartridge_sdk::llm::LlmGenerationRequest;
 
 let request = LlmGenerationRequest::with_defaults(
     "Summarize this document",

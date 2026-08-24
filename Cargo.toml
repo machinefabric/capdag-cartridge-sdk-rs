@@ -1,6 +1,6 @@
 [package]
 name = "capdag-cartridge-sdk"
-version = "1.140.3"
+version = "1.141.6"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
 description = "Cartridge SDK for MachFab document processing tools"
