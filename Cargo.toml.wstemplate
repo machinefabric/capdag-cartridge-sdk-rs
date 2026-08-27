@@ -3,7 +3,7 @@ name = "capdag-cartridge-sdk"
 version = "{{ project.version }}"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
-description = "Cartridge SDK for MachFab document processing tools"
+description = "Rust cartridge SDK for CapDAG"
 license = "MIT"
 
 [dependencies]

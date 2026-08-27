@@ -1,6 +1,6 @@
-//! MachFab Cartridge SDK
+//! CapDAG Cartridge SDK
 //!
-//! Shared data types for MachFab cartridges. Canonical LLM protocol types
+//! Shared data types for CapDAG cartridges. Canonical LLM protocol types
 //! (matching the capdag media defs) live in [`llm`]. The
 //! [`prompt`] module classifies how a downloaded model wants its
 //! prompt prepared, given the dim profile that
