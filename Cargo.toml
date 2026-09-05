@@ -1,6 +1,6 @@
 [package]
 name = "capdag-cartridge-sdk"
-version = "1.181.68"
+version = "1.182.70"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
 description = "Rust cartridge SDK for CapDAG"
