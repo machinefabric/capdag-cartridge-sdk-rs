@@ -1,13 +1,13 @@
 [package]
 name = "capdag-cartridge-sdk"
-version = "1.182.70"
+version = "1.183.72"
 edition = "2021"
 authors = ["https://github.com/machinefabric"]
 description = "Rust cartridge SDK for CapDAG"
 license = "MIT"
 
 [dependencies]
-capdag = { git = "https://github.com/machinefabric/capdag-rs", tag = "v1.710.0" }
+capdag = { path = "../../capdag/capdag-rs" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 # Structured-query registry (structured_queries): Tera renders the prompt +
